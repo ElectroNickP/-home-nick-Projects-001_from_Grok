@@ -32,7 +32,7 @@ else
 fi
 
 # Подтверждение установки
-echo -e "${YELLOW}Готовимся установить Telegram GPT Bot. Продолжить? (y/n)${NC}"
+echo -e "${YELLOW}Готовимся установить Telegram GPT Bot с диалогами. Продолжить? (y/n)${NC}"
 read -r confirm
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
     error "Установка отменена пользователем."
@@ -79,7 +79,7 @@ bot_configs.json
 nohup.out
 EOF
 
-# Создание server_and_bot.py
+# Создание server_and_bot.py с поддержкой диалогов
 step 7 "Создание основного скрипта server_and_bot.py..."
 cat << 'EOF' > server_and_bot.py
 #!/usr/bin/env python3
@@ -101,6 +101,7 @@ from aiogram.client.bot import DefaultBotProperties
 # Глобальные блокировки
 OPENAI_LOCK = threading.Lock()
 BOT_CONFIGS_LOCK = threading.Lock()
+CONVERSATIONS_LOCK = threading.Lock()
 
 # Настройка логирования
 logging.basicConfig(
@@ -130,7 +131,7 @@ def verify_password(username, password):
 # Глобальные структуры
 BOT_CONFIGS = {}
 NEXT_BOT_ID = 1
-CONVERSATIONS = {}
+CONVERSATIONS = {}  # Хранит thread_id и сообщения для каждого conversation_key
 CONFIG_FILE = "bot_configs.json"
 
 def load_configs():
@@ -189,11 +190,11 @@ async def ask_openai(prompt, config, conversation_key):
             prev_key = openai.api_key if hasattr(openai, 'api_key') else None
             openai.api_key = config["openai_api_key"]
             if conversation_key in CONVERSATIONS:
-                thread_id = CONVERSATIONS[conversation_key]
+                thread_id = CONVERSATIONS[conversation_key]["thread_id"]
             else:
                 thread_resp = openai.beta.threads.create()
                 thread_id = thread_resp.id
-                CONVERSATIONS[conversation_key] = thread_id
+                CONVERSATIONS[conversation_key] = {"thread_id": thread_id, "messages": []}
             openai.beta.threads.messages.create(thread_id=thread_id, role="user", content=prompt)
             run_resp = openai.beta.threads.runs.create(thread_id=thread_id, assistant_id=config["assistant_id"])
         start_time = time.time()
@@ -210,6 +211,12 @@ async def ask_openai(prompt, config, conversation_key):
             messages = openai.beta.threads.messages.list(thread_id=thread_id).data
             if prev_key is not None:
                 openai.api_key = prev_key
+        # Сохраняем сообщения
+        with CONVERSATIONS_LOCK:
+            CONVERSATIONS[conversation_key]["messages"] = [
+                {"role": msg.role, "content": msg.content[0].text.value, "timestamp": msg.created_at}
+                for msg in messages
+            ]
         return messages[0].content[0].text.value
     except Exception as e:
         logger.exception("Ошибка в ask_openai:")
@@ -273,6 +280,7 @@ def serialize_bot_entry(bot_entry):
         "status": bot_entry["status"]
     }
 
+# Шаблон главной страницы
 MAIN_PAGE_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ru">
@@ -368,6 +376,7 @@ MAIN_PAGE_TEMPLATE = """
                         </button>
                         <button class="btn btn-sm btn-info edit-btn">Редактировать</button>
                         <button class="btn btn-sm btn-danger delete-btn">Удалить</button>
+                        <a href="/dialogs/{{ bot.id }}" class="btn btn-sm btn-primary">Диалоги</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -557,12 +566,101 @@ $(document).ready(function() {
 </html>
 """
 
+# Шаблон страницы диалогов
+DIALOGS_PAGE_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диалоги бота {{ bot_name }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .chat-container { max-height: 70vh; overflow-y: auto; border: 1px solid #ddd; padding: 15px; background: #fff; }
+        .message { margin-bottom: 15px; padding: 10px; border-radius: 5px; }
+        .message.user { background-color: #e9f7ef; text-align: right; }
+        .message.bot { background-color: #f1f1f1; text-align: left; }
+        .timestamp { font-size: 0.8em; color: #888; }
+        .dialog-list { max-height: 70vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <h1 class="mb-4">Диалоги бота: {{ bot_name }}</h1>
+    <a href="/" class="btn btn-secondary mb-3">Назад к списку ботов</a>
+
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Список диалогов</h3>
+            <div class="dialog-list list-group">
+                {% for conv_key, conv_data in conversations.items() %}
+                <a href="/dialogs/{{ bot_id }}?conv_key={{ conv_key }}" class="list-group-item list-group-item-action {% if selected_conv_key == conv_key %}active{% endif %}">
+                    Диалог с пользователем {{ conv_key.split('_')[1] }} (Сообщений: {{ conv_data.messages|length }})
+                </a>
+                {% endfor %}
+                {% if conversations|length == 0 %}
+                <p class="text-muted">Диалогов пока нет.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-8">
+            <h3>Выбранный диалог</h3>
+            <div class="chat-container">
+                {% if selected_conv_key %}
+                {% for msg in selected_conversation %}
+                <div class="message {% if msg.role == 'user' %}user{% else %}bot{% endif %}">
+                    <div>{{ msg.content }}</div>
+                    <div class="timestamp">{{ msg.timestamp }}</div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted">Выберите диалог из списка слева.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+"""
+
 @app.route("/")
 @auth.login_required
 def index_page():
     with BOT_CONFIGS_LOCK:
         bots_list = list(BOT_CONFIGS.values())
     return render_template_string(MAIN_PAGE_TEMPLATE, bots=bots_list)
+
+@app.route("/dialogs/<int:bot_id>")
+@auth.login_required
+def dialogs_page(bot_id):
+    with BOT_CONFIGS_LOCK:
+        if bot_id not in BOT_CONFIGS:
+            return jsonify({"error": "Бот не найден"}), 404
+        bot = BOT_CONFIGS[bot_id]
+        bot_name = bot["config"]["bot_name"]
+        telegram_token = bot["config"]["telegram_token"]
+
+    # Фильтруем диалоги только для этого бота
+    with CONVERSATIONS_LOCK:
+        bot_conversations = {
+            key: value for key, value in CONVERSATIONS.items()
+            if key.startswith(telegram_token + "_")
+        }
+        selected_conv_key = request.args.get("conv_key", None)
+        selected_conversation = bot_conversations.get(selected_conv_key, {}).get("messages", []) if selected_conv_key else []
+
+    return render_template_string(
+        DIALOGS_PAGE_TEMPLATE,
+        bot_id=bot_id,
+        bot_name=bot_name,
+        conversations=bot_conversations,
+        selected_conv_key=selected_conv_key,
+        selected_conversation=selected_conversation
+    )
 
 @app.route("/api/bots", methods=["GET"])
 @auth.login_required
