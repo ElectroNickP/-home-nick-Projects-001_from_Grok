@@ -1,33 +1,62 @@
 #!/bin/bash
 set -e
 
+# Цвета для вывода
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Функция для вывода шагов
+step() {
+    echo -e "${GREEN}>>> Шаг $1: $2${NC}"
+}
+
+# Функция для ошибок
+error() {
+    echo -e "${RED}✘ Ошибка: $1${NC}" >&2
+    exit 1
+}
+
+# Функция для предупреждений
+warn() {
+    echo -e "${YELLOW}⚠ Внимание: $1${NC}"
+}
+
 # Проверка пользователя
-echo ">>> Проверка пользователя..."
+step 1 "Проверка текущего пользователя..."
 if [ "$USER" = "root" ]; then
-    echo "Запуск от root, файлы будут принадлежать root"
+    warn "Скрипт запущен от root. Файлы будут принадлежать root."
 else
-    echo "Запуск от пользователя $USER"
+    echo "Запуск от пользователя: $USER"
+fi
+
+# Подтверждение установки
+echo -e "${YELLOW}Готовимся установить Telegram GPT Bot. Продолжить? (y/n)${NC}"
+read -r confirm
+if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+    error "Установка отменена пользователем."
 fi
 
 # Обновление пакетов и установка зависимостей
-echo ">>> Обновление списка пакетов и установка системных зависимостей..."
-sudo apt update
-sudo apt install -y python3 python3-pip python3-venv ffmpeg git
+step 2 "Обновление пакетов и установка зависимостей..."
+sudo apt update || error "Не удалось обновить список пакетов."
+sudo apt install -y python3 python3-pip python3-venv ffmpeg git || error "Не удалось установить зависимости."
 
 # Установка рабочей директории
 PROJECT_DIR="/opt/telegram_gpt_bot"
-echo ">>> Создание директории проекта: $PROJECT_DIR"
-sudo mkdir -p "$PROJECT_DIR"
-sudo chown "$USER:$USER" "$PROJECT_DIR"
-cd "$PROJECT_DIR"
+step 3 "Создание директории проекта: $PROJECT_DIR"
+sudo mkdir -p "$PROJECT_DIR" || error "Не удалось создать директорию $PROJECT_DIR."
+sudo chown "$USER:$USER" "$PROJECT_DIR" || error "Не удалось изменить владельца директории."
+cd "$PROJECT_DIR" || error "Не удалось перейти в директорию $PROJECT_DIR."
 
 # Создание виртуального окружения
-echo ">>> Создание виртуального окружения..."
-python3 -m venv bot_env
-source bot_env/bin/activate
+step 4 "Создание виртуального окружения..."
+python3 -m venv bot_env || error "Не удалось создать виртуальное окружение."
+source bot_env/bin/activate || error "Не удалось активировать виртуальное окружение."
 
 # Установка Python-зависимостей
-echo ">>> Обновление pip и установка Python-зависимостей..."
+step 5 "Установка Python-зависимостей..."
 cat << 'EOF' > requirements.txt
 openai
 aiogram
@@ -36,11 +65,11 @@ pydub
 flask
 flask_httpauth
 EOF
-pip install --upgrade pip
-pip install -r requirements.txt
+pip install --upgrade pip || error "Не удалось обновить pip."
+pip install -r requirements.txt || error "Не удалось установить зависимости из requirements.txt."
 
 # Создание .gitignore
-echo ">>> Создание .gitignore..."
+step 6 "Создание .gitignore..."
 cat << 'EOF' > .gitignore
 .env
 __pycache__/
@@ -51,7 +80,7 @@ nohup.out
 EOF
 
 # Создание server_and_bot.py
-echo ">>> Создание server_and_bot.py с улучшениями..."
+step 7 "Создание основного скрипта server_and_bot.py..."
 cat << 'EOF' > server_and_bot.py
 #!/usr/bin/env python3
 import os
@@ -124,7 +153,6 @@ def save_configs_async():
     """Асинхронно сохраняет конфигурации в файл"""
     def save_task():
         try:
-            # Проверка свободного места на диске
             statvfs = os.statvfs('/')
             free_space = statvfs.f_bavail * statvfs.f_frsize
             if free_space < 1024 * 1024:  # Меньше 1 МБ
@@ -150,7 +178,7 @@ def save_configs_async():
 
     thread = threading.Thread(target=save_task, daemon=True)
     thread.start()
-    thread.join(timeout=5)  # Ждем 5 секунд
+    thread.join(timeout=5)
     if thread.is_alive():
         logger.error("Таймаут записи конфигураций, процесс завис")
         raise TimeoutError("Таймаут записи конфигураций")
@@ -250,111 +278,150 @@ MAIN_PAGE_TEMPLATE = """
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление Telegram ботами</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .status-running { color: green; font-weight: bold; }
+        .status-stopped { color: red; font-weight: bold; }
+        .spinner { display: none; }
+        .table-responsive { max-height: 60vh; overflow-y: auto; }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1 class="mt-4">Управление Telegram ботами</h1>
-    <div class="card mt-4">
+<div class="container py-4">
+    <h1 class="mb-4">Управление Telegram ботами</h1>
+    <div class="alert alert-warning" role="alert">
+        ⚠ Внимание: Измените логин и пароль в server_and_bot.py (раздел USERS) для безопасности!
+    </div>
+
+    <div class="card mb-4">
         <div class="card-header">Добавить нового бота</div>
         <div class="card-body">
             <form id="createBotForm">
-                <div class="form-group">
-                    <label for="bot_name">Название бота</label>
-                    <input type="text" class="form-control" id="bot_name" required>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="bot_name" class="form-label">Название бота</label>
+                        <input type="text" class="form-control" id="bot_name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="telegram_token" class="form-label">Telegram Token</label>
+                        <input type="text" class="form-control" id="telegram_token" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="openai_api_key" class="form-label">OpenAI API Key</label>
+                        <input type="text" class="form-control" id="openai_api_key" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="assistant_id" class="form-label">Assistant ID</label>
+                        <input type="text" class="form-control" id="assistant_id" required>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary" id="createBtn">
+                            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+                            Создать бота
+                        </button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="telegram_token">Telegram Token</label>
-                    <input type="text" class="form-control" id="telegram_token" required>
-                </div>
-                <div class="form-group">
-                    <label for="openai_api_key">OpenAI API Key</label>
-                    <input type="text" class="form-control" id="openai_api_key" required>
-                </div>
-                <div class="form-group">
-                    <label for="assistant_id">Assistant ID</label>
-                    <input type="text" class="form-control" id="assistant_id" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Создать бота</button>
             </form>
         </div>
     </div>
-    <h2 class="mt-4">Список ботов</h2>
-    <table class="table table-bordered" id="botsTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Название</th>
-                <th>Telegram Token</th>
-                <th>OpenAI API Key</th>
-                <th>Assistant ID</th>
-                <th>Статус</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for bot in bots %}
-            <tr data-bot-id="{{ bot.id }}">
-                <td>{{ bot.id }}</td>
-                <td><span class="bot-name">{{ bot.config.bot_name }}</span></td>
-                <td><span class="bot-token">{{ bot.config.telegram_token }}</span></td>
-                <td><span class="bot-openai">{{ bot.config.openai_api_key }}</span></td>
-                <td><span class="bot-assistant">{{ bot.config.assistant_id }}</span></td>
-                <td class="bot-status">{{ bot.status }}</td>
-                <td>
-                    <button class="btn btn-sm btn-success start-btn">Старт</button>
-                    <button class="btn btn-sm btn-warning stop-btn">Стоп</button>
-                    <button class="btn btn-sm btn-info edit-btn">Редактировать</button>
-                    <button class="btn btn-sm btn-danger delete-btn">Удалить</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
 
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editModalLabel">Редактировать бота</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="editBotForm">
-            <input type="hidden" id="edit_bot_id">
-            <div class="form-group">
-                <label for="edit_bot_name">Название бота</label>
-                <input type="text" class="form-control" id="edit_bot_name" required>
-            </div>
-            <div class="form-group">
-                <label for="edit_telegram_token">Telegram Token</label>
-                <input type="text" class="form-control" id="edit_telegram_token" required>
-            </div>
-            <div class="form-group">
-                <label for="edit_openai_api_key">OpenAI API Key</label>
-                <input type="text" class="form-control" id="edit_openai_api_key" required>
-            </div>
-            <div class="form-group">
-                <label for="edit_assistant_id">Assistant ID</label>
-                <input type="text" class="form-control" id="edit_assistant_id" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-        </form>
-      </div>
+    <div class="mb-3">
+        <input type="text" class="form-control" id="searchBots" placeholder="Поиск по названию бота...">
     </div>
-  </div>
+
+    <h2 class="mb-3">Список ботов</h2>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="botsTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Telegram Token</th>
+                    <th>OpenAI API Key</th>
+                    <th>Assistant ID</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bot in bots %}
+                <tr data-bot-id="{{ bot.id }}">
+                    <td>{{ bot.id }}</td>
+                    <td class="bot-name">{{ bot.config.bot_name }}</td>
+                    <td class="bot-token text-break">{{ bot.config.telegram_token }}</td>
+                    <td class="bot-openai text-break">{{ bot.config.openai_api_key }}</td>
+                    <td class="bot-assistant">{{ bot.config.assistant_id }}</td>
+                    <td class="bot-status {% if bot.status == 'running' %}status-running{% else %}status-stopped{% endif %}">
+                        {{ bot.status }}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-success start-btn" {% if bot.status == 'running' %}disabled{% endif %}>
+                            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+                            Старт
+                        </button>
+                        <button class="btn btn-sm btn-warning stop-btn" {% if bot.status != 'running' %}disabled{% endif %}>
+                            <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+                            Стоп
+                        </button>
+                        <button class="btn btn-sm btn-info edit-btn">Редактировать</button>
+                        <button class="btn btn-sm btn-danger delete-btn">Удалить</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">Редактировать бота</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editBotForm">
+                    <input type="hidden" id="edit_bot_id">
+                    <div class="mb-3">
+                        <label for="edit_bot_name" class="form-label">Название бота</label>
+                        <input type="text" class="form-control" id="edit_bot_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_telegram_token" class="form-label">Telegram Token</label>
+                        <input type="text" class="form-control" id="edit_telegram_token" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_openai_api_key" class="form-label">OpenAI API Key</label>
+                        <input type="text" class="form-control" id="edit_openai_api_key" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_assistant_id" class="form-label">Assistant ID</label>
+                        <input type="text" class="form-control" id="edit_assistant_id" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="saveEditBtn">
+                        <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true"></span>
+                        Сохранить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 $(document).ready(function() {
+    function showSpinner(btn) { $(btn).find('.spinner').show(); $(btn).prop('disabled', true); }
+    function hideSpinner(btn) { $(btn).find('.spinner').hide(); $(btn).prop('disabled', false); }
+
     $("#createBotForm").submit(function(e) {
         e.preventDefault();
+        showSpinner('#createBtn');
         var data = {
             bot_name: $("#bot_name").val(),
             telegram_token: $("#telegram_token").val(),
@@ -367,20 +434,21 @@ $(document).ready(function() {
             contentType: "application/json",
             data: JSON.stringify(data),
             success: function(response) {
+                hideSpinner('#createBtn');
                 alert("Бот успешно создан!");
                 location.reload();
             },
             error: function(xhr) {
-                var errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "Неизвестная ошибка";
-                alert("Ошибка при создании бота: " + errorMsg);
+                hideSpinner('#createBtn');
+                var errorMsg = xhr.responseJSON?.error || "Неизвестная ошибка";
+                alert("Ошибка: " + errorMsg);
             }
         });
     });
 
     $(".edit-btn").click(function() {
         var row = $(this).closest("tr");
-        var botId = row.data("bot-id");
-        $("#edit_bot_id").val(botId);
+        $("#edit_bot_id").val(row.data("bot-id"));
         $("#edit_bot_name").val(row.find(".bot-name").text());
         $("#edit_telegram_token").val(row.find(".bot-token").text());
         $("#edit_openai_api_key").val(row.find(".bot-openai").text());
@@ -390,6 +458,7 @@ $(document).ready(function() {
 
     $("#editBotForm").submit(function(e) {
         e.preventDefault();
+        showSpinner('#saveEditBtn');
         var botId = $("#edit_bot_id").val();
         var data = {
             bot_name: $("#edit_bot_name").val(),
@@ -403,13 +472,15 @@ $(document).ready(function() {
             contentType: "application/json",
             data: JSON.stringify(data),
             success: function(response) {
+                hideSpinner('#saveEditBtn');
                 $("#editModal").modal("hide");
                 alert("Бот успешно обновлен!");
                 location.reload();
             },
             error: function(xhr) {
-                var errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "Неизвестная ошибка";
-                alert("Ошибка при редактировании бота: " + errorMsg);
+                hideSpinner('#saveEditBtn');
+                var errorMsg = xhr.responseJSON?.error || "Неизвестная ошибка";
+                alert("Ошибка: " + errorMsg);
             }
         });
     });
@@ -421,48 +492,63 @@ $(document).ready(function() {
         $.ajax({
             url: "/api/bots/" + botId,
             method: "DELETE",
-            success: function(response) {
+            success: function() {
                 alert("Бот успешно удален!");
                 location.reload();
             },
             error: function(xhr) {
-                var errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "Неизвестная ошибка";
-                alert("Ошибка при удалении бота: " + errorMsg);
+                var errorMsg = xhr.responseJSON?.error || "Неизвестная ошибка";
+                alert("Ошибка: " + errorMsg);
             }
         });
     });
 
     $(".start-btn").click(function() {
+        var btn = this;
+        showSpinner(btn);
         var row = $(this).closest("tr");
         var botId = row.data("bot-id");
         $.ajax({
             url: "/api/bots/" + botId + "/start",
             method: "POST",
-            success: function(response) {
+            success: function() {
+                hideSpinner(btn);
                 alert("Бот успешно запущен!");
                 location.reload();
             },
             error: function(xhr) {
-                var errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "Неизвестная ошибка";
-                alert("Ошибка при запуске бота: " + errorMsg);
+                hideSpinner(btn);
+                var errorMsg = xhr.responseJSON?.error || "Неизвестная ошибка";
+                alert("Ошибка: " + errorMsg);
             }
         });
     });
 
     $(".stop-btn").click(function() {
+        var btn = this;
+        showSpinner(btn);
         var row = $(this).closest("tr");
         var botId = row.data("bot-id");
         $.ajax({
             url: "/api/bots/" + botId + "/stop",
             method: "POST",
-            success: function(response) {
+            success: function() {
+                hideSpinner(btn);
                 alert("Бот успешно остановлен!");
                 location.reload();
             },
             error: function(xhr) {
-                var errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "Неизвестная ошибка";
-                alert("Ошибка при остановке бота: " + errorMsg);
+                hideSpinner(btn);
+                var errorMsg = xhr.responseJSON?.error || "Неизвестная ошибка";
+                alert("Ошибка: " + errorMsg);
             }
+        });
+    });
+
+    $("#searchBots").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#botsTable tbody tr").filter(function() {
+            $(this).toggle($(this).find(".bot-name").text().toLowerCase().indexOf(value) > -1);
         });
     });
 });
@@ -515,7 +601,7 @@ def create_bot():
             }
             BOT_CONFIGS[bot_id] = bot_entry
             logger.debug(f"Бот {bot_id} добавлен в BOT_CONFIGS")
-        save_configs_async()  # Асинхронное сохранение
+        save_configs_async()
         logger.info(f"Бот {bot_id} успешно создан")
         logger.debug("Блокировка BOT_CONFIGS_LOCK освобождена после добавления")
         return jsonify(serialize_bot_entry(bot_entry)), 201
@@ -632,10 +718,10 @@ if __name__ == '__main__':
     logger.info("Запуск Flask-сервера на http://0.0.0.0:5000 с внешним доступом")
     app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
 EOF
-
 chmod +x server_and_bot.py
 
-echo ">>> Создание systemd-сервиса..."
+# Создание systemd-сервиса
+step 8 "Создание systemd-сервиса..."
 sudo bash -c "cat <<EOF > /etc/systemd/system/telegram-gpt-bot.service
 [Unit]
 Description=Telegram GPT Bot Service
@@ -650,15 +736,20 @@ Environment=PATH=$PROJECT_DIR/bot_env/bin:/usr/local/bin:/usr/bin:/bin
 
 [Install]
 WantedBy=multi-user.target
-EOF"
+EOF" || error "Не удалось создать systemd-сервис."
 
-echo ">>> Активация и запуск сервиса..."
-sudo systemctl daemon-reload
-sudo systemctl enable telegram-gpt-bot.service
-sudo systemctl start telegram-gpt-bot.service
+# Активация и запуск сервиса
+step 9 "Активация и запуск сервиса..."
+sudo systemctl daemon-reload || error "Не удалось перезагрузить конфигурацию systemd."
+sudo systemctl enable telegram-gpt-bot.service || error "Не удалось включить сервис."
+sudo systemctl start telegram-gpt-bot.service || error "Не удалось запустить сервис."
 
-echo ">>> Проверка статуса сервиса..."
-sudo systemctl status telegram-gpt-bot.service
+# Проверка статуса
+step 10 "Проверка статуса сервиса..."
+sudo systemctl status telegram-gpt-bot.service --no-pager -l
 
-echo ">>> Готово! Сервер доступен на http://<ваш_IP>:5000 с авторизацией (логин: admin, пароль: securepassword123)."
-echo ">>> Измените логин и пароль в server_and_bot.py в разделе USERS."
+# Финальное сообщение
+echo -e "${GREEN}✔ Установка завершена успешно!${NC}"
+echo "Сервер доступен по адресу: http://<ваш_IP>:5000"
+echo "Логин: admin | Пароль: securepassword123"
+echo -e "${YELLOW}Рекомендация: Измените логин и пароль в server_and_bot.py в разделе USERS для безопасности.${NC}"
