@@ -67,57 +67,77 @@ async def ask_openai(prompt, config, conversation_key):
         return f"❌ Ошибка: {e}"
 
 async def aiogram_bot(config, stop_event):
-    """Основная функция запуска бота aiogram."""
+    """Основная функция запуска бота aiogram с поддержкой групп."""
     bot = Bot(token=config["telegram_token"], default=DefaultBotProperties(parse_mode="HTML"))
     dp = Dispatcher()
+    bot_user = await bot.get_me()
+    bot_username = bot_user.username
+    logger.info(f"Бот {bot_username} запущен.")
 
     @dp.message(Command(commands=["start"]))
     async def cmd_start(message: types.Message):
-        text = f"👋 Привет! Я бот {config.get('bot_name', '')}. Напиши или отправь голосовое сообщение."
+        text = (f"👋 Привет! Я бот {config.get('bot_name', '')}. "
+                f"В личных сообщениях я отвечаю на всё. "
+                f"В группах — когда вы упоминаете меня (@{bot_username}) или отвечаете на мои сообщения.")
         await message.answer(text)
 
-    @dp.message(types.ContentType.VOICE)
-    async def handle_voice_message(message: types.Message):
-        """Обрабатывает голосовые сообщения."""
-        voice_file_id = message.voice.file_id
-        file_info = await bot.get_file(voice_file_id)
-        file_path = file_info.file_path
+    @dp.message(types.ContentType.TEXT, types.ContentType.VOICE)
+    async def handle_group_message(message: types.Message):
+        """Обрабатывает текстовые и голосовые сообщения в ЛС и группах."""
 
-        ogg_filename = f"{voice_file_id}.ogg"
-        mp3_filename = f"{voice_file_id}.mp3"
+        # 1. Определяем, должен ли бот реагировать
+        should_process = False
+        text_content = message.text or message.caption or ""
 
-        await bot.download_file(file_path, ogg_filename)
+        if message.chat.type == 'private':
+            should_process = True
+        elif message.reply_to_message and message.reply_to_message.from_user.id == bot.id:
+            should_process = True
+        elif f"@{bot_username}" in text_content:
+            should_process = True
 
-        try:
-            audio = AudioSegment.from_ogg(ogg_filename)
-            audio.export(mp3_filename, format="mp3")
+        if not should_process:
+            return  # Игнорируем сообщение
 
-            with OPENAI_LOCK:
-                openai.api_key = config["openai_api_key"]
-                transcribed_text = await transcribe_audio(mp3_filename)
+        # 2. Определяем ключ диалога (личный или групповой)
+        if message.chat.type == 'private':
+            conversation_key = f"{config['telegram_token']}_{message.from_user.id}"
+        else:
+            conversation_key = f"{config['telegram_token']}_{message.chat.id}"
 
-            if transcribed_text:
-                await message.reply(f"<i>Транскрибация: \"{transcribed_text}\"</i>")
-                conversation_key = f"{config['telegram_token']}_{message.from_user.id}"
-                response = await ask_openai(transcribed_text, config, conversation_key)
-                await message.answer(response)
-            else:
-                await message.answer("Не удалось распознать речь в голосовом сообщении.")
-        except Exception as e:
-            logger.error(f"Ошибка обработки голосового сообщения: {e}")
-            await message.answer("Произошла ошибка при обработке вашего голосового сообщения.")
-        finally:
-            if os.path.exists(ogg_filename):
-                os.remove(ogg_filename)
-            if os.path.exists(mp3_filename):
-                os.remove(mp3_filename)
+        # 3. Получаем текст от пользователя (из текста или голоса)
+        user_prompt = ""
+        if message.voice:
+            voice_file_id = message.voice.file_id
+            file_info = await bot.get_file(voice_file_id)
+            ogg_filename = f"{voice_file_id}.ogg"
+            mp3_filename = f"{voice_file_id}.mp3"
+            await bot.download_file(file_info.file_path, ogg_filename)
+            try:
+                audio = AudioSegment.from_ogg(ogg_filename)
+                audio.export(mp3_filename, format="mp3")
+                with OPENAI_LOCK:
+                    openai.api_key = config["openai_api_key"]
+                    transcribed_text = await transcribe_audio(mp3_filename)
+                if transcribed_text:
+                    await message.reply(f"<i>Транскрибация: \"{transcribed_text}\"</i>")
+                    user_prompt = transcribed_text
+            finally:
+                if os.path.exists(ogg_filename): os.remove(ogg_filename)
+                if os.path.exists(mp3_filename): os.remove(mp3_filename)
+        else: # message.text
+            user_prompt = message.text
 
-    @dp.message()
-    async def handle_text_message(message: types.Message):
-        """Обрабатывает текстовые сообщения."""
-        conversation_key = f"{config['telegram_token']}_{message.from_user.id}"
-        response = await ask_openai(message.text, config, conversation_key)
-        await message.answer(response)
+        # Убираем упоминание бота из запроса
+        cleaned_prompt = user_prompt.replace(f"@{bot_username}", "").strip()
+
+        if not cleaned_prompt:
+            await message.reply("Я вас слушаю. Задайте свой вопрос или дайте команду.")
+            return
+
+        # 4. Отправляем в OpenAI и отвечаем пользователю
+        response = await ask_openai(cleaned_prompt, config, conversation_key)
+        await message.reply(response)
 
     logger.info(f"Запуск Telegram-бота {config.get('bot_name', '')}...")
     try:
