@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление Telegram ботами</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .status-running { color: green; font-weight: bold; }
+        .status-stopped { color: red; font-weight: bold; }
+        .spinner { display: none; }
+        .table-responsive { max-height: 60vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <h1 class="mb-4">Управление Telegram ботами</h1>
+    <div class="alert alert-warning" role="alert">
+        ⚠ Внимание: Измените логин и пароль в src/app.py (раздел USERS) для безопасности!
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">Добавить нового бота</div>
+        <div class="card-body">
+            <form id="createBotForm">
+                <div class="row g-3">
+                    <div class="col-md-6"><input type="text" class="form-control" id="bot_name" placeholder="Название бота" required></div>
+                    <div class="col-md-6"><input type="text" class="form-control" id="telegram_token" placeholder="Telegram Token" required></div>
+                    <div class="col-md-6"><input type="text" class="form-control" id="openai_api_key" placeholder="OpenAI API Key" required></div>
+                    <div class="col-md-6"><input type="text" class="form-control" id="assistant_id" placeholder="Assistant ID" required></div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary" id="createBtn">
+                            <span class="spinner-border spinner-border-sm spinner" role="status"></span> Создать
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <input type="text" class="form-control mb-3" id="searchBots" placeholder="Поиск по названию...">
+
+    <h2 class="mb-3">Список ботов</h2>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="botsTable">
+            <thead class="table-dark">
+                <tr><th>ID</th><th>Название</th><th>Token</th><th>OpenAI Key</th><th>Assistant ID</th><th>Статус</th><th>Действия</th></tr>
+            </thead>
+            <tbody>
+                {% for bot in bots %}
+                <tr data-bot-id="{{ bot.id }}">
+                    <td>{{ bot.id }}</td>
+                    <td class="bot-name">{{ bot.config.bot_name }}</td>
+                    <td class="bot-token text-break">{{ bot.config.telegram_token }}</td>
+                    <td class="bot-openai text-break">{{ bot.config.openai_api_key }}</td>
+                    <td class="bot-assistant">{{ bot.config.assistant_id }}</td>
+                    <td class="bot-status {% if bot.status == 'running' %}status-running{% else %}status-stopped{% endif %}">{{ bot.status }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-success start-btn" {% if bot.status == 'running' %}disabled{% endif %}>Старт</button>
+                        <button class="btn btn-sm btn-warning stop-btn" {% if bot.status != 'running' %}disabled{% endif %}>Стоп</button>
+                        <button class="btn btn-sm btn-info edit-btn">Править</button>
+                        <button class="btn btn-sm btn-danger delete-btn">Удалить</button>
+                        <a href="/dialogs/{{ bot.id }}" class="btn btn-sm btn-primary">Диалоги</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Редактировать бота</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <form id="editBotForm">
+                <input type="hidden" id="edit_bot_id">
+                <div class="mb-3"><label class="form-label">Название</label><input type="text" class="form-control" id="edit_bot_name" required></div>
+                <div class="mb-3"><label class="form-label">Telegram Token</label><input type="text" class="form-control" id="edit_telegram_token" required></div>
+                <div class="mb-3"><label class="form-label">OpenAI API Key</label><input type="text" class="form-control" id="edit_openai_api_key" required></div>
+                <div class="mb-3"><label class="form-label">Assistant ID</label><input type="text" class="form-control" id="edit_assistant_id" required></div>
+                <button type="submit" class="btn btn-primary" id="saveEditBtn">Сохранить</button>
+            </form>
+        </div>
+    </div></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+$(document).ready(function() {
+    function apiCall(url, method, data, btn) {
+        if (btn) $(btn).prop('disabled', true);
+        $.ajax({
+            url: url, method: method, contentType: "application/json", data: JSON.stringify(data),
+            success: () => location.reload(),
+            error: (xhr) => {
+                alert("Ошибка: " + (xhr.responseJSON?.error || "Неизвестная ошибка"));
+                if (btn) $(btn).prop('disabled', false);
+            }
+        });
+    }
+    $("#createBotForm").submit(e => {
+        e.preventDefault();
+        apiCall("/api/bots", "POST", {
+            bot_name: $("#bot_name").val(), telegram_token: $("#telegram_token").val(),
+            openai_api_key: $("#openai_api_key").val(), assistant_id: $("#assistant_id").val()
+        }, '#createBtn');
+    });
+    $('#botsTable').on('click', '.edit-btn', function() {
+        var row = $(this).closest('tr');
+        $("#edit_bot_id").val(row.data("bot-id"));
+        $("#edit_bot_name").val(row.find(".bot-name").text());
+        $("#edit_telegram_token").val(row.find(".bot-token").text());
+        $("#edit_openai_api_key").val(row.find(".bot-openai").text());
+        $("#edit_assistant_id").val(row.find(".bot-assistant").text());
+        new bootstrap.Modal('#editModal').show();
+    });
+    $("#editBotForm").submit(e => {
+        e.preventDefault();
+        var botId = $("#edit_bot_id").val();
+        apiCall(`/api/bots/${botId}`, "PUT", {
+            bot_name: $("#edit_bot_name").val(), telegram_token: $("#edit_telegram_token").val(),
+            openai_api_key: $("#edit_openai_api_key").val(), assistant_id: $("#edit_assistant_id").val()
+        }, '#saveEditBtn');
+    });
+    $('#botsTable').on('click', '.delete-btn', function() {
+        if (confirm("Удалить бота?")) apiCall(`/api/bots/${$(this).closest('tr').data('bot-id')}`, "DELETE", null, this);
+    });
+    $('#botsTable').on('click', '.start-btn', function() { apiCall(`/api/bots/${$(this).closest('tr').data('bot-id')}/start`, "POST", null, this); });
+    $('#botsTable').on('click', '.stop-btn', function() { apiCall(`/api/bots/${$(this).closest('tr').data('bot-id')}/stop`, "POST", null, this); });
+    $("#searchBots").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#botsTable tbody tr").toggle(function() { return $(this).find(".bot-name").text().toLowerCase().indexOf(value) > -1; });
+    });
+});
+</script>
+</body></html>
