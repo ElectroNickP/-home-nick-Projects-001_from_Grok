@@ -3,7 +3,7 @@ import time
 import asyncio
 import logging
 import openai
-from pydub import AudioSegment
+import subprocess
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.client.bot import DefaultBotProperties
@@ -21,14 +21,33 @@ GROUP_MESSAGES_CACHE = {}  # {chat_id: [message_data, ...]}
 async def transcribe_audio(file_path):
     """Транскрибирует аудиофайл с помощью OpenAI Whisper."""
     try:
+        logger.info(f"🎧 Начинаю транскрибацию файла: {file_path}")
+        
+        # Проверяем существование файла
+        if not os.path.exists(file_path):
+            logger.error(f"❌ Файл для транскрибации не найден: {file_path}")
+            return None
+            
+        file_size = os.path.getsize(file_path)
+        logger.info(f"📊 Размер файла для транскрибации: {file_size} байт")
+        
+        if file_size == 0:
+            logger.error(f"❌ Файл для транскрибации пустой: {file_path}")
+            return None
+        
+        logger.info(f"📡 Отправляю файл в OpenAI Whisper API...")
         with open(file_path, "rb") as audio_file:
             transcript = await asyncio.to_thread(openai.audio.transcriptions.create,
                 model="whisper-1",
                 file=audio_file
             )
-        return transcript.text
+        
+        result_text = transcript.text
+        logger.info(f"🎯 Whisper API ответил: '{result_text}'")
+        return result_text
+        
     except Exception as e:
-        logger.error(f"Ошибка транскрибации аудио: {e}")
+        logger.error(f"❌ Ошибка транскрибации аудио: {e}")
         return None
 
 def add_message_to_cache(chat_id, message_data, limit=GROUP_CONTEXT_MESSAGES_LIMIT):
@@ -150,6 +169,8 @@ async def aiogram_bot(config, stop_event):
             should_process = True
         elif message.reply_to_message and message.reply_to_message.from_user.id == bot.id:
             should_process = True
+        elif message.voice:  # Голосовые сообщения всегда обрабатываются
+            should_process = True
         elif f"@{bot_username}" in text_content:
             should_process = True
 
@@ -165,25 +186,55 @@ async def aiogram_bot(config, stop_event):
         # 3. Получаем текст от пользователя (из текста или голоса)
         user_prompt = ""
         if message.voice:
-            voice_file_id = message.voice.file_id
-            file_info = await bot.get_file(voice_file_id)
-            ogg_filename = f"{voice_file_id}.ogg"
-            mp3_filename = f"{voice_file_id}.mp3"
-            await bot.download_file(file_info.file_path, ogg_filename)
+            logger.info(f"🎤 Получено голосовое сообщение от пользователя {message.from_user.first_name if message.from_user else 'Unknown'}")
             try:
-                audio = AudioSegment.from_ogg(ogg_filename)
-                audio.export(mp3_filename, format="mp3")
+                voice_file_id = message.voice.file_id
+                logger.info(f"📥 Начинаю скачивание голосового файла {voice_file_id}")
+                
+                file_info = await bot.get_file(voice_file_id)
+                ogg_filename = f"{voice_file_id}.ogg"
+                
+                logger.info(f"⬇️ Скачиваю файл: {file_info.file_path} → {ogg_filename}")
+                await bot.download_file(file_info.file_path, ogg_filename)
+                
+                # Проверяем размер скачанного файла
+                file_size = os.path.getsize(ogg_filename) if os.path.exists(ogg_filename) else 0
+                logger.info(f"📁 Файл скачан: {ogg_filename} (размер: {file_size} байт)")
+                
+                if file_size == 0:
+                    logger.error(f"❌ Скачанный файл пустой: {ogg_filename}")
+                    await message.reply("❌ Ошибка: голосовое сообщение пустое")
+                    return
+                
+                # OpenAI Whisper поддерживает OGG напрямую - НЕ НУЖНА КОНВЕРТАЦИЯ!
+                logger.info(f"✅ Пропускаю конвертацию - Whisper поддерживает OGG напрямую")
+                
+                logger.info(f"🤖 Отправляю OGG напрямую в OpenAI Whisper...")
                 with OPENAI_LOCK:
                     openai.api_key = config["openai_api_key"]
-                    transcribed_text = await transcribe_audio(mp3_filename)
+                    transcribed_text = await transcribe_audio(ogg_filename)
+                
                 if transcribed_text:
+                    logger.info(f"✅ Транскрибация успешна: '{transcribed_text}'")
                     await message.reply(f"<i>Транскрибация: \"{transcribed_text}\"</i>")
                     user_prompt = transcribed_text
+                else:
+                    logger.error("❌ Транскрибация не удалась")
+                    await message.reply("❌ Не удалось распознать речь в голосовом сообщении")
+                    return
+                    
+            except Exception as e:
+                logger.error(f"❌ Ошибка обработки голосового сообщения: {e}")
+                await message.reply(f"❌ Ошибка обработки голосового сообщения: {e}")
+                return
             finally:
-                if os.path.exists(ogg_filename): os.remove(ogg_filename)
-                if os.path.exists(mp3_filename): os.remove(mp3_filename)
+                # Удаляем временный OGG файл
+                if os.path.exists(ogg_filename):
+                    os.remove(ogg_filename)
+                    logger.info(f"🗑️ Удален временный файл: {ogg_filename}")
         else: # message.text
             user_prompt = message.text
+            logger.info(f"💬 Получено текстовое сообщение: '{user_prompt[:50]}...' от {message.from_user.first_name if message.from_user else 'Unknown'}")
 
         # Убираем упоминание бота из запроса
         cleaned_prompt = user_prompt.replace(f"@{bot_username}", "").strip()
@@ -208,8 +259,12 @@ async def aiogram_bot(config, stop_event):
 Ответь учитывая контекст беседы. Если контекст помогает понять вопрос лучше, используй его. Отвечай естественно и по делу."""
 
         # 5. Отправляем в OpenAI и отвечаем пользователю
+        logger.info(f"🧠 Отправляю запрос в OpenAI: '{final_prompt[:100]}...'")
         response = await ask_openai(final_prompt, config, conversation_key)
+        logger.info(f"✅ Получен ответ от OpenAI: '{response[:100]}...'")
+        
         await message.reply(response)
+        logger.info(f"📤 Ответ отправлен пользователю")
 
     logger.info(f"Запуск Telegram-бота {config.get('bot_name', '')}...")
     try:

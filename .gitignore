@@ -26,3 +26,6 @@ Thumbs.db
 bot.log
 bot_configs.json
 *.tmp
+# Voice message temp files
+*.ogg
+*.mp3
