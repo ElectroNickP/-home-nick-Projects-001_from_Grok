@@ -6,6 +6,8 @@ import subprocess
 import threading
 import time
 import sys
+import psutil
+from datetime import datetime
 from flask import Flask, request, jsonify, render_template
 from flask_httpauth import HTTPBasicAuth
 
@@ -316,11 +318,788 @@ def update_application():
         logger.error(f"Error in update_application: {e}")
         return jsonify({"error": str(e)}), 500
 
+# ============== PROFESSIONAL API ENDPOINTS ==============
+
+def api_response(data=None, message="Success", status_code=200, error=None):
+    """Standard API response format"""
+    if error:
+        response = {
+            "success": False,
+            "error": error,
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+    else:
+        response = {
+            "success": True,
+            "data": data,
+            "message": message,
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+    return jsonify(response), status_code
+
+@app.route("/api/v2/system/health", methods=["GET"])
+@auth.login_required
+def health_check():
+    """System health check endpoint"""
+    try:
+        health_status = {
+            "status": "healthy",
+            "checks": {
+                "database": "healthy",
+                "memory": "healthy", 
+                "disk": "healthy",
+                "bots": "healthy"
+            }
+        }
+        
+        # Check config file access
+        try:
+            if os.path.exists(cm.CONFIG_FILE):
+                with open(cm.CONFIG_FILE, 'r') as f:
+                    f.read(1)
+        except Exception:
+            health_status["checks"]["database"] = "unhealthy"
+            health_status["status"] = "unhealthy"
+        
+        # Check memory usage
+        try:
+            memory = psutil.virtual_memory()
+            if memory.percent > 95:
+                health_status["checks"]["memory"] = "unhealthy"
+                health_status["status"] = "unhealthy"
+            elif memory.percent > 90:
+                health_status["checks"]["memory"] = "warning"
+        except Exception:
+            health_status["checks"]["memory"] = "unknown"
+        
+        # Check disk usage
+        try:
+            disk = psutil.disk_usage('/')
+            if disk.percent > 95:
+                health_status["checks"]["disk"] = "unhealthy"
+                health_status["status"] = "unhealthy"
+            elif disk.percent > 90:
+                health_status["checks"]["disk"] = "warning"
+        except Exception:
+            health_status["checks"]["disk"] = "unknown"
+        
+        # Check bots status
+        try:
+            with cm.BOT_CONFIGS_LOCK:
+                total_bots = len(cm.BOT_CONFIGS)
+                running_bots = sum(1 for bot in cm.BOT_CONFIGS.values() if bot.get("status") == "running")
+            
+            if total_bots > 0 and running_bots == 0:
+                health_status["checks"]["bots"] = "warning"
+        except Exception:
+            health_status["checks"]["bots"] = "unknown"
+        
+        status_code = 200 if health_status["status"] == "healthy" else 503
+        return api_response(health_status, f"System is {health_status['status']}", status_code)
+        
+    except Exception as e:
+        logger.error(f"Health check error: {e}")
+        return api_response(error="Health check failed", status_code=500)
+
+@app.route("/api/v2/system/info", methods=["GET"])
+@auth.login_required
+def system_info():
+    """Get detailed system information"""
+    try:
+        # System metrics
+        cpu_count = psutil.cpu_count()
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
+        boot_time = datetime.fromtimestamp(psutil.boot_time())
+        
+        # Process info
+        process = psutil.Process()
+        process_memory = process.memory_info()
+        
+        # Bot statistics
+        with cm.BOT_CONFIGS_LOCK:
+            total_bots = len(cm.BOT_CONFIGS)
+            running_bots = sum(1 for bot in cm.BOT_CONFIGS.values() if bot.get("status") == "running")
+            voice_bots = sum(1 for bot in cm.BOT_CONFIGS.values() if bot["config"].get("enable_voice_responses", False))
+        
+        # Version info
+        version_info = version.get_version_info()
+        
+        system_data = {
+            "application": {
+                "name": "Telegram Bot Manager",
+                "version": version_info.version_string,
+                "full_version": version_info.full_version_string,
+                "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+                "process_memory_mb": round(process_memory.rss / (1024**2), 2),
+                "uptime_seconds": round(time.time() - process.create_time(), 1)
+            },
+            "system": {
+                "platform": sys.platform,
+                "cpu_cores": cpu_count,
+                "cpu_percent": psutil.cpu_percent(interval=0.1),
+                "memory": {
+                    "total_gb": round(memory.total / (1024**3), 2),
+                    "available_gb": round(memory.available / (1024**3), 2),
+                    "used_percent": memory.percent
+                },
+                "disk": {
+                    "total_gb": round(disk.total / (1024**3), 2),
+                    "free_gb": round(disk.free / (1024**3), 2),
+                    "used_percent": round((disk.used / disk.total) * 100, 1)
+                },
+                "boot_time": boot_time.isoformat(),
+                "uptime_hours": round((datetime.now() - boot_time).total_seconds() / 3600, 1)
+            },
+            "bots": {
+                "total": total_bots,
+                "running": running_bots,
+                "stopped": total_bots - running_bots,
+                "voice_enabled": voice_bots
+            }
+        }
+        
+        return api_response(system_data, "System information retrieved")
+        
+    except Exception as e:
+        logger.error(f"Error getting system info: {e}")
+        return api_response(error="Failed to retrieve system information", status_code=500)
+
+@app.route("/api/v2/bots", methods=["GET"])
+@auth.login_required
+def get_all_bots_v2():
+    """Get all bots with filtering and pagination"""
+    try:
+        # Query parameters
+        page = request.args.get('page', 1, type=int)
+        per_page = min(request.args.get('per_page', 50, type=int), 100)
+        status_filter = request.args.get('status')
+        search = request.args.get('search', '').strip()
+        
+        with cm.BOT_CONFIGS_LOCK:
+            all_bots = list(cm.BOT_CONFIGS.values())
+        
+        # Apply filters
+        filtered_bots = all_bots
+        
+        if status_filter:
+            filtered_bots = [bot for bot in filtered_bots if bot.get("status") == status_filter]
+        
+        if search:
+            filtered_bots = [
+                bot for bot in filtered_bots 
+                if search.lower() in bot["config"]["bot_name"].lower()
+            ]
+        
+        # Sort by ID
+        filtered_bots.sort(key=lambda x: x["id"])
+        
+        # Pagination
+        total = len(filtered_bots)
+        start_index = (page - 1) * per_page
+        end_index = start_index + per_page
+        bots_page = filtered_bots[start_index:end_index]
+        
+        # Enhanced serialization
+        def serialize_bot_enhanced(bot_entry):
+            return {
+                "id": bot_entry["id"],
+                "config": bot_entry["config"],
+                "status": bot_entry.get("status", "stopped"),
+                "has_runtime": all([
+                    bot_entry.get("thread") is not None,
+                    bot_entry.get("loop") is not None,
+                    bot_entry.get("stop_event") is not None
+                ]),
+                "features": {
+                    "voice_responses": bot_entry["config"].get("enable_voice_responses", False),
+                    "voice_model": bot_entry["config"].get("voice_model", "tts-1"),
+                    "voice_type": bot_entry["config"].get("voice_type", "alloy"),
+                    "context_limit": bot_entry["config"].get("group_context_limit", 15)
+                }
+            }
+        
+        serialized_bots = [serialize_bot_enhanced(bot) for bot in bots_page]
+        
+        response_data = {
+            "bots": serialized_bots,
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total": total,
+                "pages": (total + per_page - 1) // per_page,
+                "has_next": end_index < total,
+                "has_prev": page > 1
+            }
+        }
+        
+        return api_response(response_data, f"Retrieved {len(serialized_bots)} bots")
+        
+    except Exception as e:
+        logger.error(f"Error getting bots: {e}")
+        return api_response(error="Failed to retrieve bots", status_code=500)
+
+@app.route("/api/v2/bots/<int:bot_id>/status", methods=["GET"])
+@auth.login_required
+def get_bot_status_v2(bot_id):
+    """Get detailed bot status"""
+    try:
+        with cm.BOT_CONFIGS_LOCK:
+            if bot_id not in cm.BOT_CONFIGS:
+                return api_response(error="Bot not found", status_code=404)
+            
+            bot_entry = cm.BOT_CONFIGS[bot_id]
+        
+        status_info = {
+            "bot_id": bot_id,
+            "status": bot_entry.get("status", "stopped"),
+            "bot_name": bot_entry["config"]["bot_name"],
+            "runtime": {
+                "has_thread": bot_entry.get("thread") is not None,
+                "has_loop": bot_entry.get("loop") is not None,
+                "has_stop_event": bot_entry.get("stop_event") is not None
+            },
+            "config": {
+                "voice_enabled": bot_entry["config"].get("enable_voice_responses", False),
+                "voice_model": bot_entry["config"].get("voice_model", "tts-1"),
+                "voice_type": bot_entry["config"].get("voice_type", "alloy"),
+                "context_limit": bot_entry["config"].get("group_context_limit", 15)
+            }
+        }
+        
+        return api_response(status_info, "Bot status retrieved")
+        
+    except Exception as e:
+        logger.error(f"Error getting bot status {bot_id}: {e}")
+        return api_response(error="Failed to get bot status", status_code=500)
+
+@app.route("/api/v2/bots/<int:bot_id>/restart", methods=["POST"])
+@auth.login_required
+def restart_bot_v2(bot_id):
+    """Restart a bot"""
+    try:
+        with cm.BOT_CONFIGS_LOCK:
+            if bot_id not in cm.BOT_CONFIGS:
+                return api_response(error="Bot not found", status_code=404)
+        
+        # Stop if running
+        if cm.BOT_CONFIGS[bot_id].get("status") == "running":
+            stop_success, stop_message = bm.stop_bot_thread(bot_id)
+            if not stop_success:
+                return api_response(error=f"Failed to stop bot: {stop_message}", status_code=400)
+        
+        # Wait a moment
+        time.sleep(1)
+        
+        # Start again
+        start_success, start_message = bm.start_bot_thread(bot_id)
+        
+        if start_success:
+            return api_response(
+                {"bot_id": bot_id, "status": "restarting"},
+                "Bot restarted successfully"
+            )
+        else:
+            return api_response(error=f"Failed to start bot: {start_message}", status_code=400)
+            
+    except Exception as e:
+        logger.error(f"Error restarting bot {bot_id}: {e}")
+        return api_response(error="Failed to restart bot", status_code=500)
+
+@app.route("/api/v2/bots", methods=["POST"])
+@auth.login_required
+def create_bot_v2():
+    """Create a new bot via API v2"""
+    try:
+        data = request.get_json()
+        if not data:
+            return api_response(error="JSON data required", status_code=400)
+        
+        required = ["bot_name", "telegram_token", "openai_api_key", "assistant_id"]
+        missing = [field for field in required if field not in data]
+        if missing:
+            return api_response(error=f"Missing required fields: {', '.join(missing)}", status_code=400)
+        
+        # Set default values if not provided
+        defaults = {
+            "group_context_limit": 15,
+            "enable_voice_responses": False,
+            "voice_model": "tts-1",
+            "voice_type": "alloy"
+        }
+        for key, default_value in defaults.items():
+            if key not in data:
+                data[key] = default_value
+
+        with cm.BOT_CONFIGS_LOCK:
+            bot_id = cm.NEXT_BOT_ID
+            cm.NEXT_BOT_ID += 1
+            
+            bot_entry = {
+                "id": bot_id,
+                "config": data,
+                "status": "stopped",
+                "thread": None,
+                "loop": None,
+                "stop_event": None,
+                "created_at": datetime.utcnow().isoformat() + "Z",
+                "last_updated": datetime.utcnow().isoformat() + "Z"
+            }
+            cm.BOT_CONFIGS[bot_id] = bot_entry
+
+        cm.save_configs_async()
+        
+        response_data = {
+            "bot_id": bot_id,
+            "config": data,
+            "status": "stopped",
+            "created_at": bot_entry["created_at"]
+        }
+        
+        return api_response(response_data, "Bot created successfully", status_code=201)
+        
+    except Exception as e:
+        logger.error(f"Error creating bot: {e}")
+        return api_response(error="Failed to create bot", status_code=500)
+
+@app.route("/api/v2/bots/<int:bot_id>", methods=["PUT"])
+@auth.login_required
+def update_bot_v2(bot_id):
+    """Update bot configuration via API v2"""
+    try:
+        with cm.BOT_CONFIGS_LOCK:
+            if bot_id not in cm.BOT_CONFIGS:
+                return api_response(error="Bot not found", status_code=404)
+        
+        data = request.get_json()
+        if not data:
+            return api_response(error="JSON data required", status_code=400)
+        
+        with cm.BOT_CONFIGS_LOCK:
+            bot_entry = cm.BOT_CONFIGS[bot_id]
+            
+            # Update configuration
+            bot_entry["config"].update(data)
+            bot_entry["last_updated"] = datetime.utcnow().isoformat() + "Z"
+            
+            cm.BOT_CONFIGS[bot_id] = bot_entry
+
+        cm.save_configs_async()
+        
+        response_data = {
+            "bot_id": bot_id,
+            "config": bot_entry["config"],
+            "status": bot_entry.get("status", "stopped"),
+            "last_updated": bot_entry["last_updated"]
+        }
+        
+        return api_response(response_data, "Bot updated successfully")
+        
+    except Exception as e:
+        logger.error(f"Error updating bot {bot_id}: {e}")
+        return api_response(error="Failed to update bot", status_code=500)
+
+@app.route("/api/v2/bots/<int:bot_id>", methods=["DELETE"])
+@auth.login_required
+def delete_bot_v2(bot_id):
+    """Delete a bot via API v2"""
+    try:
+        with cm.BOT_CONFIGS_LOCK:
+            if bot_id not in cm.BOT_CONFIGS:
+                return api_response(error="Bot not found", status_code=404)
+            
+            # Stop bot if running
+            bot_entry = cm.BOT_CONFIGS[bot_id]
+            if bot_entry.get("status") == "running":
+                stop_success, stop_message = bm.stop_bot_thread(bot_id)
+                if not stop_success:
+                    return api_response(error=f"Failed to stop bot before deletion: {stop_message}", status_code=400)
+            
+            # Delete bot
+            deleted_bot = cm.BOT_CONFIGS.pop(bot_id)
+
+        cm.save_configs_async()
+        
+        response_data = {
+            "bot_id": bot_id,
+            "bot_name": deleted_bot["config"]["bot_name"],
+            "deleted_at": datetime.utcnow().isoformat() + "Z"
+        }
+        
+        return api_response(response_data, "Bot deleted successfully")
+        
+    except Exception as e:
+        logger.error(f"Error deleting bot {bot_id}: {e}")
+        return api_response(error="Failed to delete bot", status_code=500)
+
+@app.route("/api/v2/bots/<int:bot_id>/start", methods=["POST"])
+@auth.login_required
+def start_bot_v2(bot_id):
+    """Start a bot via API v2"""
+    try:
+        with cm.BOT_CONFIGS_LOCK:
+            if bot_id not in cm.BOT_CONFIGS:
+                return api_response(error="Bot not found", status_code=404)
+        
+        if cm.BOT_CONFIGS[bot_id].get("status") == "running":
+            return api_response(error="Bot is already running", status_code=400)
+        
+        success, message = bm.start_bot_thread(bot_id)
+        
+        if success:
+            response_data = {
+                "bot_id": bot_id,
+                "status": "running",
+                "started_at": datetime.utcnow().isoformat() + "Z"
+            }
+            return api_response(response_data, "Bot started successfully")
+        else:
+            return api_response(error=f"Failed to start bot: {message}", status_code=400)
+            
+    except Exception as e:
+        logger.error(f"Error starting bot {bot_id}: {e}")
+        return api_response(error="Failed to start bot", status_code=500)
+
+@app.route("/api/v2/bots/<int:bot_id>/stop", methods=["POST"])
+@auth.login_required
+def stop_bot_v2(bot_id):
+    """Stop a bot via API v2"""
+    try:
+        with cm.BOT_CONFIGS_LOCK:
+            if bot_id not in cm.BOT_CONFIGS:
+                return api_response(error="Bot not found", status_code=404)
+        
+        if cm.BOT_CONFIGS[bot_id].get("status") != "running":
+            return api_response(error="Bot is not running", status_code=400)
+        
+        success, message = bm.stop_bot_thread(bot_id)
+        
+        if success:
+            response_data = {
+                "bot_id": bot_id,
+                "status": "stopped",
+                "stopped_at": datetime.utcnow().isoformat() + "Z"
+            }
+            return api_response(response_data, "Bot stopped successfully")
+        else:
+            return api_response(error=f"Failed to stop bot: {message}", status_code=400)
+            
+    except Exception as e:
+        logger.error(f"Error stopping bot {bot_id}: {e}")
+        return api_response(error="Failed to stop bot", status_code=500)
+
+@app.route("/api/v2/system/stats", methods=["GET"])
+@auth.login_required
+def get_stats_v2():
+    """Get system statistics"""
+    try:
+        # Process stats
+        process = psutil.Process()
+        process_memory = process.memory_info()
+        
+        # File sizes
+        log_size = os.path.getsize("bot.log") if os.path.exists("bot.log") else 0
+        config_size = os.path.getsize(cm.CONFIG_FILE) if os.path.exists(cm.CONFIG_FILE) else 0
+        
+        # Bot statistics
+        with cm.BOT_CONFIGS_LOCK:
+            bots = list(cm.BOT_CONFIGS.values())
+        
+        voice_enabled = sum(1 for bot in bots if bot["config"].get("enable_voice_responses", False))
+        running_bots = sum(1 for bot in bots if bot.get("status") == "running")
+        
+        stats_data = {
+            "application": {
+                "process_memory_mb": round(process_memory.rss / (1024**2), 2),
+                "process_cpu_percent": process.cpu_percent(),
+                "uptime_seconds": round(time.time() - process.create_time(), 1),
+                "files": {
+                    "log_size_kb": round(log_size / 1024, 2),
+                    "config_size_kb": round(config_size / 1024, 2)
+                }
+            },
+            "bots": {
+                "total": len(bots),
+                "running": running_bots,
+                "stopped": len(bots) - running_bots,
+                "voice_enabled": voice_enabled,
+                "voice_disabled": len(bots) - voice_enabled
+            },
+            "system": {
+                "cpu_percent": psutil.cpu_percent(interval=0.1),
+                "memory_percent": psutil.virtual_memory().percent,
+                "disk_percent": round((psutil.disk_usage('/').used / psutil.disk_usage('/').total) * 100, 1)
+            }
+        }
+        
+        return api_response(stats_data, "Statistics retrieved")
+        
+    except Exception as e:
+        logger.error(f"Error getting statistics: {e}")
+        return api_response(error="Failed to retrieve statistics", status_code=500)
+
+# API Documentation endpoint
+@app.route("/api/v2/docs", methods=["GET"])
+@auth.login_required
+def api_docs():
+    """API Documentation"""
+    docs_html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Telegram Bot Manager API v2.0 Documentation</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+            .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+            h2 { color: #34495e; margin-top: 30px; }
+            .endpoint { background: #ecf0f1; padding: 15px; margin: 10px 0; border-radius: 5px; }
+            .method { font-weight: bold; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px; }
+            .get { background: #27ae60; }
+            .post { background: #e74c3c; }
+            .put { background: #f39c12; }
+            .delete { background: #c0392b; }
+            code { background: #2c3e50; color: #ecf0f1; padding: 2px 6px; border-radius: 3px; }
+            .description { margin: 10px 0; color: #7f8c8d; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🤖 Telegram Bot Manager API v2.0</h1>
+            <p><strong>Base URL:</strong> <code>http://localhost:60183/api/v2</code></p>
+            
+            <h2>🔐 Authentication</h2>
+            <p>Все API endpoints требуют <strong>HTTP Basic Authentication</strong></p>
+            <p><strong>⚠️ Default Credentials:</strong> <code>admin:securepassword123</code> (смените в продакшене!)</p>
+            
+            <h3>📋 Примеры авторизации:</h3>
+            
+            <div class="endpoint">
+                <strong>curl (рекомендуется):</strong><br>
+                <code>curl -u username:password http://localhost:60183/api/v2/system/health</code>
+            </div>
+            
+            <div class="endpoint">
+                <strong>Base64 заголовок:</strong><br>
+                <code>Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=</code><br>
+                <small>💡 Где base64(username:password)</small>
+            </div>
+            
+            <div class="endpoint">
+                <strong>JavaScript/fetch:</strong><br>
+                <code>
+                fetch('http://localhost:60183/api/v2/bots', {<br>
+                &nbsp;&nbsp;headers: { 'Authorization': 'Basic ' + btoa('username:password') }<br>
+                })
+                </code>
+            </div>
+            
+            <div class="endpoint">
+                <strong>Python requests:</strong><br>
+                <code>
+                import requests<br>
+                response = requests.get('http://localhost:60183/api/v2/bots', <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auth=('username', 'password'))
+                </code>
+            </div>
+            
+            <h2>🏥 System Endpoints</h2>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> <code>/system/health</code>
+                <div class="description">System health check with component status</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> <code>/system/info</code>
+                <div class="description">Detailed system information (CPU, memory, disk, etc.)</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> <code>/system/stats</code>
+                <div class="description">Real-time system statistics and metrics</div>
+            </div>
+            
+            <h2>🤖 Bot Management</h2>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> <code>/bots</code>
+                <div class="description">Get all bots with filtering and pagination<br>
+                <strong>Parameters:</strong> page, per_page, status, search</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span> <code>/bots</code>
+                <div class="description">Create a new bot<br>
+                <strong>Required:</strong> bot_name, telegram_token, openai_api_key, assistant_id<br>
+                <strong>Optional:</strong> group_context_limit, enable_voice_responses, voice_model, voice_type</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> <code>/bots/{id}/status</code>
+                <div class="description">Get detailed status for specific bot</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method put">PUT</span> <code>/bots/{id}</code>
+                <div class="description">Update bot configuration<br>
+                <strong>Body:</strong> JSON with fields to update</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method delete">DELETE</span> <code>/bots/{id}</code>
+                <div class="description">Delete a bot (automatically stops if running)</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span> <code>/bots/{id}/start</code>
+                <div class="description">Start a bot</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span> <code>/bots/{id}/stop</code>
+                <div class="description">Stop a bot</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span> <code>/bots/{id}/restart</code>
+                <div class="description">Restart a bot (stop + start)</div>
+            </div>
+            
+            <h2>📊 Response Format</h2>
+            <p>All API v2 endpoints return standardized JSON responses:</p>
+            <pre><code>{
+    "success": true/false,
+    "data": {...},
+    "message": "Response message",
+    "timestamp": "2025-08-15T20:00:00Z"
+}</code></pre>
+            
+            <h2>💡 Практические примеры</h2>
+            
+            <h3>🤖 Создание бота:</h3>
+            <pre><code>curl -u username:password -X POST \\
+  http://localhost:60183/api/v2/bots \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "bot_name": "MyBot",
+    "telegram_token": "123456789:AABBccDDeeFFggHHiiJJkkLLmmNNooP",
+    "openai_api_key": "sk-example1234567890abcdefghij",
+    "assistant_id": "asst_example1234567890",
+    "enable_voice_responses": true,
+    "voice_model": "tts-1-hd",
+    "voice_type": "nova",
+    "group_context_limit": 20
+  }'</code></pre>
+            
+            <h3>✏️ Обновление конфигурации:</h3>
+            <pre><code>curl -u username:password -X PUT \\
+  http://localhost:60183/api/v2/bots/4 \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "bot_name": "UpdatedBotName",
+    "group_context_limit": 30,
+    "enable_voice_responses": false
+  }'</code></pre>
+            
+            <h3>▶️ Управление состоянием:</h3>
+            <pre><code># Запуск бота
+curl -u username:password -X POST \\
+  http://localhost:60183/api/v2/bots/4/start
+
+# Остановка бота  
+curl -u username:password -X POST \\
+  http://localhost:60183/api/v2/bots/4/stop
+
+# Перезапуск бота
+curl -u username:password -X POST \\
+  http://localhost:60183/api/v2/bots/4/restart</code></pre>
+            
+            <h3>📊 Получение информации:</h3>
+            <pre><code># Статус бота
+curl -u username:password \\
+  http://localhost:60183/api/v2/bots/4/status
+
+# Список всех ботов
+curl -u username:password \\
+  http://localhost:60183/api/v2/bots
+
+# Системная информация
+curl -u username:password \\
+  http://localhost:60183/api/v2/system/health</code></pre>
+            
+            <h3>🗑️ Удаление бота:</h3>
+            <pre><code>curl -u username:password -X DELETE \\
+  http://localhost:60183/api/v2/bots/4</code></pre>
+            
+            <h2>⚠️ Коды ошибок и обработка</h2>
+            <div class="endpoint">
+                <strong>200</strong> - Успешный запрос<br>
+                <strong>201</strong> - Ресурс создан (для POST /bots)<br>
+                <strong>400</strong> - Неверный запрос (отсутствуют параметры)<br>
+                <strong>401</strong> - Неавторизован (неверные credentials)<br>
+                <strong>404</strong> - Ресурс не найден (бот не существует)<br>
+                <strong>405</strong> - Метод не поддерживается<br>
+                <strong>500</strong> - Внутренняя ошибка сервера
+            </div>
+            
+            <h3>Пример ошибки:</h3>
+            <pre><code>{
+    "success": false,
+    "error": "Bot not found",
+    "timestamp": "2025-08-15T20:00:00Z"
+}</code></pre>
+            
+            <h2>📋 Обязательные поля для создания бота</h2>
+            <div class="endpoint">
+                <strong>bot_name</strong> - Имя бота (строка)<br>
+                <strong>telegram_token</strong> - Токен Telegram бота<br>
+                <strong>openai_api_key</strong> - API ключ OpenAI<br>
+                <strong>assistant_id</strong> - ID OpenAI Assistant
+            </div>
+            
+            <h2>⚙️ Опциональные параметры</h2>
+            <div class="endpoint">
+                <strong>group_context_limit</strong> - Лимит контекста (по умолчанию: 15)<br>
+                <strong>enable_voice_responses</strong> - Голосовые ответы (по умолчанию: false)<br>
+                <strong>voice_model</strong> - Модель TTS: "tts-1" или "tts-1-hd" (по умолчанию: "tts-1")<br>
+                <strong>voice_type</strong> - Тип голоса: "alloy", "echo", "fable", "onyx", "nova", "shimmer" (по умолчанию: "alloy")
+            </div>
+            
+            <h2>🔗 Legacy API</h2>
+            <p>Original endpoints are still available at <code>/api/*</code> for web interface compatibility.</p>
+            
+            <p><strong>API Version:</strong> 2.0 | <strong>Last Updated:</strong> August 2025</p>
+        </div>
+    </body>
+    </html>
+    """
+    return docs_html
+
 if __name__ == '__main__':
     if not os.path.exists(cm.CONFIG_FILE):
         with open(cm.CONFIG_FILE, 'w') as f:
             json.dump({"bots": {}}, f)
     cm.load_configs()
     bm.start_all_bots()
-    logger.info("Запуск Flask-сервера на http://0.0.0.0:60183")
+    
+    logger.info("🚀 Telegram Bot Manager API v2.0 Starting...")
+    logger.info("📚 API v2 Documentation: http://localhost:60183/api/v2/docs")
+    logger.info("🌐 Web Interface: http://localhost:60183/")
+    logger.info("🔐 Default credentials: admin / securepassword123")
+    logger.info("📡 Professional API Endpoints Added:")
+    logger.info("   • GET  /api/v2/system/health - System health check")
+    logger.info("   • GET  /api/v2/system/info - Detailed system information")
+    logger.info("   • GET  /api/v2/system/stats - Real-time statistics")
+    logger.info("   • GET  /api/v2/bots - Enhanced bot listing with pagination")
+    logger.info("   • POST /api/v2/bots - Create new bot")
+    logger.info("   • GET  /api/v2/bots/{id}/status - Detailed bot status")
+    logger.info("   • PUT  /api/v2/bots/{id} - Update bot configuration")
+    logger.info("   • DELETE /api/v2/bots/{id} - Delete bot")
+    logger.info("   • POST /api/v2/bots/{id}/start - Start bot")
+    logger.info("   • POST /api/v2/bots/{id}/stop - Stop bot")
+    logger.info("   • POST /api/v2/bots/{id}/restart - Restart bot")
+    logger.info("⚠️  Remember to change default credentials in production!")
+    logger.info("🔧 Запуск Flask-сервера на http://0.0.0.0:60183")
+    
     app.run(host="0.0.0.0", port=60183, debug=False, threaded=True)
