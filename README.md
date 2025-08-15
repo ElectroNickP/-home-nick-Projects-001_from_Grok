@@ -389,3 +389,4 @@ PYTHONPATH=/path/to/project python src/app.py
 **Разработано с ❤️ для управления Telegram ботами**
 # Test update for demo
 # Test restart mechanism
+# Test improved restart mechanism v2.0
