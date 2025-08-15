@@ -24,10 +24,11 @@ def load_configs():
                 BOT_CONFIGS.clear()
                 for k, v in data["bots"].items():
                     # Восстанавливаем полную структуру бота с runtime полями
+                    # При загрузке все боты останавливаются (runtime объекты не сохраняются)
                     bot_entry = {
                         "id": v["id"],
                         "config": v["config"],
-                        "status": v.get("status", "stopped"),
+                        "status": "stopped",  # Принудительно останавливаем все боты при перезапуске
                         "thread": None,
                         "loop": None,
                         "stop_event": None

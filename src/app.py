@@ -2,6 +2,10 @@
 import os
 import logging
 import json
+import subprocess
+import threading
+import time
+import sys
 from flask import Flask, request, jsonify, render_template
 from flask_httpauth import HTTPBasicAuth
 
@@ -167,6 +171,150 @@ def get_version_api():
     """API endpoint for getting version information"""
     version_info = version.get_version_info()
     return jsonify(version_info.version_details)
+
+def run_git_command(command, timeout=30):
+    """Execute git command safely"""
+    try:
+        result = subprocess.run(
+            ["git"] + command.split(),
+            capture_output=True,
+            text=True,
+            cwd=os.path.dirname(os.path.dirname(__file__)),
+            timeout=timeout
+        )
+        return result.returncode == 0, result.stdout.strip(), result.stderr.strip()
+    except subprocess.TimeoutExpired:
+        return False, "", "Git command timed out"
+    except Exception as e:
+        return False, "", str(e)
+
+def check_for_updates():
+    """Check if there are new commits available in remote repository"""
+    try:
+        # Fetch latest changes from remote
+        success, stdout, stderr = run_git_command("fetch origin")
+        if not success:
+            return False, f"Failed to fetch: {stderr}", None, None
+        
+        # Get current local commit
+        success, local_commit, stderr = run_git_command("rev-parse HEAD")
+        if not success:
+            return False, f"Failed to get local commit: {stderr}", None, None
+        
+        # Get latest remote commit
+        success, remote_commit, stderr = run_git_command("rev-parse origin/master")
+        if not success:
+            return False, f"Failed to get remote commit: {stderr}", None, None
+        
+        # Check if commits are different
+        has_updates = local_commit.strip() != remote_commit.strip()
+        
+        if has_updates:
+            # Get commit messages for new commits
+            success, commit_log, stderr = run_git_command(f"log --oneline {local_commit[:8]}..{remote_commit[:8]}")
+            return True, "Updates available", local_commit[:8], remote_commit[:8], commit_log
+        else:
+            return True, "No updates available", local_commit[:8], remote_commit[:8], ""
+            
+    except Exception as e:
+        return False, f"Error checking updates: {str(e)}", None, None
+
+def perform_update():
+    """Perform git pull and return result"""
+    try:
+        # Save current configs before update
+        cm.save_configs_async()
+        time.sleep(1)  # Give save time to complete
+        
+        # Perform git pull
+        success, stdout, stderr = run_git_command("pull origin master")
+        if not success:
+            return False, f"Git pull failed: {stderr}"
+        
+        return True, f"Update successful: {stdout}"
+        
+    except Exception as e:
+        return False, f"Update failed: {str(e)}"
+
+def restart_application():
+    """Restart the application after a delay"""
+    def delayed_restart():
+        time.sleep(2)  # Give time for response to be sent
+        logger.info("🔄 Restarting application after update...")
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
+    
+    thread = threading.Thread(target=delayed_restart, daemon=True)
+    thread.start()
+
+@app.route("/api/check-updates", methods=["GET"])
+@auth.login_required
+def check_updates_api():
+    """API endpoint to check for available updates"""
+    try:
+        success, message, local_commit, remote_commit, *commit_log = check_for_updates()
+        
+        if not success:
+            return jsonify({"error": message}), 500
+        
+        response = {
+            "has_updates": local_commit != remote_commit if local_commit and remote_commit else False,
+            "message": message,
+            "local_commit": local_commit,
+            "remote_commit": remote_commit,
+            "current_version": version.get_version()
+        }
+        
+        if commit_log and commit_log[0]:
+            response["new_commits"] = commit_log[0].split('\n') if commit_log[0] else []
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        logger.error(f"Error in check_updates_api: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/update", methods=["POST"])
+@auth.login_required
+def update_application():
+    """API endpoint to perform application update"""
+    try:
+        # Check if updates are available first
+        success, message, local_commit, remote_commit, *commit_log = check_for_updates()
+        
+        if not success:
+            return jsonify({"error": f"Update check failed: {message}"}), 500
+        
+        if local_commit == remote_commit:
+            return jsonify({"error": "No updates available"}), 400
+        
+        # Stop all bots before update
+        logger.info("🛑 Stopping all bots before update...")
+        with cm.BOT_CONFIGS_LOCK:
+            for bot_id in list(cm.BOT_CONFIGS.keys()):
+                bm.stop_bot_thread(bot_id)
+        
+        # Perform the update
+        update_success, update_message = perform_update()
+        
+        if not update_success:
+            return jsonify({"error": update_message}), 500
+        
+        logger.info("✅ Update completed successfully, restarting application...")
+        
+        # Schedule restart
+        restart_application()
+        
+        return jsonify({
+            "success": True,
+            "message": "Update completed successfully. Application is restarting...",
+            "old_version": local_commit,
+            "new_version": remote_commit
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in update_application: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     if not os.path.exists(cm.CONFIG_FILE):

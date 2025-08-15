@@ -33,6 +33,15 @@
                 <i class="fas fa-info-circle"></i> Подробнее
             </button>
         </div>
+        <div>
+            <button id="checkUpdatesBtn" class="btn btn-outline-primary btn-sm me-2" onclick="checkForUpdates()">
+                <i class="fas fa-sync-alt"></i> Проверить обновления
+            </button>
+            <button id="updateBtn" class="btn btn-success btn-sm" onclick="performUpdate()" style="display: none;">
+                <i class="fas fa-download"></i> Обновить
+            </button>
+            <div id="updateStatus" class="text-muted small mt-1" style="display: none;"></div>
+        </div>
     </div>
 
     <div class="card mb-4">
@@ -385,21 +394,88 @@ $(document).ready(function() {
 });
 
 function checkForUpdates() {
-    const btn = event.target;
-    const originalText = btn.innerHTML;
+    const btn = document.getElementById('checkUpdatesBtn');
+    const updateBtn = document.getElementById('updateBtn');
+    const statusDiv = document.getElementById('updateStatus');
+    
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка...';
     btn.disabled = true;
+    updateBtn.style.display = 'none';
+    statusDiv.style.display = 'none';
     
-    $.get('/api/version')
+    $.get('/api/check-updates')
         .done(function(data) {
-            alert('Текущая версия: ' + data.version + '\nПоследний коммит: ' + data.commit_date + '\n\nДля обновления выполните:\ngit pull && restart');
+            if (data.has_updates) {
+                let message = `Доступно обновление!\n\n`;
+                message += `Текущая версия: ${data.local_commit}\n`;
+                message += `Новая версия: ${data.remote_commit}\n\n`;
+                
+                if (data.new_commits && data.new_commits.length > 0) {
+                    message += `Новые изменения:\n`;
+                    data.new_commits.forEach(commit => {
+                        message += `• ${commit}\n`;
+                    });
+                }
+                
+                statusDiv.innerHTML = '<i class="fas fa-arrow-up text-success"></i> Обновление доступно!';
+                statusDiv.style.display = 'block';
+                updateBtn.style.display = 'inline-block';
+                
+                alert(message);
+            } else {
+                statusDiv.innerHTML = '<i class="fas fa-check text-success"></i> У вас последняя версия!';
+                statusDiv.style.display = 'block';
+                updateBtn.style.display = 'none';
+            }
         })
-        .fail(function() {
-            alert('Ошибка при проверке обновлений');
+        .fail(function(xhr) {
+            const error = xhr.responseJSON ? xhr.responseJSON.error : 'Неизвестная ошибка';
+            alert('Ошибка при проверке обновлений: ' + error);
+            statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> Ошибка проверки';
+            statusDiv.style.display = 'block';
         })
         .always(function() {
-            btn.innerHTML = originalText;
+            btn.innerHTML = '<i class="fas fa-sync-alt"></i> Проверить обновления';
             btn.disabled = false;
+        });
+}
+
+function performUpdate() {
+    if (!confirm('Вы уверены, что хотите обновить приложение?\n\nВо время обновления:\n• Все боты будут остановлены\n• Приложение будет перезапущено\n• Конфигурации сохранятся\n\nПродолжить?')) {
+        return;
+    }
+    
+    const btn = document.getElementById('updateBtn');
+    const checkBtn = document.getElementById('checkUpdatesBtn');
+    const statusDiv = document.getElementById('updateStatus');
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обновление...';
+    btn.disabled = true;
+    checkBtn.disabled = true;
+    
+    statusDiv.innerHTML = '<i class="fas fa-download text-primary"></i> Выполняется обновление...';
+    statusDiv.style.display = 'block';
+    
+    $.post('/api/update')
+        .done(function(data) {
+            alert('Обновление успешно завершено!\n\nПриложение перезапускается...\nСтраница будет обновлена автоматически.');
+            
+            statusDiv.innerHTML = '<i class="fas fa-sync fa-spin text-success"></i> Перезапуск приложения...';
+            
+            // Ждем перезапуск и обновляем страницу
+            setTimeout(function() {
+                window.location.reload();
+            }, 5000);
+        })
+        .fail(function(xhr) {
+            const error = xhr.responseJSON ? xhr.responseJSON.error : 'Неизвестная ошибка';
+            alert('Ошибка при обновлении: ' + error);
+            
+            statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle text-danger"></i> Ошибка обновления';
+            
+            btn.innerHTML = '<i class="fas fa-download"></i> Обновить';
+            btn.disabled = false;
+            checkBtn.disabled = false;
         });
 }
 </script>
