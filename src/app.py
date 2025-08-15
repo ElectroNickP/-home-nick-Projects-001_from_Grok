@@ -7,6 +7,7 @@ from flask_httpauth import HTTPBasicAuth
 
 import config_manager as cm
 import bot_manager as bm
+import version
 
 # Настройка логирования
 logging.basicConfig(
@@ -34,12 +35,24 @@ def serialize_bot_entry(bot_entry):
         "status": bot_entry.get("status", "unknown")
     }
 
+def get_template_context():
+    """Get common template context including version info"""
+    version_info = version.get_version_info()
+    return {
+        "version": version_info.version_string,
+        "full_version": version_info.full_version_string,
+        "version_details": version_info.version_details
+    }
+
 @app.route("/")
 @auth.login_required
 def index_page():
     with cm.BOT_CONFIGS_LOCK:
         bots_list = [serialize_bot_entry(b) for b in cm.BOT_CONFIGS.values()]
-    return render_template('index.html', bots=bots_list)
+    
+    context = get_template_context()
+    context['bots'] = bots_list
+    return render_template('index.html', **context)
 
 @app.route("/dialogs/<int:bot_id>")
 @auth.login_required
@@ -56,8 +69,15 @@ def dialogs_page(bot_id):
         selected_key = request.args.get("conv_key")
         selected_conv = bot_convs.get(selected_key, {}).get("messages", [])
 
-    return render_template('dialogs.html', bot_id=bot_id, bot_name=bot_name, conversations=bot_convs,
-                           selected_conv_key=selected_key, selected_conversation=selected_conv)
+    context = get_template_context()
+    context.update({
+        'bot_id': bot_id,
+        'bot_name': bot_name,
+        'conversations': bot_convs,
+        'selected_conv_key': selected_key,
+        'selected_conversation': selected_conv
+    })
+    return render_template('dialogs.html', **context)
 
 @app.route("/api/bots", methods=["POST"])
 @auth.login_required
@@ -127,11 +147,18 @@ def stop_bot(bot_id):
         return jsonify({"success": True})
     return jsonify({"error": message}), 400
 
+@app.route("/api/version", methods=["GET"])
+@auth.login_required
+def get_version_api():
+    """API endpoint for getting version information"""
+    version_info = version.get_version_info()
+    return jsonify(version_info.version_details)
+
 if __name__ == '__main__':
     if not os.path.exists(cm.CONFIG_FILE):
         with open(cm.CONFIG_FILE, 'w') as f:
             json.dump({"bots": {}}, f)
     cm.load_configs()
     bm.start_all_bots()
-    logger.info("Запуск Flask-сервера на http://0.0.0.0:5000")
-    app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
+    logger.info("Запуск Flask-сервера на http://0.0.0.0:47469")
+    app.run(host="0.0.0.0", port=47469, debug=False, threaded=True)

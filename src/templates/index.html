@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление Telegram ботами</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8f9fa; }
         .status-running { color: green; font-weight: bold; }
@@ -18,6 +19,20 @@
     <h1 class="mb-4">Управление Telegram ботами</h1>
     <div class="alert alert-warning" role="alert">
         ⚠ Внимание: Измените логин и пароль в src/app.py (раздел USERS) для безопасности!
+    </div>
+    
+    <!-- Version Info -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="text-muted small">
+            <i class="fas fa-code-branch"></i> Версия: 
+            <span class="fw-bold">{{ version }}</span>
+            {% if version_details.is_dev %}
+                <span class="badge bg-warning text-dark ms-1">DEV</span>
+            {% endif %}
+            <button class="btn btn-link btn-sm p-0 ms-2" data-bs-toggle="modal" data-bs-target="#versionModal">
+                <i class="fas fa-info-circle"></i> Подробнее
+            </button>
+        </div>
     </div>
 
     <div class="card mb-4">
@@ -96,6 +111,102 @@
     </div></div>
 </div>
 
+<!-- Version Details Modal -->
+<div class="modal fade" id="versionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle text-primary"></i> Информация о версии
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-tag text-success"></i> Основная информация</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Версия:</strong></td>
+                                <td>{{ version_details.version }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ветка:</strong></td>
+                                <td>
+                                    <span class="badge bg-{% if version_details.branch == 'main' %}success{% else %}warning{% endif %}">
+                                        {{ version_details.branch }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Тип сборки:</strong></td>
+                                <td>
+                                    {% if version_details.is_dev %}
+                                        <span class="badge bg-warning text-dark">Разработка</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Продакшн</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-code-branch text-info"></i> Git информация</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Коммит:</strong></td>
+                                <td><code>{{ version_details.commit_hash }}</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Дата коммита:</strong></td>
+                                <td>{{ version_details.commit_date }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Сообщение:</strong></td>
+                                <td class="text-muted small">{{ version_details.commit_message[:50] }}{% if version_details.commit_message|length > 50 %}...{% endif %}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cogs text-secondary"></i> Технические детали</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Python:</strong></td>
+                                <td>{{ version_details.python_version }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Время сборки:</strong></td>
+                                <td>{{ version_details.build_time }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-rocket text-primary"></i> Возможности</h6>
+                        <ul class="list-unstyled small">
+                            <li><i class="fas fa-check text-success"></i> Управление Telegram ботами</li>
+                            <li><i class="fas fa-check text-success"></i> OpenAI Assistant API</li>
+                            <li><i class="fas fa-check text-success"></i> Поддержка голосовых сообщений</li>
+                            <li><i class="fas fa-check text-success"></i> Анализ группового контекста</li>
+                            <li><i class="fas fa-check text-success"></i> Веб-интерфейс управления</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" onclick="checkForUpdates()">
+                    <i class="fas fa-sync-alt"></i> Проверить обновления
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -148,5 +259,24 @@ $(document).ready(function() {
         $("#botsTable tbody tr").toggle(function() { return $(this).find(".bot-name").text().toLowerCase().indexOf(value) > -1; });
     });
 });
+
+function checkForUpdates() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка...';
+    btn.disabled = true;
+    
+    $.get('/api/version')
+        .done(function(data) {
+            alert('Текущая версия: ' + data.version + '\nПоследний коммит: ' + data.commit_date + '\n\nДля обновления выполните:\ngit pull && restart');
+        })
+        .fail(function() {
+            alert('Ошибка при проверке обновлений');
+        })
+        .always(function() {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+}
 </script>
 </body></html>
