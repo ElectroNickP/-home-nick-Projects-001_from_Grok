@@ -1,0 +1,71 @@
+nohup: ignoring input
+[2025-08-15 22:08:22,001] INFO: Конфигурации ботов загружены из файла: 1 ботов
+[2025-08-15 22:08:22,001] INFO: Бот 4 успешно запущен.
+[2025-08-15 22:08:22,001] INFO: 🚀 Telegram Bot Manager API v2.0 Starting...
+[2025-08-15 22:08:22,001] INFO: 📚 API v2 Documentation: http://localhost:60183/api/v2/docs
+[2025-08-15 22:08:22,001] INFO: 🌐 Web Interface: http://localhost:60183/
+[2025-08-15 22:08:22,001] INFO: 🔐 Default credentials: admin / securepassword123
+[2025-08-15 22:08:22,001] INFO: 📡 Professional API Endpoints Added:
+[2025-08-15 22:08:22,001] INFO:    • GET  /api/v2/system/health - System health check
+[2025-08-15 22:08:22,002] INFO:    • GET  /api/v2/system/info - Detailed system information
+[2025-08-15 22:08:22,002] INFO:    • GET  /api/v2/system/stats - Real-time statistics
+[2025-08-15 22:08:22,002] INFO:    • GET  /api/v2/bots - Enhanced bot listing with pagination
+[2025-08-15 22:08:22,002] INFO:    • POST /api/v2/bots - Create new bot
+[2025-08-15 22:08:22,002] INFO:    • GET  /api/v2/bots/{id}/status - Detailed bot status
+[2025-08-15 22:08:22,002] INFO:    • PUT  /api/v2/bots/{id} - Update bot configuration
+[2025-08-15 22:08:22,002] INFO:    • DELETE /api/v2/bots/{id} - Delete bot
+[2025-08-15 22:08:22,002] INFO:    • POST /api/v2/bots/{id}/start - Start bot
+[2025-08-15 22:08:22,002] INFO:    • POST /api/v2/bots/{id}/stop - Stop bot
+[2025-08-15 22:08:22,002] INFO:    • POST /api/v2/bots/{id}/restart - Restart bot
+[2025-08-15 22:08:22,003] INFO: ⚠️  Remember to change default credentials in production!
+[2025-08-15 22:08:22,003] INFO: 🔧 Запуск Flask-сервера на http://0.0.0.0:60183
+ * Serving Flask app 'app'
+ * Debug mode: off
+[2025-08-15 22:08:22,008] INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:60183
+ * Running on http://192.168.1.102:60183
+[2025-08-15 22:08:22,008] INFO: [33mPress CTRL+C to quit[0m
+[2025-08-15 22:08:22,873] INFO: Бот diosybot запущен.
+[2025-08-15 22:08:22,874] INFO: Запуск Telegram-бота @diosybot...
+[2025-08-15 22:08:23,182] INFO: Start polling
+[2025-08-15 22:08:23,488] INFO: Run polling for bot @diosybot id=7684104886 - 'D!P$Y'
+[2025-08-15 22:08:33,522] INFO: 127.0.0.1 - - [15/Aug/2025 22:08:33] "GET /api/update/status HTTP/1.1" 200 -
+[2025-08-15 22:08:41,919] INFO: 127.0.0.1 - - [15/Aug/2025 22:08:41] "GET /api/update/backups HTTP/1.1" 200 -
+[2025-08-15 22:08:51,166] AUTO-UPDATE INFO: 🔍 Checking for updates...
+[2025-08-15 22:08:51,166] INFO: 🔍 Checking for updates...
+[2025-08-15 22:08:54,930] AUTO-UPDATE INFO: ✅ Git command succeeded: git fetch origin
+[2025-08-15 22:08:54,930] INFO: ✅ Git command succeeded: git fetch origin
+[2025-08-15 22:08:54,937] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 22:08:54,937] INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 22:08:54,943] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse origin/master
+[2025-08-15 22:08:54,943] INFO: ✅ Git command succeeded: git rev-parse origin/master
+[2025-08-15 22:08:54,943] AUTO-UPDATE INFO: ✅ Update check completed: No updates available
+[2025-08-15 22:08:54,943] INFO: ✅ Update check completed: No updates available
+[2025-08-15 22:08:54,943] INFO: 127.0.0.1 - - [15/Aug/2025 22:08:54] "GET /api/check-updates HTTP/1.1" 200 -
+[2025-08-15 22:09:04,581] INFO: 127.0.0.1 - - [15/Aug/2025 22:09:04] "[31m[1mGET / HTTP/1.1[0m" 401 -
+[2025-08-15 22:09:04,599] INFO: 127.0.0.1 - - [15/Aug/2025 22:09:04] "GET / HTTP/1.1" 200 -
+[2025-08-15 22:09:04,705] INFO: 127.0.0.1 - - [15/Aug/2025 22:09:04] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+[2025-08-15 22:09:12,613] INFO: 127.0.0.1 - - [15/Aug/2025 22:09:12] "[31m[1mGET /api/check-updates HTTP/1.1[0m" 401 -
+[2025-08-15 22:09:12,614] AUTO-UPDATE INFO: 🔍 Checking for updates...
+[2025-08-15 22:09:12,614] INFO: 🔍 Checking for updates...
+[2025-08-15 22:09:16,200] AUTO-UPDATE INFO: ✅ Git command succeeded: git fetch origin
+[2025-08-15 22:09:16,200] INFO: ✅ Git command succeeded: git fetch origin
+[2025-08-15 22:09:16,207] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 22:09:16,207] INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 22:09:16,213] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse origin/master
+[2025-08-15 22:09:16,213] INFO: ✅ Git command succeeded: git rev-parse origin/master
+[2025-08-15 22:09:16,214] AUTO-UPDATE INFO: ✅ Update check completed: No updates available
+[2025-08-15 22:09:16,214] INFO: ✅ Update check completed: No updates available
+[2025-08-15 22:09:16,214] INFO: 127.0.0.1 - - [15/Aug/2025 22:09:16] "GET /api/check-updates HTTP/1.1" 200 -
+[2025-08-15 22:09:29,132] INFO: 127.0.0.1 - - [15/Aug/2025 22:09:29] "[31m[1mGET /api/update/backups HTTP/1.1[0m" 401 -
+[2025-08-15 22:09:29,133] INFO: 127.0.0.1 - - [15/Aug/2025 22:09:29] "GET /api/update/backups HTTP/1.1" 200 -
+[2025-08-15 22:09:33,152] INFO: 127.0.0.1 - - [15/Aug/2025 22:09:33] "[31m[1mGET /api/update/backups HTTP/1.1[0m" 401 -
+[2025-08-15 22:09:33,154] INFO: 127.0.0.1 - - [15/Aug/2025 22:09:33] "GET /api/update/backups HTTP/1.1" 200 -
+/home/nick/Projects/Phuket/-home-nick-Projects-001_from_Grok/src/app.py:334: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "timestamp": datetime.utcnow().isoformat() + "Z"
+[2025-08-15 22:11:52,297] INFO: 127.0.0.1 - - [15/Aug/2025 22:11:52] "GET /api/v2/system/health HTTP/1.1" 200 -
+[2025-08-15 22:12:12,827] INFO: 127.0.0.1 - - [15/Aug/2025 22:12:12] "GET / HTTP/1.1" 200 -
+[2025-08-15 22:12:12,836] INFO: 127.0.0.1 - - [15/Aug/2025 22:12:12] "GET /api/update/status HTTP/1.1" 200 -
+[2025-08-15 22:12:12,846] INFO: 127.0.0.1 - - [15/Aug/2025 22:12:12] "GET /api/update/backups HTTP/1.1" 200 -
+[2025-08-15 22:12:12,957] INFO: 127.0.0.1 - - [15/Aug/2025 22:12:12] "GET /api/v2/system/stats HTTP/1.1" 200 -

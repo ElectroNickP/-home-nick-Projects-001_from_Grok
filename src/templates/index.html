@@ -34,13 +34,53 @@
             </button>
         </div>
         <div>
-            <button id="checkUpdatesBtn" class="btn btn-outline-primary btn-sm me-2" onclick="checkForUpdates()">
-                <i class="fas fa-sync-alt"></i> Проверить обновления
-            </button>
-            <button id="updateBtn" class="btn btn-success btn-sm" onclick="performUpdate()" style="display: none;">
+            <div class="btn-group me-2" role="group">
+                <button id="checkUpdatesBtn" class="btn btn-outline-primary btn-sm" onclick="checkForUpdates()">
+                    <i class="fas fa-sync-alt"></i> Проверить обновления
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="toggleUpdateDetails()" title="Показать подробности">
+                    <i class="fas fa-chevron-down" id="detailsIcon"></i>
+                </button>
+            </div>
+            <button id="updateBtn" class="btn btn-success btn-sm me-2" onclick="performUpdate()" style="display: none;">
                 <i class="fas fa-download"></i> Обновить
             </button>
-            <div id="updateStatus" class="text-muted small mt-1" style="display: none;"></div>
+            <button class="btn btn-outline-warning btn-sm" onclick="showBackupManager()" title="Управление бэкапами">
+                <i class="fas fa-archive"></i> Бэкапы
+            </button>
+            
+            <!-- Update Status Section -->
+            <div id="updateDetails" class="mt-2" style="display: none;">
+                <div id="updateStatus" class="text-muted small mb-2" style="display: none;"></div>
+                
+                <!-- Progress Bar -->
+                <div id="progressContainer" class="mb-2" style="display: none;">
+                    <div class="progress" style="height: 20px;">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%" 
+                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            <span id="progressText">0%</span>
+                        </div>
+                    </div>
+                    <div id="progressMessage" class="small text-muted mt-1"></div>
+                </div>
+                
+                <!-- Update Info -->
+                <div id="updateInfo" class="small" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Текущая версия:</strong> <span id="currentCommit">-</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Новая версия:</strong> <span id="remoteCommit">-</span>
+                        </div>
+                    </div>
+                    <div id="commitList" class="mt-2" style="display: none;">
+                        <strong>Изменения:</strong>
+                        <ul id="commitLogList" class="small mb-0"></ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -280,6 +320,53 @@
     </div>
 </div>
 
+<!-- Backup Manager Modal -->
+<div class="modal fade" id="backupModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-archive text-warning"></i> Управление бэкапами
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">Доступные бэкапы</h6>
+                    <div>
+                        <button class="btn btn-outline-secondary btn-sm me-2" onclick="refreshBackupList()">
+                            <i class="fas fa-sync-alt"></i> Обновить
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" onclick="cleanupBackups()">
+                            <i class="fas fa-trash"></i> Очистка
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="backupLoading" class="text-center py-4" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i> Загрузка бэкапов...
+                </div>
+                
+                <div id="backupsList">
+                    <!-- Backup list will be loaded here -->
+                </div>
+                
+                <div id="noBackups" class="text-center text-muted py-4" style="display: none;">
+                    <i class="fas fa-archive"></i>
+                    <p class="mb-0">Бэкапы не найдены</p>
+                    <small>Бэкапы создаются автоматически при обновлениях</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-info" onclick="showBackupInfo()">
+                    <i class="fas fa-info-circle"></i> О бэкапах
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -397,42 +484,61 @@ function checkForUpdates() {
     const btn = document.getElementById('checkUpdatesBtn');
     const updateBtn = document.getElementById('updateBtn');
     const statusDiv = document.getElementById('updateStatus');
+    const updateInfo = document.getElementById('updateInfo');
+    const currentCommit = document.getElementById('currentCommit');
+    const remoteCommit = document.getElementById('remoteCommit');
+    const commitList = document.getElementById('commitList');
+    const commitLogList = document.getElementById('commitLogList');
     
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка...';
     btn.disabled = true;
     updateBtn.style.display = 'none';
     statusDiv.style.display = 'none';
+    updateInfo.style.display = 'none';
     
     $.get('/api/check-updates')
         .done(function(data) {
             if (data.has_updates) {
-                let message = `Доступно обновление!\n\n`;
-                message += `Текущая версия: ${data.local_commit}\n`;
-                message += `Новая версия: ${data.remote_commit}\n\n`;
+                // Show update info
+                currentCommit.textContent = data.local_commit || 'неизвестно';
+                remoteCommit.textContent = data.remote_commit || 'неизвестно';
                 
-                if (data.new_commits && data.new_commits.length > 0) {
-                    message += `Новые изменения:\n`;
-                    data.new_commits.forEach(commit => {
-                        message += `• ${commit}\n`;
+                // Show commit log if available
+                if (data.commit_log && data.commit_log.length > 0) {
+                    commitLogList.innerHTML = '';
+                    data.commit_log.forEach(commit => {
+                        const li = document.createElement('li');
+                        li.textContent = commit;
+                        commitLogList.appendChild(li);
                     });
+                    commitList.style.display = 'block';
+                } else {
+                    commitList.style.display = 'none';
                 }
                 
                 statusDiv.innerHTML = '<i class="fas fa-arrow-up text-success"></i> Обновление доступно!';
                 statusDiv.style.display = 'block';
                 updateBtn.style.display = 'inline-block';
+                updateInfo.style.display = 'block';
                 
-                alert(message);
+                // Auto-expand details if collapsed
+                const updateDetails = document.getElementById('updateDetails');
+                if (updateDetails.style.display === 'none') {
+                    toggleUpdateDetails();
+                }
+                
             } else {
                 statusDiv.innerHTML = '<i class="fas fa-check text-success"></i> У вас последняя версия!';
                 statusDiv.style.display = 'block';
                 updateBtn.style.display = 'none';
+                updateInfo.style.display = 'none';
             }
         })
         .fail(function(xhr) {
             const error = xhr.responseJSON ? xhr.responseJSON.error : 'Неизвестная ошибка';
-            alert('Ошибка при проверке обновлений: ' + error);
-            statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> Ошибка проверки';
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle text-danger"></i> Ошибка: ${error}`;
             statusDiv.style.display = 'block';
+            updateInfo.style.display = 'none';
         })
         .always(function() {
             btn.innerHTML = '<i class="fas fa-sync-alt"></i> Проверить обновления';
@@ -441,42 +547,256 @@ function checkForUpdates() {
 }
 
 function performUpdate() {
-    if (!confirm('Вы уверены, что хотите обновить приложение?\n\nВо время обновления:\n• Все боты будут остановлены\n• Приложение будет перезапущено\n• Конфигурации сохранятся\n\nПродолжить?')) {
+    if (!confirm('Вы уверены, что хотите обновить приложение?\n\n🔒 ПРОФЕССИОНАЛЬНОЕ ОБНОВЛЕНИЕ:\n• Автоматическое создание бэкапа\n• Остановка всех ботов\n• Безопасное обновление кода\n• Автоматический rollback при ошибках\n• Проверка целостности после обновления\n• Надежный перезапуск\n\nПродолжить?')) {
         return;
     }
     
     const btn = document.getElementById('updateBtn');
     const checkBtn = document.getElementById('checkUpdatesBtn');
     const statusDiv = document.getElementById('updateStatus');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const progressMessage = document.getElementById('progressMessage');
     
+    // Initialize progress
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обновление...';
     btn.disabled = true;
     checkBtn.disabled = true;
     
-    statusDiv.innerHTML = '<i class="fas fa-download text-primary"></i> Выполняется обновление...';
+    statusDiv.innerHTML = '<i class="fas fa-rocket text-primary"></i> Начинается профессиональное обновление...';
     statusDiv.style.display = 'block';
+    
+    // Show progress bar
+    progressContainer.style.display = 'block';
+    updateProgress(0, 'Инициализация...');
+    
+    // Auto-expand details if collapsed
+    const updateDetails = document.getElementById('updateDetails');
+    if (updateDetails.style.display === 'none') {
+        toggleUpdateDetails();
+    }
+    
+    // Start update process
+    updateProgress(5, 'Проверка готовности к обновлению...');
     
     $.post('/api/update')
         .done(function(data) {
-            alert('Обновление успешно завершено!\n\nПриложение перезапускается...\nСтраница будет обновлена автоматически.');
+            updateProgress(100, 'Обновление завершено успешно!');
             
-            statusDiv.innerHTML = '<i class="fas fa-sync fa-spin text-success"></i> Перезапуск приложения...';
+            statusDiv.innerHTML = `<i class="fas fa-check-circle text-success"></i> Обновление завершено! 
+                                   ${data.backup_id ? `(Бэкап: ${data.backup_id})` : ''}`;
             
-            // Ждем перезапуск и обновляем страницу
-            setTimeout(function() {
-                window.location.reload();
-            }, 5000);
+            // Show success message
+            setTimeout(() => {
+                if(confirm(`✅ Профессиональное обновление завершено успешно!\n\n📦 Создан бэкап: ${data.backup_id || 'N/A'}\n🔄 Новая версия: ${data.new_version || 'N/A'}\n\n🔄 Приложение автоматически перезапустится.\nСтрока будет обновлена через 10 секунд.\n\nПерезагрузить сейчас?`)) {
+                    window.location.reload();
+                } else {
+                    // Auto reload after delay
+                    progressMessage.innerHTML = 'Автоматическая перезагрузка через 10 секунд...';
+                    setTimeout(() => window.location.reload(), 10000);
+                }
+            }, 1000);
         })
         .fail(function(xhr) {
             const error = xhr.responseJSON ? xhr.responseJSON.error : 'Неизвестная ошибка';
-            alert('Ошибка при обновлении: ' + error);
+            const backupId = xhr.responseJSON ? xhr.responseJSON.backup_id : null;
             
-            statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle text-danger"></i> Ошибка обновления';
+            updateProgress(0, `Ошибка: ${error}`);
+            progressBar.classList.remove('progress-bar-animated');
+            progressBar.classList.add('bg-danger');
+            
+            statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle text-danger"></i> Ошибка обновления
+                                   ${backupId ? `(Доступен rollback: ${backupId})` : ''}`;
+            
+            alert(`❌ Ошибка при обновлении: ${error}${backupId ? `\n\n🔄 Бэкап создан: ${backupId}\nМожно выполнить rollback через интерфейс бэкапов.` : ''}`);
             
             btn.innerHTML = '<i class="fas fa-download"></i> Обновить';
             btn.disabled = false;
             checkBtn.disabled = false;
+            
+            setTimeout(() => {
+                progressContainer.style.display = 'none';
+                progressBar.classList.remove('bg-danger');
+                progressBar.classList.add('progress-bar-animated');
+            }, 3000);
         });
+    
+    // Start progress monitoring
+    startUpdateProgressMonitoring();
+}
+
+function updateProgress(percent, message) {
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const progressMessage = document.getElementById('progressMessage');
+    
+    progressBar.style.width = percent + '%';
+    progressBar.setAttribute('aria-valuenow', percent);
+    progressText.textContent = percent + '%';
+    progressMessage.textContent = message;
+}
+
+function startUpdateProgressMonitoring() {
+    const checkProgress = () => {
+        $.get('/api/update/status')
+            .done(function(response) {
+                if (response.success && response.data) {
+                    const status = response.data;
+                    
+                    if (status.is_in_progress) {
+                        updateProgress(status.progress, status.message);
+                        
+                        // Continue monitoring
+                        setTimeout(checkProgress, 1000);
+                    }
+                }
+            })
+            .fail(() => {
+                // If status endpoint fails, stop monitoring
+                // (Normal during restart)
+            });
+    };
+    
+    // Start monitoring after a short delay
+    setTimeout(checkProgress, 1000);
+}
+
+function toggleUpdateDetails() {
+    const updateDetails = document.getElementById('updateDetails');
+    const detailsIcon = document.getElementById('detailsIcon');
+    
+    if (updateDetails.style.display === 'none' || updateDetails.style.display === '') {
+        updateDetails.style.display = 'block';
+        detailsIcon.className = 'fas fa-chevron-up';
+    } else {
+        updateDetails.style.display = 'none';
+        detailsIcon.className = 'fas fa-chevron-down';
+    }
+}
+
+function showBackupManager() {
+    $('#backupModal').modal('show');
+    refreshBackupList();
+}
+
+function refreshBackupList() {
+    const backupLoading = document.getElementById('backupLoading');
+    const backupsList = document.getElementById('backupsList');
+    const noBackups = document.getElementById('noBackups');
+    
+    backupLoading.style.display = 'block';
+    backupsList.style.display = 'none';
+    noBackups.style.display = 'none';
+    
+    $.get('/api/update/backups')
+        .done(function(response) {
+            if (response.success && response.data.length > 0) {
+                renderBackupList(response.data);
+                backupsList.style.display = 'block';
+            } else {
+                noBackups.style.display = 'block';
+            }
+        })
+        .fail(function(xhr) {
+            const error = xhr.responseJSON ? xhr.responseJSON.error : 'Ошибка загрузки';
+            backupsList.innerHTML = `<div class="alert alert-danger">Ошибка загрузки бэкапов: ${error}</div>`;
+            backupsList.style.display = 'block';
+        })
+        .always(function() {
+            backupLoading.style.display = 'none';
+        });
+}
+
+function renderBackupList(backups) {
+    const backupsList = document.getElementById('backupsList');
+    
+    let html = '<div class="list-group">';
+    
+    backups.forEach((backup, index) => {
+        const createdDate = new Date(backup.created_at).toLocaleString('ru-RU');
+        const isRecent = index < 3;
+        
+        html += `
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">
+                            ${backup.backup_id}
+                            ${isRecent ? '<span class="badge bg-success ms-2">Новый</span>' : ''}
+                        </h6>
+                        <p class="mb-1 small text-muted">
+                            <i class="fas fa-clock"></i> ${createdDate} &nbsp;
+                            <i class="fas fa-code-branch"></i> ${backup.commit_hash} &nbsp;
+                            <i class="fas fa-tag"></i> ${backup.version} &nbsp;
+                            <i class="fas fa-files-o"></i> ${backup.files_count} файлов &nbsp;
+                            <i class="fas fa-hdd"></i> ${backup.size_mb} MB
+                        </p>
+                    </div>
+                    <div class="btn-group-vertical btn-group-sm">
+                        <button class="btn btn-outline-info btn-sm" onclick="showBackupDetails('${backup.backup_id}')" title="Подробности">
+                            <i class="fas fa-info"></i>
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm" onclick="confirmRestoreBackup('${backup.backup_id}')" title="Восстановить">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    backupsList.innerHTML = html;
+}
+
+function showBackupDetails(backupId) {
+    alert(`📋 Детали бэкапа: ${backupId}\n\nФункция в разработке.\nВ будущем здесь будет подробная информация о содержимом бэкапа.`);
+}
+
+function confirmRestoreBackup(backupId) {
+    if (confirm(`⚠️ ВНИМАНИЕ: Восстановление из бэкапа\n\nВы собираетесь восстановить систему из бэкапа:\n${backupId}\n\n🚨 ЭТО ДЕЙСТВИЕ:\n• Заменит текущий код на версию из бэкапа\n• Остановит все боты\n• Может потребовать ручного перезапуска\n• Отменит все изменения после создания бэкапа\n\nПродолжить восстановление?`)) {
+        alert('🚧 Функция восстановления из бэкапа находится в разработке.\n\nДля ручного восстановления:\n1. Остановите приложение\n2. Найдите бэкап в папке ./backups/\n3. Скопируйте файлы вручную\n4. Перезапустите приложение');
+    }
+}
+
+function cleanupBackups() {
+    const keepCount = prompt('Сколько последних бэкапов оставить?', '5');
+    
+    if (keepCount === null) return;
+    
+    const count = parseInt(keepCount);
+    if (isNaN(count) || count < 1) {
+        alert('Пожалуйста, введите корректное число (больше 0)');
+        return;
+    }
+    
+    if (!confirm(`Удалить старые бэкапы, оставив только ${count} последних?\n\nЭто действие нельзя отменить!`)) {
+        return;
+    }
+    
+    $.ajax({
+        url: '/api/update/backups/cleanup',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ keep_count: count })
+    })
+    .done(function(response) {
+        if (response.success) {
+            alert(`✅ Очистка завершена!\n\nУдалено бэкапов: ${response.removed_count}\nОставлено: ${count}`);
+            refreshBackupList();
+        } else {
+            alert(`❌ Ошибка очистки: ${response.error}`);
+        }
+    })
+    .fail(function(xhr) {
+        const error = xhr.responseJSON ? xhr.responseJSON.error : 'Неизвестная ошибка';
+        alert(`❌ Ошибка очистки: ${error}`);
+    });
+}
+
+function showBackupInfo() {
+    alert(`ℹ️ Информация о системе бэкапов\n\n📦 АВТОМАТИЧЕСКИЕ БЭКАПЫ:\n• Создаются перед каждым обновлением\n• Включают все критические файлы\n• Сохраняют конфигурации ботов\n• Фиксируют текущий Git commit\n\n🔄 ВОЗМОЖНОСТИ:\n• Просмотр списка всех бэкапов\n• Информация о версиях и размерах\n• Автоматическая очистка старых бэкапов\n• Восстановление из бэкапа (в разработке)\n\n📁 РАСПОЛОЖЕНИЕ:\n./backups/ - папка с бэкапами\n\n🛡️ БЕЗОПАСНОСТЬ:\nБэкапы создаются автоматически и обеспечивают возможность отката при сбоях обновления.`);
 }
 </script>
 </body></html>

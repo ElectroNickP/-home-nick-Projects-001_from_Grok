@@ -14,6 +14,7 @@ from flask_httpauth import HTTPBasicAuth
 import config_manager as cm
 import bot_manager as bm
 import version
+from auto_updater import auto_updater
 
 # Настройка логирования
 logging.basicConfig(
@@ -175,79 +176,35 @@ def get_version_api():
     return jsonify(version_info.version_details)
 
 def run_git_command(command, timeout=30):
-    """Execute git command safely"""
-    try:
-        result = subprocess.run(
-            ["git"] + command.split(),
-            capture_output=True,
-            text=True,
-            cwd=os.path.dirname(os.path.dirname(__file__)),
-            timeout=timeout
-        )
-        return result.returncode == 0, result.stdout.strip(), result.stderr.strip()
-    except subprocess.TimeoutExpired:
-        return False, "", "Git command timed out"
-    except Exception as e:
-        return False, "", str(e)
+    """Legacy function - redirects to auto_updater"""
+    return auto_updater._run_git_command(command)
 
 def check_for_updates():
-    """Check if there are new commits available in remote repository"""
-    try:
-        # Fetch latest changes from remote
-        success, stdout, stderr = run_git_command("fetch origin")
-        if not success:
-            return False, f"Failed to fetch: {stderr}", None, None
-        
-        # Get current local commit
-        success, local_commit, stderr = run_git_command("rev-parse HEAD")
-        if not success:
-            return False, f"Failed to get local commit: {stderr}", None, None
-        
-        # Get latest remote commit
-        success, remote_commit, stderr = run_git_command("rev-parse origin/master")
-        if not success:
-            return False, f"Failed to get remote commit: {stderr}", None, None
-        
-        # Check if commits are different
-        has_updates = local_commit.strip() != remote_commit.strip()
-        
-        if has_updates:
-            # Get commit messages for new commits
-            success, commit_log, stderr = run_git_command(f"log --oneline {local_commit[:8]}..{remote_commit[:8]}")
-            return True, "Updates available", local_commit[:8], remote_commit[:8], commit_log
-        else:
-            return True, "No updates available", local_commit[:8], remote_commit[:8], ""
-            
-    except Exception as e:
-        return False, f"Error checking updates: {str(e)}", None, None
+    """Legacy function - redirects to auto_updater with compatibility format"""
+    result = auto_updater.check_for_updates()
+    if result["success"]:
+        return (
+            True, 
+            result["message"],
+            result.get("local_commit", "unknown"),
+            result.get("remote_commit", "unknown"),
+            result.get("commit_log", [])
+        )
+    else:
+        return False, result["error"], None, None
 
 def perform_update():
-    """Perform git pull and return result"""
-    try:
-        # Save current configs before update
-        cm.save_configs_async()
-        time.sleep(1)  # Give save time to complete
-        
-        # Perform git pull
-        success, stdout, stderr = run_git_command("pull origin master")
-        if not success:
-            return False, f"Git pull failed: {stderr}"
-        
-        return True, f"Update successful: {stdout}"
-        
-    except Exception as e:
-        return False, f"Update failed: {str(e)}"
+    """Legacy function - redirects to auto_updater"""
+    result = auto_updater.perform_update()
+    if result["success"]:
+        return True, result["message"]
+    else:
+        return False, result["error"]
 
 def restart_application():
-    """Restart the application after a delay"""
-    def delayed_restart():
-        time.sleep(2)  # Give time for response to be sent
-        logger.info("🔄 Restarting application after update...")
-        python = sys.executable
-        os.execl(python, python, *sys.argv)
-    
-    thread = threading.Thread(target=delayed_restart, daemon=True)
-    thread.start()
+    """Legacy function - no longer used, handled by auto_updater"""
+    logger.warning("⚠️ Legacy restart_application called - using auto_updater instead")
+    pass
 
 @app.route("/api/check-updates", methods=["GET"])
 @auth.login_required
@@ -279,43 +236,84 @@ def check_updates_api():
 @app.route("/api/update", methods=["POST"])
 @auth.login_required
 def update_application():
-    """API endpoint to perform application update"""
+    """API endpoint to perform professional application update"""
     try:
-        # Check if updates are available first
-        success, message, local_commit, remote_commit, *commit_log = check_for_updates()
+        if auto_updater.is_update_in_progress():
+            return jsonify({
+                "error": "Update already in progress",
+                "status": auto_updater.get_update_status()
+            }), 409
         
-        if not success:
-            return jsonify({"error": f"Update check failed: {message}"}), 500
+        # Perform professional update with backup and rollback
+        result = auto_updater.perform_update()
         
-        if local_commit == remote_commit:
-            return jsonify({"error": "No updates available"}), 400
-        
-        # Stop all bots before update
-        logger.info("🛑 Stopping all bots before update...")
-        with cm.BOT_CONFIGS_LOCK:
-            for bot_id in list(cm.BOT_CONFIGS.keys()):
-                bm.stop_bot_thread(bot_id)
-        
-        # Perform the update
-        update_success, update_message = perform_update()
-        
-        if not update_success:
-            return jsonify({"error": update_message}), 500
-        
-        logger.info("✅ Update completed successfully, restarting application...")
-        
-        # Schedule restart
-        restart_application()
-        
-        return jsonify({
-            "success": True,
-            "message": "Update completed successfully. Application is restarting...",
-            "old_version": local_commit,
-            "new_version": remote_commit
-        })
+        if result["success"]:
+            return jsonify({
+                "success": True,
+                "message": result["message"],
+                "backup_id": result.get("backup_id"),
+                "new_version": result.get("new_version")
+            })
+        else:
+            return jsonify({
+                "error": result["error"],
+                "backup_id": result.get("backup_id")
+            }), 500
         
     except Exception as e:
         logger.error(f"Error in update_application: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/update/status", methods=["GET"])
+@auth.login_required
+def get_update_status():
+    """Get current update status with progress information"""
+    try:
+        status = auto_updater.get_update_status()
+        return jsonify({
+            "success": True,
+            "data": status
+        })
+    except Exception as e:
+        logger.error(f"Error getting update status: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/update/backups", methods=["GET"])
+@auth.login_required
+def list_backups():
+    """List all available backups"""
+    try:
+        backups = auto_updater.list_backups()
+        return jsonify({
+            "success": True,
+            "data": backups,
+            "count": len(backups)
+        })
+    except Exception as e:
+        logger.error(f"Error listing backups: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/update/backups/cleanup", methods=["POST"])
+@auth.login_required
+def cleanup_backups():
+    """Clean up old backups, keeping only the most recent ones"""
+    try:
+        data = request.get_json() or {}
+        keep_count = data.get("keep_count", 5)
+        
+        result = auto_updater.cleanup_old_backups(keep_count)
+        
+        if result["success"]:
+            return jsonify({
+                "success": True,
+                "message": result["message"],
+                "removed_count": result.get("removed_count", 0)
+            })
+        else:
+            return jsonify({"error": result["error"]}), 500
+            
+    except Exception as e:
+        logger.error(f"Error cleaning up backups: {e}")
         return jsonify({"error": str(e)}), 500
 
 # ============== PROFESSIONAL API ENDPOINTS ==============
