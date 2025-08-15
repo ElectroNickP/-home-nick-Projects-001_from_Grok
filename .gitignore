@@ -29,3 +29,6 @@ bot_configs.json
 # Voice message temp files
 *.ogg
 *.mp3
+
+# Application logs
+app.log
