@@ -22,9 +22,20 @@ def load_configs():
             with open(CONFIG_FILE, 'r') as f:
                 data = json.load(f)
                 BOT_CONFIGS.clear()
-                BOT_CONFIGS.update({int(k): v for k, v in data["bots"].items()})
+                for k, v in data["bots"].items():
+                    # Восстанавливаем полную структуру бота с runtime полями
+                    bot_entry = {
+                        "id": v["id"],
+                        "config": v["config"],
+                        "status": v.get("status", "stopped"),
+                        "thread": None,
+                        "loop": None,
+                        "stop_event": None
+                    }
+                    BOT_CONFIGS[int(k)] = bot_entry
+                
                 NEXT_BOT_ID = max([int(k) for k in data["bots"].keys()] + [0]) + 1
-                logger.info("Конфигурации ботов загружены из файла")
+                logger.info(f"Конфигурации ботов загружены из файла: {len(BOT_CONFIGS)} ботов")
         else:
             logger.info(f"Файл {CONFIG_FILE} не существует, будет создан новый")
     except Exception as e:
@@ -38,7 +49,18 @@ def save_configs_async():
                 raise PermissionError(f"Нет прав на запись в {CONFIG_FILE}")
 
             with BOT_CONFIGS_LOCK:
-                data = {"bots": {str(k): v for k, v in BOT_CONFIGS.items()}}
+                # Очищаем конфигурацию от несериализуемых объектов
+                clean_configs = {}
+                for k, v in BOT_CONFIGS.items():
+                    clean_bot = {
+                        "id": v["id"],
+                        "config": v["config"],
+                        "status": v.get("status", "stopped")
+                        # Исключаем thread, loop, stop_event - они не сериализуются в JSON
+                    }
+                    clean_configs[str(k)] = clean_bot
+                
+                data = {"bots": clean_configs}
                 temp_file = CONFIG_FILE + '.tmp'
                 with open(temp_file, 'w') as f:
                     json.dump(data, f, indent=2)

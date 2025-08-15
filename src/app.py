@@ -87,9 +87,15 @@ def create_bot():
     if not all(field in data for field in required):
         return jsonify({"error": "Отсутствуют обязательные поля"}), 400
     
-    # Set default value for group_context_limit if not provided
+    # Set default values if not provided
     if "group_context_limit" not in data:
         data["group_context_limit"] = 15
+    if "enable_voice_responses" not in data:
+        data["enable_voice_responses"] = False
+    if "voice_model" not in data:
+        data["voice_model"] = "tts-1"
+    if "voice_type" not in data:
+        data["voice_type"] = "alloy"
 
     with cm.BOT_CONFIGS_LOCK:
         bot_id = cm.NEXT_BOT_ID
@@ -103,6 +109,14 @@ def create_bot():
 
     cm.save_configs_async()
     return jsonify(serialize_bot_entry(bot_entry)), 201
+
+@app.route("/api/bots/<int:bot_id>", methods=["GET"])
+@auth.login_required
+def get_bot(bot_id):
+    with cm.BOT_CONFIGS_LOCK:
+        if bot_id not in cm.BOT_CONFIGS:
+            return jsonify({"error": "Бот не найден"}), 404
+        return jsonify(serialize_bot_entry(cm.BOT_CONFIGS[bot_id]))
 
 @app.route("/api/bots/<int:bot_id>", methods=["PUT"])
 @auth.login_required

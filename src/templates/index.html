@@ -48,6 +48,33 @@
                         <input type="number" class="form-control" id="group_context_limit" placeholder="Количество сообщений для контекста (по умолчанию: 15)" min="5" max="50" value="15">
                         <small class="form-text text-muted">Сколько последних сообщений анализировать в группах</small>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="enable_voice_responses" value="true">
+                            <label class="form-check-label" for="enable_voice_responses">
+                                🎤 Голосовые ответы
+                            </label>
+                        </div>
+                        <small class="form-text text-muted">Отправлять ответы голосом через TTS</small>
+                    </div>
+                    <div class="col-md-6" id="voice_settings" style="display: none;">
+                        <label class="form-label">Модель голоса</label>
+                        <select class="form-select" id="voice_model">
+                            <option value="tts-1">TTS-1 (Быстрая)</option>
+                            <option value="tts-1-hd">TTS-1-HD (Качественная)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" id="voice_type_settings" style="display: none;">
+                        <label class="form-label">Тип голоса</label>
+                        <select class="form-select" id="voice_type">
+                            <option value="alloy">Alloy (универсальный)</option>
+                            <option value="echo">Echo (мужской)</option>
+                            <option value="fable">Fable (британский)</option>
+                            <option value="onyx">Onyx (мужской, глубокий)</option>
+                            <option value="nova">Nova (женский, молодой)</option>
+                            <option value="shimmer">Shimmer (женский, мягкий)</option>
+                        </select>
+                    </div>
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary" id="createBtn">
                             <span class="spinner-border spinner-border-sm spinner" role="status"></span> Создать
@@ -64,7 +91,7 @@
     <div class="table-responsive">
         <table class="table table-hover align-middle" id="botsTable">
             <thead class="table-dark">
-                <tr><th>ID</th><th>Название</th><th>Token</th><th>OpenAI Key</th><th>Assistant ID</th><th>Контекст</th><th>Статус</th><th>Действия</th></tr>
+                <tr><th>ID</th><th>Название</th><th>Token</th><th>OpenAI Key</th><th>Assistant ID</th><th>Контекст</th><th>TTS</th><th>Статус</th><th>Действия</th></tr>
             </thead>
             <tbody>
                 {% for bot in bots %}
@@ -75,6 +102,14 @@
                     <td class="bot-openai text-break">{{ bot.config.openai_api_key }}</td>
                     <td class="bot-assistant">{{ bot.config.assistant_id }}</td>
                     <td class="bot-context">{{ bot.config.group_context_limit or 15 }}</td>
+                    <td class="bot-voice">
+                        {% if bot.config.enable_voice_responses %}
+                            <span class="badge bg-success">🎤 Вкл</span><br>
+                            <small class="text-muted">{{ bot.config.voice_type or 'alloy' }}</small>
+                        {% else %}
+                            <span class="badge bg-secondary">Выкл</span>
+                        {% endif %}
+                    </td>
                     <td class="bot-status {% if bot.status == 'running' %}status-running{% else %}status-stopped{% endif %}">{{ bot.status }}</td>
                     <td>
                         <button class="btn btn-sm btn-success start-btn" {% if bot.status == 'running' %}disabled{% endif %}>Старт</button>
@@ -104,6 +139,35 @@
                     <label class="form-label">Количество сообщений для контекста</label>
                     <input type="number" class="form-control" id="edit_group_context_limit" min="5" max="50" value="15">
                     <small class="form-text text-muted">Сколько последних сообщений анализировать в группах</small>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="edit_enable_voice_responses" value="true">
+                        <label class="form-check-label" for="edit_enable_voice_responses">
+                            🎤 Голосовые ответы
+                        </label>
+                    </div>
+                    <small class="form-text text-muted">Отправлять ответы голосом через TTS</small>
+                </div>
+                <div class="row" id="edit_voice_settings" style="display: none;">
+                    <div class="col-md-6">
+                        <label class="form-label">Модель голоса</label>
+                        <select class="form-select" id="edit_voice_model">
+                            <option value="tts-1">TTS-1 (Быстрая)</option>
+                            <option value="tts-1-hd">TTS-1-HD (Качественная)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Тип голоса</label>
+                        <select class="form-select" id="edit_voice_type">
+                            <option value="alloy">Alloy (универсальный)</option>
+                            <option value="echo">Echo (мужской)</option>
+                            <option value="fable">Fable (британский)</option>
+                            <option value="onyx">Onyx (мужской, глубокий)</option>
+                            <option value="nova">Nova (женский, молодой)</option>
+                            <option value="shimmer">Shimmer (женский, мягкий)</option>
+                        </select>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary" id="saveEditBtn">Сохранить</button>
             </form>
@@ -227,18 +291,57 @@ $(document).ready(function() {
         apiCall("/api/bots", "POST", {
             bot_name: $("#bot_name").val(), telegram_token: $("#telegram_token").val(),
             openai_api_key: $("#openai_api_key").val(), assistant_id: $("#assistant_id").val(),
-            group_context_limit: parseInt($("#group_context_limit").val()) || 15
+            group_context_limit: parseInt($("#group_context_limit").val()) || 15,
+            enable_voice_responses: $("#enable_voice_responses").is(':checked'),
+            voice_model: $("#voice_model").val() || "tts-1",
+            voice_type: $("#voice_type").val() || "alloy"
         }, '#createBtn');
     });
     $('#botsTable').on('click', '.edit-btn', function() {
         var row = $(this).closest('tr');
-        $("#edit_bot_id").val(row.data("bot-id"));
-        $("#edit_bot_name").val(row.find(".bot-name").text());
-        $("#edit_telegram_token").val(row.find(".bot-token").text());
-        $("#edit_openai_api_key").val(row.find(".bot-openai").text());
-        $("#edit_assistant_id").val(row.find(".bot-assistant").text());
-        $("#edit_group_context_limit").val(row.find(".bot-context").text() || 15);
-        new bootstrap.Modal('#editModal').show();
+        var botId = row.data("bot-id");
+        
+        // Получаем данные бота через API для точности
+        $.get(`/api/bots/${botId}`)
+            .done(function(bot) {
+                $("#edit_bot_id").val(bot.id);
+                $("#edit_bot_name").val(bot.config.bot_name);
+                $("#edit_telegram_token").val(bot.config.telegram_token);
+                $("#edit_openai_api_key").val(bot.config.openai_api_key);
+                $("#edit_assistant_id").val(bot.config.assistant_id);
+                $("#edit_group_context_limit").val(bot.config.group_context_limit || 15);
+                
+                // TTS настройки
+                $("#edit_enable_voice_responses").prop('checked', bot.config.enable_voice_responses || false);
+                $("#edit_voice_model").val(bot.config.voice_model || "tts-1");
+                $("#edit_voice_type").val(bot.config.voice_type || "alloy");
+                
+                // Показываем/скрываем настройки голоса
+                if (bot.config.enable_voice_responses) {
+                    $("#edit_voice_settings").show();
+                } else {
+                    $("#edit_voice_settings").hide();
+                }
+                
+                new bootstrap.Modal('#editModal').show();
+            })
+            .fail(function() {
+                // Fallback к старому методу если API недоступен
+                $("#edit_bot_id").val(botId);
+                $("#edit_bot_name").val(row.find(".bot-name").text());
+                $("#edit_telegram_token").val(row.find(".bot-token").text());
+                $("#edit_openai_api_key").val(row.find(".bot-openai").text());
+                $("#edit_assistant_id").val(row.find(".bot-assistant").text());
+                $("#edit_group_context_limit").val(row.find(".bot-context").text() || 15);
+                
+                // Устанавливаем значения по умолчанию для TTS
+                $("#edit_enable_voice_responses").prop('checked', false);
+                $("#edit_voice_model").val("tts-1");
+                $("#edit_voice_type").val("alloy");
+                $("#edit_voice_settings").hide();
+                
+                new bootstrap.Modal('#editModal').show();
+            });
     });
     $("#editBotForm").submit(e => {
         e.preventDefault();
@@ -246,7 +349,10 @@ $(document).ready(function() {
         apiCall(`/api/bots/${botId}`, "PUT", {
             bot_name: $("#edit_bot_name").val(), telegram_token: $("#edit_telegram_token").val(),
             openai_api_key: $("#edit_openai_api_key").val(), assistant_id: $("#edit_assistant_id").val(),
-            group_context_limit: parseInt($("#edit_group_context_limit").val()) || 15
+            group_context_limit: parseInt($("#edit_group_context_limit").val()) || 15,
+            enable_voice_responses: $("#edit_enable_voice_responses").is(':checked'),
+            voice_model: $("#edit_voice_model").val() || "tts-1",
+            voice_type: $("#edit_voice_type").val() || "alloy"
         }, '#saveEditBtn');
     });
     $('#botsTable').on('click', '.delete-btn', function() {
@@ -257,6 +363,24 @@ $(document).ready(function() {
     $("#searchBots").on("keyup", function() {
         var value = $(this).val().toLowerCase();
         $("#botsTable tbody tr").toggle(function() { return $(this).find(".bot-name").text().toLowerCase().indexOf(value) > -1; });
+    });
+    
+    // Показать/скрыть настройки голоса при изменении чекбокса (форма создания)
+    $("#enable_voice_responses").change(function() {
+        if ($(this).is(':checked')) {
+            $("#voice_settings, #voice_type_settings").show();
+        } else {
+            $("#voice_settings, #voice_type_settings").hide();
+        }
+    });
+    
+    // Показать/скрыть настройки голоса при изменении чекбокса (форма редактирования)
+    $("#edit_enable_voice_responses").change(function() {
+        if ($(this).is(':checked')) {
+            $("#edit_voice_settings").show();
+        } else {
+            $("#edit_voice_settings").hide();
+        }
     });
 });
 

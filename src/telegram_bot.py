@@ -7,6 +7,7 @@ import subprocess
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.client.bot import DefaultBotProperties
+from aiogram.types import FSInputFile
 
 from config_manager import CONVERSATIONS, CONVERSATIONS_LOCK, OPENAI_LOCK
 
@@ -48,6 +49,52 @@ async def transcribe_audio(file_path):
         
     except Exception as e:
         logger.error(f"❌ Ошибка транскрибации аудио: {e}")
+        return None
+
+async def text_to_speech(text, config, voice_model="tts-1", voice="alloy"):
+    """Преобразует текст в речь с помощью OpenAI TTS API."""
+    try:
+        logger.info(f"🎤 Начинаю генерацию голоса для текста: '{text[:50]}...'")
+        
+        # Ограничиваем длину текста (OpenAI TTS имеет лимит в 4096 символов)
+        if len(text) > 4000:
+            text = text[:4000] + "..."
+            logger.warning("⚠️ Текст обрезан до 4000 символов для TTS")
+        
+        # Генерируем уникальное имя файла
+        import uuid
+        audio_filename = f"tts_{uuid.uuid4().hex[:8]}.mp3"
+        
+        logger.info(f"📡 Отправляю текст в OpenAI TTS API...")
+        with OPENAI_LOCK:
+            client = openai.OpenAI(api_key=config["openai_api_key"])
+            response = await asyncio.to_thread(
+                client.audio.speech.create,
+                model=voice_model,
+                voice=voice,
+                input=text,
+                response_format="mp3"
+            )
+        
+        # Сохраняем аудиофайл
+        logger.info(f"💾 Сохраняю голосовой файл: {audio_filename}")
+        with open(audio_filename, "wb") as f:
+            f.write(response.content)
+        
+        # Проверяем размер созданного файла
+        file_size = os.path.getsize(audio_filename)
+        logger.info(f"✅ Голосовой файл создан: {audio_filename} (размер: {file_size} байт)")
+        
+        if file_size == 0:
+            logger.error(f"❌ Созданный голосовой файл пустой: {audio_filename}")
+            if os.path.exists(audio_filename):
+                os.remove(audio_filename)
+            return None
+            
+        return audio_filename
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка генерации голоса: {e}")
         return None
 
 def add_message_to_cache(chat_id, message_data, limit=GROUP_CONTEXT_MESSAGES_LIMIT):
@@ -263,7 +310,42 @@ async def aiogram_bot(config, stop_event):
         response = await ask_openai(final_prompt, config, conversation_key)
         logger.info(f"✅ Получен ответ от OpenAI: '{response[:100]}...'")
         
-        await message.reply(response)
+        # 6. Проверяем, нужно ли отправить голосовой ответ
+        enable_voice_responses = config.get("enable_voice_responses", False)
+        voice_model = config.get("voice_model", "tts-1")
+        voice_type = config.get("voice_type", "alloy")
+        
+        if enable_voice_responses:
+            logger.info(f"🎤 Генерирую голосовой ответ...")
+            try:
+                # Генерируем голосовое сообщение
+                audio_file_path = await text_to_speech(response, config, voice_model, voice_type)
+                
+                if audio_file_path and os.path.exists(audio_file_path):
+                    # Отправляем и текстовый и голосовой ответ
+                    await message.reply(response)
+                    
+                    # Отправляем голосовое сообщение используя FSInputFile
+                    voice_file = FSInputFile(audio_file_path)
+                    await message.reply_voice(voice_file)
+                    
+                    logger.info(f"🎵 Голосовой ответ отправлен пользователю")
+                    
+                    # Удаляем временный файл
+                    os.remove(audio_file_path)
+                    logger.info(f"🗑️ Удален временный голосовой файл: {audio_file_path}")
+                else:
+                    logger.warning("⚠️ Не удалось создать голосовой файл, отправляю только текст")
+                    await message.reply(response)
+                    
+            except Exception as e:
+                logger.error(f"❌ Ошибка при создании голосового ответа: {e}")
+                # В случае ошибки отправляем текстовый ответ
+                await message.reply(response)
+        else:
+            # Обычный текстовый ответ
+            await message.reply(response)
+            
         logger.info(f"📤 Ответ отправлен пользователю")
 
     logger.info(f"Запуск Telegram-бота {config.get('bot_name', '')}...")
