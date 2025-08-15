@@ -384,3 +384,4 @@ PYTHONPATH=/path/to/project python src/app.py
 ---
 
 **Разработано с ❤️ для управления Telegram ботами**
+# Test update for demo
