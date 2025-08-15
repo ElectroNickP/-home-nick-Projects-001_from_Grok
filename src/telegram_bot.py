@@ -8,9 +8,15 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.client.bot import DefaultBotProperties
 
-from src.config_manager import CONVERSATIONS, CONVERSATIONS_LOCK, OPENAI_LOCK
+from config_manager import CONVERSATIONS, CONVERSATIONS_LOCK, OPENAI_LOCK
 
 logger = logging.getLogger(__name__)
+
+# Configuration for group context analysis
+GROUP_CONTEXT_MESSAGES_LIMIT = 15  # Number of recent messages to analyze in groups
+
+# Store recent group messages for context analysis
+GROUP_MESSAGES_CACHE = {}  # {chat_id: [message_data, ...]}
 
 async def transcribe_audio(file_path):
     """Транскрибирует аудиофайл с помощью OpenAI Whisper."""
@@ -24,6 +30,34 @@ async def transcribe_audio(file_path):
     except Exception as e:
         logger.error(f"Ошибка транскрибации аудио: {e}")
         return None
+
+def add_message_to_cache(chat_id, message_data, limit=GROUP_CONTEXT_MESSAGES_LIMIT):
+    """Добавляет сообщение в кэш для анализа контекста."""
+    if chat_id not in GROUP_MESSAGES_CACHE:
+        GROUP_MESSAGES_CACHE[chat_id] = []
+    
+    GROUP_MESSAGES_CACHE[chat_id].append(message_data)
+    
+    # Keep only recent messages
+    if len(GROUP_MESSAGES_CACHE[chat_id]) > limit:
+        GROUP_MESSAGES_CACHE[chat_id] = GROUP_MESSAGES_CACHE[chat_id][-limit:]
+
+def get_group_chat_context(chat_id):
+    """Получает контекст группового чата из кэша сообщений."""
+    try:
+        if chat_id not in GROUP_MESSAGES_CACHE or not GROUP_MESSAGES_CACHE[chat_id]:
+            return "No recent messages found in chat."
+        
+        messages = GROUP_MESSAGES_CACHE[chat_id]
+        
+        # Format context as text
+        context_lines = [f"[{msg['time']}] {msg['user']}: {msg['text']}" for msg in messages]
+        context = "Recent chat context:\n" + "\n".join(context_lines)
+        return context
+            
+    except Exception as e:
+        logger.error(f"Error getting group chat context: {e}")
+        return "Unable to retrieve chat context."
 
 async def ask_openai(prompt, config, conversation_key):
     """Отправляет запрос в OpenAI и возвращает ответ."""
@@ -81,13 +115,36 @@ async def aiogram_bot(config, stop_event):
                 f"В группах — когда вы упоминаете меня (@{bot_username}) или отвечаете на мои сообщения.")
         await message.answer(text)
 
-    @dp.message(types.ContentType.TEXT, types.ContentType.VOICE)
+    @dp.message()
     async def handle_group_message(message: types.Message):
         """Обрабатывает текстовые и голосовые сообщения в ЛС и группах."""
+        
+        # Обрабатываем только текстовые и голосовые сообщения
+        if not (message.text or message.voice):
+            return
+
+        text_content = message.text or message.caption or ""
+        
+        # Добавляем все сообщения из групп в кэш для контекста
+        if message.chat.type != 'private' and (message.text or message.caption):
+            user_name = "Unknown"
+            if message.from_user:
+                user_name = message.from_user.first_name or "User"
+                if message.from_user.username:
+                    user_name += f" (@{message.from_user.username})"
+            
+            # Skip very short messages or system messages
+            if len(text_content.strip()) >= 2:
+                message_data = {
+                    "user": user_name,
+                    "text": text_content,
+                    "time": message.date.strftime("%H:%M")
+                }
+                context_limit = config.get("group_context_limit", GROUP_CONTEXT_MESSAGES_LIMIT)
+                add_message_to_cache(message.chat.id, message_data, context_limit)
 
         # 1. Определяем, должен ли бот реагировать
         should_process = False
-        text_content = message.text or message.caption or ""
 
         if message.chat.type == 'private':
             should_process = True
@@ -135,8 +192,23 @@ async def aiogram_bot(config, stop_event):
             await message.reply("Я вас слушаю. Задайте свой вопрос или дайте команду.")
             return
 
-        # 4. Отправляем в OpenAI и отвечаем пользователю
-        response = await ask_openai(cleaned_prompt, config, conversation_key)
+        # 4. Формируем финальный запрос с контекстом для групп
+        final_prompt = cleaned_prompt
+        
+        # В групповых чатах добавляем контекст последних сообщений
+        if message.chat.type != 'private':
+            chat_context = get_group_chat_context(message.chat.id)
+            
+            # Формируем запрос с контекстом
+            final_prompt = f"""Контекст группового чата:
+{chat_context}
+
+Пользователь обращается к тебе с вопросом: {cleaned_prompt}
+
+Ответь учитывая контекст беседы. Если контекст помогает понять вопрос лучше, используй его. Отвечай естественно и по делу."""
+
+        # 5. Отправляем в OpenAI и отвечаем пользователю
+        response = await ask_openai(final_prompt, config, conversation_key)
         await message.reply(response)
 
     logger.info(f"Запуск Telegram-бота {config.get('bot_name', '')}...")

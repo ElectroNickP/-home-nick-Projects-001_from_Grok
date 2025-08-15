@@ -5,8 +5,8 @@ import json
 from flask import Flask, request, jsonify, render_template
 from flask_httpauth import HTTPBasicAuth
 
-import src.config_manager as cm
-import src.bot_manager as bm
+import config_manager as cm
+import bot_manager as bm
 
 # Настройка логирования
 logging.basicConfig(
@@ -66,6 +66,10 @@ def create_bot():
     required = ["bot_name", "telegram_token", "openai_api_key", "assistant_id"]
     if not all(field in data for field in required):
         return jsonify({"error": "Отсутствуют обязательные поля"}), 400
+    
+    # Set default value for group_context_limit if not provided
+    if "group_context_limit" not in data:
+        data["group_context_limit"] = 15
 
     with cm.BOT_CONFIGS_LOCK:
         bot_id = cm.NEXT_BOT_ID

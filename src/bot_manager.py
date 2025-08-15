@@ -1,8 +1,8 @@
 import asyncio
 import threading
 import logging
-from src.telegram_bot import aiogram_bot
-from src.config_manager import BOT_CONFIGS, BOT_CONFIGS_LOCK
+from telegram_bot import aiogram_bot
+from config_manager import BOT_CONFIGS, BOT_CONFIGS_LOCK
 
 logger = logging.getLogger(__name__)
 

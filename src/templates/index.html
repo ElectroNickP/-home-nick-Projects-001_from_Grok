@@ -29,6 +29,10 @@
                     <div class="col-md-6"><input type="text" class="form-control" id="telegram_token" placeholder="Telegram Token" required></div>
                     <div class="col-md-6"><input type="text" class="form-control" id="openai_api_key" placeholder="OpenAI API Key" required></div>
                     <div class="col-md-6"><input type="text" class="form-control" id="assistant_id" placeholder="Assistant ID" required></div>
+                    <div class="col-md-6">
+                        <input type="number" class="form-control" id="group_context_limit" placeholder="Количество сообщений для контекста (по умолчанию: 15)" min="5" max="50" value="15">
+                        <small class="form-text text-muted">Сколько последних сообщений анализировать в группах</small>
+                    </div>
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary" id="createBtn">
                             <span class="spinner-border spinner-border-sm spinner" role="status"></span> Создать
@@ -45,7 +49,7 @@
     <div class="table-responsive">
         <table class="table table-hover align-middle" id="botsTable">
             <thead class="table-dark">
-                <tr><th>ID</th><th>Название</th><th>Token</th><th>OpenAI Key</th><th>Assistant ID</th><th>Статус</th><th>Действия</th></tr>
+                <tr><th>ID</th><th>Название</th><th>Token</th><th>OpenAI Key</th><th>Assistant ID</th><th>Контекст</th><th>Статус</th><th>Действия</th></tr>
             </thead>
             <tbody>
                 {% for bot in bots %}
@@ -55,6 +59,7 @@
                     <td class="bot-token text-break">{{ bot.config.telegram_token }}</td>
                     <td class="bot-openai text-break">{{ bot.config.openai_api_key }}</td>
                     <td class="bot-assistant">{{ bot.config.assistant_id }}</td>
+                    <td class="bot-context">{{ bot.config.group_context_limit or 15 }}</td>
                     <td class="bot-status {% if bot.status == 'running' %}status-running{% else %}status-stopped{% endif %}">{{ bot.status }}</td>
                     <td>
                         <button class="btn btn-sm btn-success start-btn" {% if bot.status == 'running' %}disabled{% endif %}>Старт</button>
@@ -80,6 +85,11 @@
                 <div class="mb-3"><label class="form-label">Telegram Token</label><input type="text" class="form-control" id="edit_telegram_token" required></div>
                 <div class="mb-3"><label class="form-label">OpenAI API Key</label><input type="text" class="form-control" id="edit_openai_api_key" required></div>
                 <div class="mb-3"><label class="form-label">Assistant ID</label><input type="text" class="form-control" id="edit_assistant_id" required></div>
+                <div class="mb-3">
+                    <label class="form-label">Количество сообщений для контекста</label>
+                    <input type="number" class="form-control" id="edit_group_context_limit" min="5" max="50" value="15">
+                    <small class="form-text text-muted">Сколько последних сообщений анализировать в группах</small>
+                </div>
                 <button type="submit" class="btn btn-primary" id="saveEditBtn">Сохранить</button>
             </form>
         </div>
@@ -105,7 +115,8 @@ $(document).ready(function() {
         e.preventDefault();
         apiCall("/api/bots", "POST", {
             bot_name: $("#bot_name").val(), telegram_token: $("#telegram_token").val(),
-            openai_api_key: $("#openai_api_key").val(), assistant_id: $("#assistant_id").val()
+            openai_api_key: $("#openai_api_key").val(), assistant_id: $("#assistant_id").val(),
+            group_context_limit: parseInt($("#group_context_limit").val()) || 15
         }, '#createBtn');
     });
     $('#botsTable').on('click', '.edit-btn', function() {
@@ -115,6 +126,7 @@ $(document).ready(function() {
         $("#edit_telegram_token").val(row.find(".bot-token").text());
         $("#edit_openai_api_key").val(row.find(".bot-openai").text());
         $("#edit_assistant_id").val(row.find(".bot-assistant").text());
+        $("#edit_group_context_limit").val(row.find(".bot-context").text() || 15);
         new bootstrap.Modal('#editModal').show();
     });
     $("#editBotForm").submit(e => {
@@ -122,7 +134,8 @@ $(document).ready(function() {
         var botId = $("#edit_bot_id").val();
         apiCall(`/api/bots/${botId}`, "PUT", {
             bot_name: $("#edit_bot_name").val(), telegram_token: $("#edit_telegram_token").val(),
-            openai_api_key: $("#edit_openai_api_key").val(), assistant_id: $("#edit_assistant_id").val()
+            openai_api_key: $("#edit_openai_api_key").val(), assistant_id: $("#edit_assistant_id").val(),
+            group_context_limit: parseInt($("#edit_group_context_limit").val()) || 15
         }, '#saveEditBtn');
     });
     $('#botsTable').on('click', '.delete-btn', function() {

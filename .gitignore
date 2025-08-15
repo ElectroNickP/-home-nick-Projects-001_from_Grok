@@ -1,8 +1,28 @@
-.env
+# Virtual environment
+venv/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Application specific
 bot.log
 bot_configs.json
-nohup.out
-*.ogg
-*.mp3
+*.tmp
