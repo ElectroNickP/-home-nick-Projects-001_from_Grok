@@ -1,0 +1,71 @@
+[2025-08-15 23:39:08,903] INFO: Конфигурации ботов загружены из файла: 1 ботов
+[2025-08-15 23:39:08,904] INFO: Бот 4 успешно запущен.
+[2025-08-15 23:39:08,904] INFO: 🚀 Telegram Bot Manager API v2.0 Starting...
+[2025-08-15 23:39:08,904] INFO: 📚 API v2 Documentation: http://localhost:60183/api/v2/docs
+[2025-08-15 23:39:08,904] INFO: 🌐 Web Interface: http://localhost:60183/
+[2025-08-15 23:39:08,904] INFO: 🔐 Default credentials: admin / securepassword123
+[2025-08-15 23:39:08,904] INFO: 📡 Professional API Endpoints Added:
+[2025-08-15 23:39:08,904] INFO:    • GET  /api/v2/system/health - System health check
+[2025-08-15 23:39:08,904] INFO:    • GET  /api/v2/system/info - Detailed system information
+[2025-08-15 23:39:08,904] INFO:    • GET  /api/v2/system/stats - Real-time statistics
+[2025-08-15 23:39:08,904] INFO:    • GET  /api/v2/bots - Enhanced bot listing with pagination
+[2025-08-15 23:39:08,904] INFO:    • POST /api/v2/bots - Create new bot
+[2025-08-15 23:39:08,904] INFO:    • GET  /api/v2/bots/{id}/status - Detailed bot status
+[2025-08-15 23:39:08,904] INFO:    • PUT  /api/v2/bots/{id} - Update bot configuration
+[2025-08-15 23:39:08,905] INFO:    • DELETE /api/v2/bots/{id} - Delete bot
+[2025-08-15 23:39:08,905] INFO:    • POST /api/v2/bots/{id}/start - Start bot
+[2025-08-15 23:39:08,905] INFO:    • POST /api/v2/bots/{id}/stop - Stop bot
+[2025-08-15 23:39:08,905] INFO:    • POST /api/v2/bots/{id}/restart - Restart bot
+[2025-08-15 23:39:08,905] INFO: ⚠️  Remember to change default credentials in production!
+[2025-08-15 23:39:08,905] INFO: 🔧 Запуск Flask-сервера на http://0.0.0.0:60183
+ * Serving Flask app 'app'
+ * Debug mode: off
+[2025-08-15 23:39:08,909] INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:60183
+ * Running on http://192.168.1.102:60183
+[2025-08-15 23:39:08,909] INFO: [33mPress CTRL+C to quit[0m
+[2025-08-15 23:39:09,803] INFO: Бот diosybot запущен.
+[2025-08-15 23:39:09,803] INFO: Запуск Telegram-бота @diosybot...
+[2025-08-15 23:39:10,054] INFO: Start polling
+[2025-08-15 23:39:10,282] INFO: Run polling for bot @diosybot id=7684104886 - 'D!P$Y'
+[2025-08-15 23:39:19,625] AUTO-UPDATE INFO: 🚀 Starting professional update process...
+[2025-08-15 23:39:19,625] INFO: 🚀 Starting professional update process...
+[2025-08-15 23:39:19,625] AUTO-UPDATE INFO: 🔍 Checking for updates...
+[2025-08-15 23:39:19,625] INFO: 🔍 Checking for updates...
+[2025-08-15 23:39:24,816] AUTO-UPDATE INFO: ✅ Git command succeeded: git fetch origin
+[2025-08-15 23:39:24,816] INFO: ✅ Git command succeeded: git fetch origin
+[2025-08-15 23:39:24,826] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 23:39:24,826] INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 23:39:24,835] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse origin/master
+[2025-08-15 23:39:24,835] INFO: ✅ Git command succeeded: git rev-parse origin/master
+[2025-08-15 23:39:24,846] AUTO-UPDATE INFO: ✅ Git command succeeded: git log 26d1ab962018f5b4675775d412a1cf7ce0029fab..f72ec301f2550536bb51a146bd03699ed543ada7 --oneline --max-count=10
+[2025-08-15 23:39:24,846] INFO: ✅ Git command succeeded: git log 26d1ab962018f5b4675775d412a1cf7ce0029fab..f72ec301f2550536bb51a146bd03699ed543ada7 --oneline --max-count=10
+[2025-08-15 23:39:24,846] AUTO-UPDATE INFO: ✅ Update check completed: Updates available
+[2025-08-15 23:39:24,846] INFO: ✅ Update check completed: Updates available
+[2025-08-15 23:39:24,846] AUTO-UPDATE INFO: ⚡ Force stopping all bots before update...
+[2025-08-15 23:39:24,846] INFO: ⚡ Force stopping all bots before update...
+[2025-08-15 23:39:24,847] AUTO-UPDATE INFO: 📋 Force stopping 1 bots
+[2025-08-15 23:39:24,847] INFO: 📋 Force stopping 1 bots
+[2025-08-15 23:39:24,847] AUTO-UPDATE INFO: ⚡ Force stopped bot 4
+[2025-08-15 23:39:24,847] INFO: ⚡ Force stopped bot 4
+[2025-08-15 23:39:24,847] AUTO-UPDATE INFO: ✅ All bots force stopped successfully
+[2025-08-15 23:39:24,847] INFO: ✅ All bots force stopped successfully
+[2025-08-15 23:39:24,847] AUTO-UPDATE INFO: 📦 Creating backup: backup_20250815_233924
+[2025-08-15 23:39:24,847] INFO: 📦 Creating backup: backup_20250815_233924
+[2025-08-15 23:39:24,858] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 23:39:24,858] INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 23:39:24,859] AUTO-UPDATE INFO: ✅ Backup created successfully: backup_20250815_233924
+[2025-08-15 23:39:24,859] INFO: ✅ Backup created successfully: backup_20250815_233924
+[2025-08-15 23:39:24,859] AUTO-UPDATE INFO: 📥 Performing git pull...
+[2025-08-15 23:39:24,859] INFO: 📥 Performing git pull...
+[2025-08-15 23:39:29,337] AUTO-UPDATE INFO: ✅ Git command succeeded: git pull origin master
+[2025-08-15 23:39:29,337] INFO: ✅ Git command succeeded: git pull origin master
+[2025-08-15 23:39:29,337] AUTO-UPDATE INFO: ✅ Validating update...
+[2025-08-15 23:39:29,337] INFO: ✅ Validating update...
+[2025-08-15 23:39:29,339] INFO: Конфигурации ботов сохранены в файл
+[2025-08-15 23:39:30,338] AUTO-UPDATE INFO: 🔄 Preparing application restart...
+[2025-08-15 23:39:30,338] INFO: 🔄 Preparing application restart...
+[2025-08-15 23:39:30,339] AUTO-UPDATE INFO: ✅ Update completed successfully, restarting application...
+[2025-08-15 23:39:30,339] INFO: ✅ Update completed successfully, restarting application...
+[2025-08-15 23:39:30,340] INFO: 127.0.0.1 - - [15/Aug/2025 23:39:30] "POST /api/update HTTP/1.1" 200 -

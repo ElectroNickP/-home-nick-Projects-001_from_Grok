@@ -1,0 +1,83 @@
+/home/nick/Projects/Phuket/-home-nick-Projects-001_from_Grok/src/auto_updater.py:527: SyntaxWarning: invalid escape sequence '\|'
+  """
+[2025-08-15 23:44:46,587] INFO: Конфигурации ботов загружены из файла: 1 ботов
+[2025-08-15 23:44:46,588] INFO: Бот 4 успешно запущен.
+[2025-08-15 23:44:46,588] INFO: 🚀 Telegram Bot Manager API v2.0 Starting...
+[2025-08-15 23:44:46,588] INFO: 📚 API v2 Documentation: http://localhost:60183/api/v2/docs
+[2025-08-15 23:44:46,588] INFO: 🌐 Web Interface: http://localhost:60183/
+[2025-08-15 23:44:46,588] INFO: 🔐 Default credentials: admin / securepassword123
+[2025-08-15 23:44:46,588] INFO: 📡 Professional API Endpoints Added:
+[2025-08-15 23:44:46,588] INFO:    • GET  /api/v2/system/health - System health check
+[2025-08-15 23:44:46,588] INFO:    • GET  /api/v2/system/info - Detailed system information
+[2025-08-15 23:44:46,589] INFO:    • GET  /api/v2/system/stats - Real-time statistics
+[2025-08-15 23:44:46,589] INFO:    • GET  /api/v2/bots - Enhanced bot listing with pagination
+[2025-08-15 23:44:46,589] INFO:    • POST /api/v2/bots - Create new bot
+[2025-08-15 23:44:46,589] INFO:    • GET  /api/v2/bots/{id}/status - Detailed bot status
+[2025-08-15 23:44:46,589] INFO:    • PUT  /api/v2/bots/{id} - Update bot configuration
+[2025-08-15 23:44:46,589] INFO:    • DELETE /api/v2/bots/{id} - Delete bot
+[2025-08-15 23:44:46,589] INFO:    • POST /api/v2/bots/{id}/start - Start bot
+[2025-08-15 23:44:46,589] INFO:    • POST /api/v2/bots/{id}/stop - Stop bot
+[2025-08-15 23:44:46,589] INFO:    • POST /api/v2/bots/{id}/restart - Restart bot
+[2025-08-15 23:44:46,589] INFO: ⚠️  Remember to change default credentials in production!
+[2025-08-15 23:44:46,589] INFO: 🔧 Запуск Flask-сервера на http://0.0.0.0:60183
+ * Serving Flask app 'app'
+ * Debug mode: off
+[2025-08-15 23:44:46,595] INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:60183
+ * Running on http://192.168.1.102:60183
+[2025-08-15 23:44:46,595] INFO: [33mPress CTRL+C to quit[0m
+[2025-08-15 23:44:47,361] INFO: Бот diosybot запущен.
+[2025-08-15 23:44:47,361] INFO: Запуск Telegram-бота @diosybot...
+[2025-08-15 23:44:47,669] INFO: Start polling
+[2025-08-15 23:44:47,975] INFO: Run polling for bot @diosybot id=7684104886 - 'D!P$Y'
+[2025-08-15 23:44:57,206] INFO: 127.0.0.1 - - [15/Aug/2025 23:44:57] "[31m[1mGET / HTTP/1.1[0m" 401 -
+[2025-08-15 23:44:57,232] INFO: 127.0.0.1 - - [15/Aug/2025 23:44:57] "GET /api/update/status HTTP/1.1" 200 -
+[2025-08-15 23:45:31,745] AUTO-UPDATE INFO: 🚀 Starting professional update process...
+[2025-08-15 23:45:31,745] INFO: 🚀 Starting professional update process...
+[2025-08-15 23:45:31,745] AUTO-UPDATE INFO: 🔍 Checking for updates...
+[2025-08-15 23:45:31,745] INFO: 🔍 Checking for updates...
+[2025-08-15 23:45:35,500] AUTO-UPDATE INFO: ✅ Git command succeeded: git fetch origin
+[2025-08-15 23:45:35,500] INFO: ✅ Git command succeeded: git fetch origin
+[2025-08-15 23:45:35,510] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 23:45:35,510] INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 23:45:35,518] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse origin/master
+[2025-08-15 23:45:35,518] INFO: ✅ Git command succeeded: git rev-parse origin/master
+[2025-08-15 23:45:35,529] AUTO-UPDATE INFO: ✅ Git command succeeded: git log f72ec301f2550536bb51a146bd03699ed543ada7..76b679ff20598b99f9640c5b7015224c214b3d80 --oneline --max-count=10
+[2025-08-15 23:45:35,529] INFO: ✅ Git command succeeded: git log f72ec301f2550536bb51a146bd03699ed543ada7..76b679ff20598b99f9640c5b7015224c214b3d80 --oneline --max-count=10
+[2025-08-15 23:45:35,529] AUTO-UPDATE INFO: ✅ Update check completed: Updates available
+[2025-08-15 23:45:35,529] INFO: ✅ Update check completed: Updates available
+[2025-08-15 23:45:35,530] AUTO-UPDATE INFO: ⚡ Force stopping all bots before update...
+[2025-08-15 23:45:35,530] INFO: ⚡ Force stopping all bots before update...
+[2025-08-15 23:45:35,530] AUTO-UPDATE INFO: 📋 Force stopping 1 bots
+[2025-08-15 23:45:35,530] INFO: 📋 Force stopping 1 bots
+[2025-08-15 23:45:35,530] AUTO-UPDATE INFO: ⚡ Force stopped bot 4
+[2025-08-15 23:45:35,530] INFO: ⚡ Force stopped bot 4
+[2025-08-15 23:45:35,530] AUTO-UPDATE INFO: ✅ All bots force stopped successfully
+[2025-08-15 23:45:35,530] INFO: ✅ All bots force stopped successfully
+[2025-08-15 23:45:35,530] AUTO-UPDATE INFO: 📦 Creating backup: backup_20250815_234535
+[2025-08-15 23:45:35,530] INFO: 📦 Creating backup: backup_20250815_234535
+[2025-08-15 23:45:35,540] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 23:45:35,540] INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 23:45:35,541] AUTO-UPDATE INFO: ✅ Backup created successfully: backup_20250815_234535
+[2025-08-15 23:45:35,541] INFO: ✅ Backup created successfully: backup_20250815_234535
+[2025-08-15 23:45:35,542] AUTO-UPDATE INFO: 📥 Performing git pull...
+[2025-08-15 23:45:35,542] INFO: 📥 Performing git pull...
+[2025-08-15 23:45:39,195] AUTO-UPDATE INFO: ✅ Git command succeeded: git pull origin master
+[2025-08-15 23:45:39,195] INFO: ✅ Git command succeeded: git pull origin master
+[2025-08-15 23:45:39,195] AUTO-UPDATE INFO: ✅ Validating update...
+[2025-08-15 23:45:39,195] INFO: ✅ Validating update...
+[2025-08-15 23:45:39,196] INFO: Конфигурации ботов сохранены в файл
+[2025-08-15 23:45:40,196] AUTO-UPDATE INFO: 🔄 Preparing application restart...
+[2025-08-15 23:45:40,196] INFO: 🔄 Preparing application restart...
+[2025-08-15 23:45:40,197] AUTO-UPDATE INFO: ✅ Update completed successfully, restarting application...
+[2025-08-15 23:45:40,197] INFO: ✅ Update completed successfully, restarting application...
+[2025-08-15 23:45:40,197] AUTO-UPDATE INFO: 🚀 Restart thread started
+[2025-08-15 23:45:40,197] INFO: 🚀 Restart thread started
+[2025-08-15 23:45:40,198] INFO: 127.0.0.1 - - [15/Aug/2025 23:45:40] "POST /api/update HTTP/1.1" 200 -
+[2025-08-15 23:45:42,197] AUTO-UPDATE INFO: 🔄 Executing restart script: /home/nick/Projects/Phuket/-home-nick-Projects-001_from_Grok/src/restart_app.sh
+[2025-08-15 23:45:42,197] INFO: 🔄 Executing restart script: /home/nick/Projects/Phuket/-home-nick-Projects-001_from_Grok/src/restart_app.sh
+[2025-08-15 23:45:42,202] AUTO-UPDATE INFO: RESTART: 🔄 Starting application restart process...
+[2025-08-15 23:45:42,202] INFO: RESTART: 🔄 Starting application restart process...
+[2025-08-15 23:45:42,202] AUTO-UPDATE INFO: RESTART: 🛑 Stopping existing processes...
+[2025-08-15 23:45:42,202] INFO: RESTART: 🛑 Stopping existing processes...

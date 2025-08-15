@@ -1,0 +1,51 @@
+[2025-08-15 23:48:29,254] INFO: Конфигурации ботов загружены из файла: 1 ботов
+[2025-08-15 23:48:29,255] INFO: Бот 4 успешно запущен.
+[2025-08-15 23:48:29,256] INFO: 🚀 Telegram Bot Manager API v2.0 Starting...
+[2025-08-15 23:48:29,256] INFO: 📚 API v2 Documentation: http://localhost:60183/api/v2/docs
+[2025-08-15 23:48:29,256] INFO: 🌐 Web Interface: http://localhost:60183/
+[2025-08-15 23:48:29,256] INFO: 🔐 Default credentials: admin / securepassword123
+[2025-08-15 23:48:29,256] INFO: 📡 Professional API Endpoints Added:
+[2025-08-15 23:48:29,256] INFO:    • GET  /api/v2/system/health - System health check
+[2025-08-15 23:48:29,256] INFO:    • GET  /api/v2/system/info - Detailed system information
+[2025-08-15 23:48:29,256] INFO:    • GET  /api/v2/system/stats - Real-time statistics
+[2025-08-15 23:48:29,257] INFO:    • GET  /api/v2/bots - Enhanced bot listing with pagination
+[2025-08-15 23:48:29,257] INFO:    • POST /api/v2/bots - Create new bot
+[2025-08-15 23:48:29,257] INFO:    • GET  /api/v2/bots/{id}/status - Detailed bot status
+[2025-08-15 23:48:29,257] INFO:    • PUT  /api/v2/bots/{id} - Update bot configuration
+[2025-08-15 23:48:29,257] INFO:    • DELETE /api/v2/bots/{id} - Delete bot
+[2025-08-15 23:48:29,257] INFO:    • POST /api/v2/bots/{id}/start - Start bot
+[2025-08-15 23:48:29,257] INFO:    • POST /api/v2/bots/{id}/stop - Stop bot
+[2025-08-15 23:48:29,257] INFO:    • POST /api/v2/bots/{id}/restart - Restart bot
+[2025-08-15 23:48:29,257] INFO: ⚠️  Remember to change default credentials in production!
+[2025-08-15 23:48:29,257] INFO: 🔧 Запуск Flask-сервера на http://0.0.0.0:60183
+ * Serving Flask app 'app'
+ * Debug mode: off
+[2025-08-15 23:48:29,262] INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:60183
+ * Running on http://192.168.1.102:60183
+[2025-08-15 23:48:29,262] INFO: [33mPress CTRL+C to quit[0m
+[2025-08-15 23:48:30,105] INFO: Бот diosybot запущен.
+[2025-08-15 23:48:30,105] INFO: Запуск Telegram-бота @diosybot...
+[2025-08-15 23:48:30,494] INFO: Start polling
+[2025-08-15 23:48:30,801] INFO: Run polling for bot @diosybot id=7684104886 - 'D!P$Y'
+[2025-08-15 23:48:38,831] INFO: 127.0.0.1 - - [15/Aug/2025 23:48:38] "[31m[1mGET / HTTP/1.1[0m" 401 -
+[2025-08-15 23:48:38,857] INFO: 127.0.0.1 - - [15/Aug/2025 23:48:38] "GET /api/update/status HTTP/1.1" 200 -
+[2025-08-15 23:49:05,297] AUTO-UPDATE INFO: 🚀 Starting professional update process...
+[2025-08-15 23:49:05,297] INFO: 🚀 Starting professional update process...
+[2025-08-15 23:49:05,297] AUTO-UPDATE INFO: 🔍 Checking for updates...
+[2025-08-15 23:49:05,297] INFO: 🔍 Checking for updates...
+[2025-08-15 23:49:08,591] AUTO-UPDATE INFO: ✅ Git command succeeded: git fetch origin
+[2025-08-15 23:49:08,591] INFO: ✅ Git command succeeded: git fetch origin
+[2025-08-15 23:49:08,599] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 23:49:08,599] INFO: ✅ Git command succeeded: git rev-parse HEAD
+[2025-08-15 23:49:08,606] AUTO-UPDATE INFO: ✅ Git command succeeded: git rev-parse origin/master
+[2025-08-15 23:49:08,606] INFO: ✅ Git command succeeded: git rev-parse origin/master
+[2025-08-15 23:49:08,614] AUTO-UPDATE INFO: ✅ Git command succeeded: git log 76b679ff20598b99f9640c5b7015224c214b3d80..42bf72b6bc3da9658ede734200b1cbef1bdabf60 --oneline --max-count=10
+[2025-08-15 23:49:08,614] INFO: ✅ Git command succeeded: git log 76b679ff20598b99f9640c5b7015224c214b3d80..42bf72b6bc3da9658ede734200b1cbef1bdabf60 --oneline --max-count=10
+[2025-08-15 23:49:08,615] AUTO-UPDATE INFO: ✅ Update check completed: Updates available
+[2025-08-15 23:49:08,615] INFO: ✅ Update check completed: Updates available
+[2025-08-15 23:49:08,615] AUTO-UPDATE INFO: 🛑 Stopping all bots before update...
+[2025-08-15 23:49:08,615] INFO: 🛑 Stopping all bots before update...
+[2025-08-15 23:52:25,019] INFO: 127.0.0.1 - - [15/Aug/2025 23:52:25] "[31m[1mGET / HTTP/1.1[0m" 401 -
+[2025-08-15 23:52:37,698] INFO: 127.0.0.1 - - [15/Aug/2025 23:52:37] "GET /api/update/status HTTP/1.1" 200 -
