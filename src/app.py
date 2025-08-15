@@ -160,5 +160,5 @@ if __name__ == '__main__':
             json.dump({"bots": {}}, f)
     cm.load_configs()
     bm.start_all_bots()
-    logger.info("Запуск Flask-сервера на http://0.0.0.0:47469")
-    app.run(host="0.0.0.0", port=47469, debug=False, threaded=True)
+    logger.info("Запуск Flask-сервера на http://0.0.0.0:60183")
+    app.run(host="0.0.0.0", port=60183, debug=False, threaded=True)
