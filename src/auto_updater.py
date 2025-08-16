@@ -331,14 +331,21 @@ class AutoUpdater:
             if not check_result["has_updates"]:
                 raise Exception("No updates available")
             
-            # Step 2: Stop all bots
-            self.update_state.update({"progress": 15, "message": "Stopping all bots..."})
-            self.logger.info("🛑 Stopping all bots before update...")
-            with cm.BOT_CONFIGS_LOCK:
-                for bot_id, bot_data in cm.BOT_CONFIGS.items():
-                    if bot_data.get("status") == "running":
-                        bm.stop_bot_thread(bot_id)
-                        self.logger.info(f"🛑 Stopped bot {bot_id}")
+            # Step 2: Professional bot stopping (NO DEADLOCK)
+            self.update_state.update({"progress": 15, "message": "Professional bot stopping..."})
+            self.logger.info("🛑 Professional bot stopping for auto-update...")
+            
+            try:
+                success, message = bm.stop_all_bots_for_update(total_timeout=20)
+                if success:
+                    self.logger.info(f"✅ Professional bot stopping completed: {message}")
+                else:
+                    self.logger.warning(f"⚠️ Bot stopping completed with issues: {message}")
+                    # Continue anyway - non-critical for update
+                    
+            except Exception as e:
+                self.logger.error(f"❌ Error in professional bot stopping: {e}")
+                self.logger.info("🔄 Continuing with update despite bot stopping issues...")
             
             # Step 3: Create backup
             self.update_state.update({"progress": 25, "message": "Creating backup..."})

@@ -32,3 +32,10 @@ bot_configs.json
 
 # Application logs
 app.log
+# Exclude sensitive backup files with API keys
+src/backups/
+src/bot_configs_backup.json
+*.log
+logs/
+app_*.log
+*.pid
