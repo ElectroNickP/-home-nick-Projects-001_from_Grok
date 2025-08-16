@@ -449,3 +449,5 @@ PYTHONPATH=/path/to/project python src/app.py
 # Test update for demo
 # Test restart mechanism
 # Test improved restart mechanism v2.0
+# Test fixed restart mechanism v2.1 with proper venv activation
+# Test auto-update at Sat Aug 16 09:29:23 AM +07 2025
