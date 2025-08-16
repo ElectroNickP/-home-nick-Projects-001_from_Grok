@@ -39,3 +39,20 @@ src/bot_configs_backup.json
 logs/
 app_*.log
 *.pid
+
+# Auto-update backups with sensitive data
+backups/
+src/backups/
+**/bot_configs_backup.json
+
+# Test files
+*_test.log
+app_*.log
+*.pid
+
+# Logs
+logs/
+*.log
+
+# Cyrillic named files
+*\320\221*.md
