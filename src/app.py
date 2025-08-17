@@ -1119,8 +1119,10 @@ if __name__ == '__main__':
     bm.start_all_bots()
     
     logger.info("🚀 Telegram Bot Manager API v2.0 Starting...")
-    logger.info("📚 API v2 Documentation: http://localhost:60183/api/v2/docs")
-    logger.info("🌐 Web Interface: http://localhost:60183/")
+    logger.info("🔄 AUTO-UPDATE TEST: System ready for auto-update verification!")
+    logger.info("⚡ FORCED RESTART: Application must restart to show v3.1.2!")
+    logger.info("📚 API v2 Documentation: http://localhost:5000/api/v2/docs")
+    logger.info("🌐 Web Interface: http://localhost:5000/")
     logger.info("🔐 Default credentials: admin / securepassword123")
     logger.info("📡 Professional API Endpoints Added:")
     logger.info("   • GET  /api/v2/system/health - System health check")
@@ -1135,6 +1137,6 @@ if __name__ == '__main__':
     logger.info("   • POST /api/v2/bots/{id}/stop - Stop bot")
     logger.info("   • POST /api/v2/bots/{id}/restart - Restart bot")
     logger.info("⚠️  Remember to change default credentials in production!")
-    logger.info("🔧 Запуск Flask-сервера на http://0.0.0.0:60183")
+    logger.info("🔧 Запуск Flask-сервера на http://0.0.0.0:5000")
     
-    app.run(host="0.0.0.0", port=60183, debug=False, threaded=True)
+    app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
