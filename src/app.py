@@ -8,8 +8,8 @@ import time
 import sys
 import psutil
 from datetime import datetime
-from flask import Flask, request, jsonify, render_template, send_from_directory, redirect
-from flask_httpauth import HTTPBasicAuth
+from flask import Flask, request, jsonify, render_template, send_from_directory, redirect, session, url_for
+from functools import wraps
 
 import config_manager as cm
 import bot_manager as bm
@@ -25,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder='templates')
-auth = HTTPBasicAuth()
+app.secret_key = 'your-secret-key-change-in-production'  # Секретный ключ для сессий
 
 # Маршрут для статических файлов (логотипы, стили и т.д.)
 @app.route('/static/<path:filename>')
@@ -34,27 +34,65 @@ def static_files(filename):
 
 USERS = {"admin": "securepassword123"}
 
-@auth.verify_password
-def verify_password(username, password):
-    if username in USERS and USERS[username] == password:
-        return username
-    return None
+def login_required(f):
+    """Декоратор для проверки авторизации"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('login_page'))
+        return f(*args, **kwargs)
+    return decorated_function
 
-@app.route("/login")
+def verify_credentials(username, password):
+    """Проверка учетных данных"""
+    if username in USERS and USERS[username] == password:
+        return True
+    return False
+
+def api_login_required(f):
+    """Декоратор для проверки авторизации в API"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return jsonify({'error': 'Unauthorized', 'message': 'Authentication required'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route("/login", methods=['GET', 'POST'])
 def login_page():
     """Страница авторизации"""
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if verify_credentials(username, password):
+            session['user_id'] = username
+            session['username'] = username
+            return redirect(url_for('index_page'))
+        else:
+            return render_template('login.html', error='Неверные учетные данные')
+    
     return render_template('login.html')
 
 @app.route("/logout")
 def logout():
     """Выход из системы"""
+    session.clear()
     return render_template('logout.html')
 
-@app.route("/auth-check")
-@auth.login_required
-def auth_check():
-    """Проверка авторизации и перенаправление на главную страницу"""
-    return redirect('/')
+@app.route("/api/login", methods=['POST'])
+def api_login():
+    """API для авторизации"""
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    
+    if verify_credentials(username, password):
+        session['user_id'] = username
+        session['username'] = username
+        return jsonify({'success': True, 'message': 'Авторизация успешна'})
+    else:
+        return jsonify({'success': False, 'message': 'Неверные учетные данные'}), 401
 
 def serialize_bot_entry(bot_entry):
     """Serialize bot entry for API v1 compatibility"""
@@ -74,7 +112,7 @@ def get_template_context():
     }
 
 @app.route("/")
-@auth.login_required
+@login_required
 def index_page():
     with cm.BOT_CONFIGS_LOCK:
         bots_list = [serialize_bot_entry(b) for b in cm.BOT_CONFIGS.values()]
@@ -84,7 +122,7 @@ def index_page():
     return render_template('index.html', **context)
 
 @app.route("/dialogs/<int:bot_id>")
-@auth.login_required
+@login_required
 def dialogs_page(bot_id):
     with cm.BOT_CONFIGS_LOCK:
         if bot_id not in cm.BOT_CONFIGS:
@@ -109,7 +147,7 @@ def dialogs_page(bot_id):
     return render_template('dialogs.html', **context)
 
 @app.route("/api/bots", methods=["GET"])
-@auth.login_required  
+@api_login_required  
 def get_all_bots():
     """Get all bots (API v1 compatibility)"""
     try:
@@ -137,7 +175,7 @@ def get_all_bots():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/bots", methods=["POST"])
-@auth.login_required
+@api_login_required
 def create_bot():
     data = request.get_json()
     required = ["bot_name", "telegram_token", "openai_api_key", "assistant_id"]
@@ -187,7 +225,7 @@ def create_bot():
     return jsonify(serialize_bot_entry(bot_entry)), 201
 
 @app.route("/api/bots/<int:bot_id>", methods=["GET"])
-@auth.login_required
+@api_login_required
 def get_bot(bot_id):
     with cm.BOT_CONFIGS_LOCK:
         if bot_id not in cm.BOT_CONFIGS:
@@ -195,7 +233,7 @@ def get_bot(bot_id):
         return jsonify(serialize_bot_entry(cm.BOT_CONFIGS[bot_id]))
 
 @app.route("/api/bots/<int:bot_id>", methods=["PUT"])
-@auth.login_required
+@api_login_required
 def update_bot(bot_id):
     data = request.get_json()
     with cm.BOT_CONFIGS_LOCK:
@@ -209,7 +247,7 @@ def update_bot(bot_id):
     return jsonify(serialize_bot_entry(cm.BOT_CONFIGS[bot_id]))
 
 @app.route("/api/bots/<int:bot_id>", methods=["DELETE"])
-@auth.login_required
+@api_login_required
 def delete_bot(bot_id):
     with cm.BOT_CONFIGS_LOCK:
         if bot_id not in cm.BOT_CONFIGS:
@@ -222,7 +260,7 @@ def delete_bot(bot_id):
     return jsonify({"success": True})
 
 @app.route("/api/bots/<int:bot_id>/start", methods=["POST"])
-@auth.login_required
+@api_login_required
 def start_bot(bot_id):
     success, message = bm.start_bot_thread(bot_id)
     if success:
@@ -230,7 +268,7 @@ def start_bot(bot_id):
     return jsonify({"error": message}), 400
 
 @app.route("/api/bots/<int:bot_id>/stop", methods=["POST"])
-@auth.login_required
+@api_login_required
 def stop_bot(bot_id):
     success, message = bm.stop_bot_thread(bot_id)
     if success:
@@ -238,7 +276,7 @@ def stop_bot(bot_id):
     return jsonify({"error": message}), 400
 
 @app.route("/api/version", methods=["GET"])
-@auth.login_required
+@login_required
 def get_version_api():
     """API endpoint for getting version information"""
     version_info = version.get_version_info()
@@ -276,7 +314,7 @@ def restart_application():
     pass
 
 @app.route("/api/check-updates", methods=["GET"])
-@auth.login_required
+@api_login_required
 def check_updates_api():
     """API endpoint to check for available updates"""
     try:
@@ -308,7 +346,7 @@ def check_updates_api():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/update", methods=["POST"])
-@auth.login_required
+@api_login_required
 def update_application():
     """API endpoint to perform professional application update"""
     try:
@@ -339,7 +377,7 @@ def update_application():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/update/status", methods=["GET"])
-@auth.login_required
+@api_login_required
 def get_update_status():
     """Get current update status with progress information"""
     try:
@@ -353,7 +391,7 @@ def get_update_status():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/update/backups", methods=["GET"])
-@auth.login_required
+@api_login_required
 def list_backups():
     """List all available backups"""
     try:
@@ -368,7 +406,7 @@ def list_backups():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/update/backups/cleanup", methods=["POST"])
-@auth.login_required
+@api_login_required
 def cleanup_backups():
     """Clean up old backups, keeping only the most recent ones"""
     try:
@@ -410,7 +448,7 @@ def api_response(data=None, message="Success", status_code=200, error=None):
     return jsonify(response), status_code
 
 @app.route("/api/v2/system/health", methods=["GET"])
-@auth.login_required
+@api_login_required
 def health_check():
     """System health check endpoint"""
     try:
@@ -474,7 +512,7 @@ def health_check():
         return api_response(error="Health check failed", status_code=500)
 
 @app.route("/api/v2/system/info", methods=["GET"])
-@auth.login_required
+@api_login_required
 def system_info():
     """Get detailed system information"""
     try:
@@ -538,7 +576,7 @@ def system_info():
         return api_response(error="Failed to retrieve system information", status_code=500)
 
 @app.route("/api/v2/bots", methods=["GET"])
-@auth.login_required
+@api_login_required
 def get_all_bots_v2():
     """Get all bots with filtering and pagination"""
     try:
@@ -612,7 +650,7 @@ def get_all_bots_v2():
         return api_response(error="Failed to retrieve bots", status_code=500)
 
 @app.route("/api/v2/bots/<int:bot_id>/status", methods=["GET"])
-@auth.login_required
+@api_login_required
 def get_bot_status_v2(bot_id):
     """Get detailed bot status"""
     try:
@@ -646,7 +684,7 @@ def get_bot_status_v2(bot_id):
         return api_response(error="Failed to get bot status", status_code=500)
 
 @app.route("/api/v2/bots/<int:bot_id>/restart", methods=["POST"])
-@auth.login_required
+@api_login_required
 def restart_bot_v2(bot_id):
     """Restart a bot"""
     try:
@@ -679,7 +717,7 @@ def restart_bot_v2(bot_id):
         return api_response(error="Failed to restart bot", status_code=500)
 
 @app.route("/api/v2/bots", methods=["POST"])
-@auth.login_required
+@api_login_required
 def create_bot_v2():
     """Create a new bot via API v2"""
     try:
@@ -750,7 +788,7 @@ def create_bot_v2():
         return api_response(error="Failed to create bot", status_code=500)
 
 @app.route("/api/v2/bots/<int:bot_id>", methods=["PUT"])
-@auth.login_required
+@api_login_required
 def update_bot_v2(bot_id):
     """Update bot configuration via API v2"""
     try:
@@ -787,7 +825,7 @@ def update_bot_v2(bot_id):
         return api_response(error="Failed to update bot", status_code=500)
 
 @app.route("/api/v2/bots/<int:bot_id>", methods=["DELETE"])
-@auth.login_required
+@api_login_required
 def delete_bot_v2(bot_id):
     """Delete a bot via API v2"""
     try:
@@ -820,7 +858,7 @@ def delete_bot_v2(bot_id):
         return api_response(error="Failed to delete bot", status_code=500)
 
 @app.route("/api/v2/bots/<int:bot_id>/start", methods=["POST"])
-@auth.login_required
+@api_login_required
 def start_bot_v2(bot_id):
     """Start a bot via API v2"""
     try:
@@ -848,7 +886,7 @@ def start_bot_v2(bot_id):
         return api_response(error="Failed to start bot", status_code=500)
 
 @app.route("/api/v2/bots/<int:bot_id>/stop", methods=["POST"])
-@auth.login_required
+@api_login_required
 def stop_bot_v2(bot_id):
     """Stop a bot via API v2"""
     try:
@@ -876,7 +914,7 @@ def stop_bot_v2(bot_id):
         return api_response(error="Failed to stop bot", status_code=500)
 
 @app.route("/api/v2/system/stats", methods=["GET"])
-@auth.login_required
+@api_login_required
 def get_stats_v2():
     """Get system statistics"""
     try:
@@ -927,7 +965,7 @@ def get_stats_v2():
 
 # API Documentation endpoint
 @app.route("/api/v2/docs", methods=["GET"])
-@auth.login_required
+@api_login_required
 def api_docs():
     """API Documentation"""
     docs_html = """

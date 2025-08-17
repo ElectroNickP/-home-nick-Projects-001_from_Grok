@@ -1127,26 +1127,19 @@ function showBackupInfo() {
 $(document).ready(function() {
     // Check authentication status on page load
     checkAuthStatus();
-    
-    // Set up authentication headers for all AJAX requests
-    setupAuthHeaders();
 });
 
 function checkAuthStatus() {
-    const credentials = localStorage.getItem('auth_credentials');
     const username = localStorage.getItem('auth_username');
     
-    if (credentials && username) {
+    if (username) {
         // Update user display
         $('#currentUser').text(username);
         
-        // Test authentication
+        // Test authentication by making a request to the server
         $.ajax({
             url: '/api/v2/system/health',
             method: 'GET',
-            headers: {
-                'Authorization': `Basic ${credentials}`
-            },
             timeout: 5000,
             success: function(response) {
                 // Authentication is valid
@@ -1156,7 +1149,6 @@ function checkAuthStatus() {
                 if (xhr.status === 401) {
                     // Authentication failed, clear credentials and redirect to login
                     console.log('Authentication failed, redirecting to login');
-                    localStorage.removeItem('auth_credentials');
                     localStorage.removeItem('auth_username');
                     window.location.href = '/login';
                 }
@@ -1169,30 +1161,9 @@ function checkAuthStatus() {
     }
 }
 
-function setupAuthHeaders() {
-    // Add authentication headers to all AJAX requests
-    $.ajaxSetup({
-        beforeSend: function(xhr) {
-            const credentials = localStorage.getItem('auth_credentials');
-            if (credentials) {
-                xhr.setRequestHeader('Authorization', `Basic ${credentials}`);
-            }
-        },
-        error: function(xhr, status, error) {
-            if (xhr.status === 401) {
-                // Authentication failed, redirect to login
-                localStorage.removeItem('auth_credentials');
-                localStorage.removeItem('auth_username');
-                window.location.href = '/login';
-            }
-        }
-    });
-}
-
 function logout() {
     if (confirm('Вы уверены, что хотите выйти из системы?')) {
         // Clear authentication data
-        localStorage.removeItem('auth_credentials');
         localStorage.removeItem('auth_username');
         
         // Redirect to logout page

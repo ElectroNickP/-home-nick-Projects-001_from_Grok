@@ -477,28 +477,24 @@
             }
 
             setLoading(true);
-
-            // Create basic auth header
-            const credentials = btoa(`${username}:${password}`);
             
             $.ajax({
-                url: '/api/v2/system/health',
-                method: 'GET',
-                headers: {
-                    'Authorization': `Basic ${credentials}`
-                },
+                url: '/api/login',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ username: username, password: password }),
                 timeout: 10000,
                 success: function(response) {
-                    // Store credentials for future requests
-                    localStorage.setItem('auth_credentials', credentials);
-                    localStorage.setItem('auth_username', username);
-                    
-                    showAlert('Успешная авторизация! Перенаправление...', 'success');
-                    
-                    // Load main page with authentication headers
-                    setTimeout(() => {
-                        loadMainPageWithAuth(credentials);
-                    }, 1000);
+                    if (response.success) {
+                        localStorage.setItem('auth_username', username);
+                        showAlert('Успешная авторизация! Перенаправление...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1000);
+                    } else {
+                        showAlert(response.message || 'Ошибка авторизации');
+                        setLoading(false);
+                    }
                 },
                 error: function(xhr, status, error) {
                     setLoading(false);
@@ -517,51 +513,20 @@
             });
         }
 
-        function loadMainPageWithAuth(credentials) {
-            // Load main page content directly with authentication headers
-            $.ajax({
-                url: '/',
-                method: 'GET',
-                headers: {
-                    'Authorization': `Basic ${credentials}`
-                },
-                timeout: 10000,
-                success: function(response) {
-                    // Replace current page content with main page
-                    document.open();
-                    document.write(response);
-                    document.close();
-                },
-                error: function(xhr, status, error) {
-                    if (xhr.status === 401) {
-                        showAlert('Ошибка авторизации при загрузке главной страницы');
-                        localStorage.removeItem('auth_credentials');
-                        localStorage.removeItem('auth_username');
-                    } else {
-                        showAlert('Ошибка загрузки главной страницы');
-                    }
-                    setLoading(false);
-                }
-            });
-        }
-
         function checkAuthStatus() {
-            const credentials = localStorage.getItem('auth_credentials');
-            if (credentials) {
+            const username = localStorage.getItem('auth_username');
+            if (username) {
+                // Check if user is still authenticated by trying to access main page
                 $.ajax({
-                    url: '/api/v2/system/health',
+                    url: '/',
                     method: 'GET',
-                    headers: {
-                        'Authorization': `Basic ${credentials}`
-                    },
                     timeout: 5000,
                     success: function(response) {
-                        // User is already authenticated, load main page with auth
-                        loadMainPageWithAuth(credentials);
+                        // User is already authenticated, redirect to main page
+                        window.location.href = '/';
                     },
                     error: function() {
                         // Clear invalid credentials
-                        localStorage.removeItem('auth_credentials');
                         localStorage.removeItem('auth_username');
                     }
                 });
