@@ -1,5 +1,26 @@
 # 📋 CHANGELOG - Telegram Bot Manager
 
+## [3.1.1] - 2025-08-17 🎙️ **TRANSCRIBER MODE + AUTO-UPDATE TESTING**
+
+### ✅ Verified & Tested
+- **Auto-update system fully tested:** Complete update cycle verified through web interface simulation
+- **Professional bot stopping confirmed:** No deadlocks, enterprise-level reliability maintained  
+- **Backup system validated:** Automatic backups created during updates (backup_20250817_121444)
+- **System stability verified:** Application restart and recovery works perfectly
+
+### 🎙️ Production Ready Features
+- **Transcriber-only mode:** Fully implemented and tested (`enable_ai_responses: false`)
+- **Token savings:** Use OpenAI only for Whisper transcription, skip text generation
+- **Web interface enhanced:** Visual indicators 🧠 (AI mode) / 🎙️ (transcriber mode)
+- **API support:** Both v1 and v2 endpoints support new transcriber functionality
+
+### 🔧 Technical Improvements  
+- **Documentation updated:** All README sections reflect v3.1.1 capabilities
+- **Version alignment:** All components properly versioned for production deployment
+- **Testing confirmed:** Enterprise-level auto-update system works flawlessly
+
+---
+
 ## [3.0.0] - 2025-08-16 🚀 **CRITICAL AUTO-UPDATE FIXES**
 
 ### 🔥 Critical Fixes
