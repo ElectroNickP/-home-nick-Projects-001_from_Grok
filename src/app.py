@@ -1132,6 +1132,83 @@ curl -u username:password \\
                 <strong>voice_type</strong> - Тип голоса: "alloy", "echo", "fable", "onyx", "nova", "shimmer" (по умолчанию: "alloy")
             </div>
             
+            <h2>🏪 Marketplace API</h2>
+            <p><strong>📋 Public Endpoints (No Authentication Required):</strong></p>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> <code>/marketplace</code>
+                <div class="description">Public marketplace page with bot catalog</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> <code>/marketplace/{id}</code>
+                <div class="description">Individual bot details page</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> <code>/api/marketplace/bots</code>
+                <div class="description">Get marketplace bots (JSON API)<br>
+                <strong>Parameters:</strong> category, search, featured</div>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span> <code>/api/marketplace/categories</code>
+                <div class="description">Get available bot categories</div>
+            </div>
+            
+            <h3>📋 Marketplace Examples:</h3>
+            
+            <div class="endpoint">
+                <strong>Get all marketplace bots:</strong><br>
+                <code>curl http://localhost:60183/api/marketplace/bots</code>
+            </div>
+            
+            <div class="endpoint">
+                <strong>Filter by category:</strong><br>
+                <code>curl "http://localhost:60183/api/marketplace/bots?category=assistant"</code>
+            </div>
+            
+            <div class="endpoint">
+                <strong>Search bots:</strong><br>
+                <code>curl "http://localhost:60183/api/marketplace/bots?search=AI"</code>
+            </div>
+            
+            <div class="endpoint">
+                <strong>Get featured bots only:</strong><br>
+                <code>curl "http://localhost:60183/api/marketplace/bots?featured=true"</code>
+            </div>
+            
+            <div class="endpoint">
+                <strong>Get categories:</strong><br>
+                <code>curl http://localhost:60183/api/marketplace/categories</code>
+            </div>
+            
+            <h3>🤖 Bot Marketplace Data Structure:</h3>
+            <pre><code>{
+  "marketplace": {
+    "enabled": true,
+    "title": "Custom Bot Title",
+    "description": "Detailed bot description",
+    "category": "assistant|business|education|entertainment|productivity|support|social|news|finance|health|travel|food|other",
+    "username": "bot_username",
+    "website": "https://example.com",
+    "image_url": "https://example.com/bot-avatar.jpg",
+    "tags": ["tag1", "tag2", "tag3"],
+    "featured": false,
+    "rating": 4.5,
+    "total_users": 1000,
+    "last_updated": "2025-08-17"
+  }
+}</code></pre>
+            
+            <h3>📱 Mobile Optimization:</h3>
+            <ul class="list-unstyled small">
+                <li><i class="fas fa-check text-success"></i> Responsive design for all devices</li>
+                <li><i class="fas fa-check text-success"></i> Touch-friendly interface</li>
+                <li><i class="fas fa-check text-success"></i> Direct Telegram app integration</li>
+                <li><i class="fas fa-check text-success"></i> Fast loading and smooth animations</li>
+            </ul>
+            
             <h2>🔗 Legacy API</h2>
             <p>Original endpoints are still available at <code>/api/*</code> for web interface compatibility.</p>
             
@@ -1319,6 +1396,6 @@ if __name__ == '__main__':
     logger.info("   • POST /api/v2/bots/{id}/stop - Stop bot")
     logger.info("   • POST /api/v2/bots/{id}/restart - Restart bot")
     logger.info("⚠️  Remember to change default credentials in production!")
-    logger.info("🔧 Запуск Flask-сервера на http://0.0.0.0:5000")
+    logger.info("🔧 Запуск Flask-сервера на http://0.0.0.0:60183")
     
-    app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
+    app.run(host="0.0.0.0", port=60183, debug=False, threaded=True)
