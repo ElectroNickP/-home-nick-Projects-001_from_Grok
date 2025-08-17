@@ -480,6 +480,7 @@ PYTHONPATH=/path/to/project python src/app.py
 # ✅ NEW: Transcriber-only mode (disable AI responses)  
 # ✅ ADDED: Token-saving option for voice-to-text only
 # ✅ FEATURE: Per-bot AI response control
+# 🧪 TEST: Auto-update demonstration commit for v3.1.0
 # ✅ IMPROVED: ~10 second update time vs infinite hanging
 # Test update for demo
 # Test restart mechanism  
