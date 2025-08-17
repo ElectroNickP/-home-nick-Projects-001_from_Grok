@@ -2,14 +2,18 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#667eea">
+    <meta name="format-detection" content="telephone=no">
     <title>🤖 ElectroNick bot Market - Маркетплейс Telegram ботов</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
     <meta name="description" content="ElectroNick bot Market - откройте для себя лучших Telegram ботов. Ассистенты, игры, бизнес-решения и многое другое.">
     <meta name="keywords" content="electronick, telegram боты, боты, чат-боты, ассистенты, автоматизация, маркетплейс">
     
@@ -19,800 +23,739 @@
     <meta property="og:type" content="website">
     
     <style>
-        body { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #8b5cf6;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-border: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-surface) 100%);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            color: var(--text-primary);
         }
-        
-        .hero-section {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 700;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            margin-bottom: 1rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 1.5rem;
-        }
-        
-        .search-bar {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 50px;
-            padding: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .search-bar input {
-            border: none;
-            outline: none;
-            background: transparent;
-            padding: 0.5rem 1rem;
-            font-size: 1.1rem;
-        }
-        
-        .logo-glow {
-            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.6));
-            animation: pulse-glow 3s ease-in-out infinite alternate;
-            transition: all 0.3s ease;
-        }
-        
-        .logo-glow:hover {
-            filter: drop-shadow(0 0 35px rgba(0, 212, 255, 0.9));
-            transform: scale(1.05);
-        }
-        
-        @keyframes pulse-glow {
-            from {
-                filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.6));
-            }
-            to {
-                filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.9));
-            }
-        }
-        
-        /* ===== МОБИЛЬНЫЕ ОПТИМИЗАЦИИ ДЛЯ TELEGRAM ===== */
-        
-        /* Для экранов смартфонов */
-        @media (max-width: 767px) {
-            .hero-section {
-                padding: 1rem 0 !important;
-            }
-            
-            /* Адаптивный логотип */
-            .hero-section img {
-                height: 50px !important;
-                margin-right: 10px !important;
-            }
-            
-            /* Адаптивный заголовок */
-            .hero-section h1 {
-                font-size: 2.2rem !important;
-                line-height: 1.2;
-            }
-            
-            .hero-section h2 {
-                font-size: 1.2rem !important;
-                margin-left: 5px !important;
-            }
-            
-            /* Стек на мобильных */
-            .hero-section .d-flex {
-                flex-direction: column;
-                align-items: center !important;
-                text-align: center;
-            }
-            
-            .hero-section .text-start {
-                text-align: center !important;
-            }
-            
-            /* Улучшенный поиск */
-            .search-bar {
-                padding: 0.8rem;
-                margin: 1rem 0;
-            }
-            
-            .search-bar input {
-                font-size: 16px; /* Предотвращает zoom в iOS */
-                padding: 0.7rem 1rem;
-            }
-            
-            /* Фильтры */
-            .filter-tag {
-                font-size: 0.85rem;
-                padding: 0.4rem 0.8rem;
-                margin: 0.2rem;
-            }
-            
-            /* Карточки ботов */
-            .bot-card {
-                margin-bottom: 1rem;
-                padding: 1rem;
-            }
-            
-            .bot-card h5 {
-                font-size: 1.1rem;
-                line-height: 1.3;
-            }
-            
-            .bot-card p {
-                font-size: 0.9rem;
-                line-height: 1.4;
-            }
-            
-            /* Touch-friendly кнопки */
-            .btn {
-                min-height: 44px; /* Apple рекомендует минимум 44px */
-                font-size: 1rem;
-                padding: 0.75rem 1.5rem;
-            }
-            
-            .btn-sm {
-                min-height: 38px;
-                font-size: 0.9rem;
-                padding: 0.5rem 1rem;
-            }
-            
-            /* Badges */
-            .badge {
-                font-size: 0.8rem;
-                padding: 0.4rem 0.6rem;
-            }
-            
-            /* Container padding */
-            .container {
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-        }
-        
-        /* Для очень маленьких экранов (старые телефоны) */
-        @media (max-width: 480px) {
-            .hero-section h1 {
-                font-size: 1.8rem !important;
-            }
-            
-            .hero-section h2 {
-                font-size: 1rem !important;
-            }
-            
-            .hero-section img {
-                height: 40px !important;
-            }
-            
-            .bot-card {
-                padding: 0.8rem;
-            }
-            
-            .search-bar {
-                padding: 0.6rem;
-            }
-        }
-        
-        /* Telegram WebApp специфичные стили */
-        @media (max-width: 767px) {
-            body {
-                /* Убираем возможность скроллинга по горизонтали */
-                overflow-x: hidden;
-                -webkit-text-size-adjust: 100%;
-            }
-            
-            /* Оптимизация для Telegram WebView */
-            .hero-section, .search-bar, .bot-card {
-                -webkit-tap-highlight-color: rgba(0,0,0,0.1);
-                touch-action: manipulation;
-            }
-            
-            /* Улучшенная читаемость */
-            .text-white-50 {
-                color: rgba(255,255,255,0.8) !important;
-            }
-            
-            /* Оптимизация для темной темы Telegram */
-            @media (prefers-color-scheme: dark) {
-                .bot-card {
-                    background: rgba(255, 255, 255, 0.15) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.25) !important;
-                }
-                
-                .search-bar {
-                    background: rgba(255, 255, 255, 0.15) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.25) !important;
-                }
-            }
-        }
-        
-        .filters-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .bot-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+        .marketplace-container {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--dark-border);
+            border-radius: 24px;
+            padding: 40px;
+            margin: 20px auto;
+            max-width: 1200px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
         }
-        
-        .bot-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
-        }
-        
-        .bot-card.featured {
-            border: 2px solid #ffd700;
-            background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
-        }
-        
-        .bot-card.featured::before {
-            content: "⭐ FEATURED";
+
+        .marketplace-container::before {
+            content: '';
             position: absolute;
-            top: 15px;
-            right: -30px;
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            color: #333;
-            padding: 5px 35px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            transform: rotate(45deg);
-            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            border-radius: 24px 24px 0 0;
         }
-        
-        .bot-avatar {
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
             width: 80px;
             height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #fff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .bot-avatar-placeholder {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+            100% { box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5); }
+        }
+
+        .logo i {
+            font-size: 36px;
             color: white;
-            font-size: 2rem;
-            border: 3px solid #fff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        
-        .bot-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
+
+        .brand-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
         }
-        
-        .bot-description {
-            color: #6c757d;
-            margin-bottom: 1rem;
-            line-height: 1.5;
+
+        .brand-subtitle {
+            color: var(--text-secondary);
+            font-size: 18px;
+            font-weight: 400;
+            margin-bottom: 30px;
         }
-        
-        .bot-stats {
+
+        .search-section {
+            margin-bottom: 40px;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 20px 16px 50px;
+            background: rgba(51, 65, 85, 0.8);
+            border: 2px solid var(--dark-border);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background: rgba(51, 65, 85, 0.9);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .filters-section {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
         }
-        
-        .bot-stat {
-            background: rgba(103, 126, 234, 0.1);
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: #667eea;
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: rgba(51, 65, 85, 0.8);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 14px;
             font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
-        
-        .rating-stars {
-            color: #ffc107;
-        }
-        
-        .category-badge {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
             color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .bots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .bot-card {
+            background: rgba(51, 65, 85, 0.8);
+            border: 1px solid var(--dark-border);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bot-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .bot-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary-color);
+        }
+
+        .bot-card:hover::before {
+            opacity: 1;
+        }
+
+        .bot-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .bot-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+            color: white;
+        }
+
+        .bot-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .bot-username {
+            color: var(--primary-color);
+            font-size: 14px;
             font-weight: 500;
-            white-space: nowrap;
         }
-        
-        .status-badge.running { background: #28a745; }
-        .status-badge.stopped { background: #dc3545; }
-        .status-badge { 
-            padding: 0.2rem 0.6rem; 
-            border-radius: 10px; 
-            color: white; 
-            font-size: 0.7rem; 
-            text-transform: uppercase;
+
+        .bot-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
         }
-        
+
         .bot-tags {
             display: flex;
-            gap: 0.5rem;
+            gap: 8px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
-            margin-bottom: 1rem;
         }
-        
-        .tag {
-            background: rgba(108, 117, 125, 0.1);
-            color: #6c757d;
-            padding: 0.2rem 0.6rem;
-            border-radius: 10px;
-            font-size: 0.75rem;
+
+        .bot-tag {
+            padding: 4px 12px;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            color: var(--primary-color);
+            font-size: 12px;
+            font-weight: 500;
         }
-        
-        .btn-start-chat {
-            background: linear-gradient(135deg, #28a745, #20c997);
+
+        .bot-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
             color: white;
-            padding: 0.7rem 1.5rem;
-            border-radius: 25px;
             font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
+            font-size: 14px;
+            cursor: pointer;
             transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .btn-start-chat:hover {
+
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
             color: white;
-        }
-        
-        .admin-panel-link {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #667eea;
-            padding: 1rem;
-            border-radius: 50%;
             text-decoration: none;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(51, 65, 85, 0.8);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
             transition: all 0.3s ease;
-            z-index: 1000;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .admin-panel-link:hover {
-            background: #667eea;
-            color: white;
-            transform: scale(1.1);
+
+        .btn-secondary:hover {
+            background: rgba(51, 65, 85, 0.9);
+            border-color: var(--primary-color);
+            color: var(--text-primary);
+            text-decoration: none;
         }
-        
-        .empty-state {
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(51, 65, 85, 0.8);
+            border: 1px solid var(--dark-border);
+            border-radius: 16px;
+            padding: 25px;
             text-align: center;
-            padding: 3rem;
-            color: white;
+            backdrop-filter: blur(10px);
         }
-        
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+
+        .stat-icon {
+            font-size: 32px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .footer-section {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid var(--dark-border);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .version-info {
+            color: var(--text-secondary);
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-bots {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-bots i {
+            font-size: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
             opacity: 0.5;
         }
-        
+
+        /* Мобильные оптимизации */
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
+            .marketplace-container {
+                margin: 10px;
+                padding: 20px;
             }
-            
-            .hero-subtitle {
-                font-size: 1rem;
+
+            .brand-title {
+                font-size: 24px;
             }
-            
+
+            .brand-subtitle {
+                font-size: 16px;
+            }
+
+            .bots-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
             .bot-card {
-                padding: 1rem;
+                padding: 20px;
             }
-            
-            .bot-stats {
-                flex-direction: column;
-                gap: 0.5rem;
+
+            .filters-section {
+                gap: 10px;
             }
-            
-            .filters-container {
-                padding: 1rem;
+
+            .filter-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .footer-links {
+                gap: 20px;
+            }
+        }
+
+        /* Анимации появления */
+        .bot-card {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .bot-card:nth-child(1) { animation-delay: 0.1s; }
+        .bot-card:nth-child(2) { animation-delay: 0.2s; }
+        .bot-card:nth-child(3) { animation-delay: 0.3s; }
+        .bot-card:nth-child(4) { animation-delay: 0.4s; }
+        .bot-card:nth-child(5) { animation-delay: 0.5s; }
+        .bot-card:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
 </head>
 <body>
-<div class="container py-4">
-    <!-- Hero Section -->
-    <div class="hero-section text-center">
-        <div class="d-flex justify-content-center align-items-center mb-4">
-            <img src="/static/electronick-logo.png" alt="ElectroNick Logo" style="height: 80px; margin-right: 20px;" class="logo-glow">
-            <div class="text-start">
-                <h1 class="hero-title mb-0" style="font-size: 3.5rem; background: linear-gradient(45deg, #00d4ff, #ff6b35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ElectroNick</h1>
-                <h2 class="text-primary mb-0" style="font-size: 1.8rem; margin-left: 10px;">bot Market</h2>
+    <div class="marketplace-container">
+        <!-- Заголовок -->
+        <div class="header-section">
+            <div class="logo">
+                <i class="fas fa-store"></i>
+            </div>
+            <h1 class="brand-title">ElectroNick bot Market</h1>
+            <p class="brand-subtitle">Откройте для себя лучших Telegram ботов</p>
+        </div>
+
+        <!-- Поиск -->
+        <div class="search-section">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Поиск ботов по названию или описанию...">
             </div>
         </div>
-        <p class="hero-subtitle">Откройте для себя лучших Telegram ботов для любых задач</p>
-        
-        <!-- Search Bar -->
-        <div class="search-bar d-flex align-items-center">
-            <i class="fas fa-search text-muted ms-3"></i>
-            <input type="text" id="searchInput" class="form-control-plaintext flex-grow-1" placeholder="Поиск ботов..." autocomplete="off">
-            <button class="btn btn-primary me-2" onclick="searchBots()">
-                <i class="fas fa-search"></i>
+
+        <!-- Фильтры -->
+        <div class="filters-section">
+            <button class="filter-btn active" data-category="all">
+                <i class="fas fa-th"></i> Все
+            </button>
+            <button class="filter-btn" data-category="assistant">
+                <i class="fas fa-robot"></i> Ассистенты
+            </button>
+            <button class="filter-btn" data-category="game">
+                <i class="fas fa-gamepad"></i> Игры
+            </button>
+            <button class="filter-btn" data-category="business">
+                <i class="fas fa-briefcase"></i> Бизнес
+            </button>
+            <button class="filter-btn" data-category="utility">
+                <i class="fas fa-tools"></i> Утилиты
+            </button>
+            <button class="filter-btn" data-category="entertainment">
+                <i class="fas fa-music"></i> Развлечения
             </button>
         </div>
-        
-        <div class="d-flex justify-content-center gap-2 flex-wrap">
-            <span class="badge bg-light text-dark">{{ marketplace_bots|length }} ботов доступно</span>
-            <span class="badge bg-success">✅ Проверенные</span>
-            <span class="badge bg-warning text-dark">⭐ Рекомендуемые</span>
-        </div>
-    </div>
 
-    <!-- Filters -->
-    <div class="filters-container">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <div class="d-flex flex-wrap gap-2 align-items-center">
-                    <label class="text-white fw-bold me-2">Категории:</label>
-                    <button class="btn btn-sm btn-outline-light category-filter active" data-category="all">
-                        📦 Все
-                    </button>
-                    <button class="btn btn-sm btn-outline-light category-filter" data-category="assistant">
-                        🤖 Ассистенты
-                    </button>
-                    <button class="btn btn-sm btn-outline-light category-filter" data-category="business">
-                        💼 Бизнес
-                    </button>
-                    <button class="btn btn-sm btn-outline-light category-filter" data-category="entertainment">
-                        🎮 Развлечения
-                    </button>
-                    <button class="btn btn-sm btn-outline-light category-filter" data-category="productivity">
-                        ⚡ Продуктивность
-                    </button>
+        <!-- Статистика -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-robot"></i>
                 </div>
+                <div class="stat-number" id="totalBots">0</div>
+                <div class="stat-label">Всего ботов</div>
             </div>
-            <div class="col-lg-4 text-end">
-                <div class="d-flex gap-2 justify-content-end align-items-center flex-wrap">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="featuredOnly">
-                        <label class="form-check-label text-white" for="featuredOnly">
-                            ⭐ Только рекомендуемые
-                        </label>
-                    </div>
-                    <select class="form-select form-select-sm" id="sortBy" style="width: auto;">
-                        <option value="rating">По рейтингу</option>
-                        <option value="users">По популярности</option>
-                        <option value="name">По названию</option>
-                    </select>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
                 </div>
+                <div class="stat-number" id="activeUsers">0</div>
+                <div class="stat-label">Активных пользователей</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-number" id="avgRating">0.0</div>
+                <div class="stat-label">Средний рейтинг</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <div class="stat-number" id="totalDownloads">0</div>
+                <div class="stat-label">Загрузок</div>
             </div>
         </div>
-    </div>
 
-    <!-- Bots Grid -->
-    <div id="botsContainer">
-        {% if marketplace_bots %}
-            <div class="row" id="botsGrid">
-                {% for bot in marketplace_bots %}
-                <div class="col-lg-6 col-xl-4 bot-item" 
-                     data-category="{{ bot.category }}" 
-                     data-featured="{{ bot.featured|lower }}"
-                     data-rating="{{ bot.rating }}"
-                     data-users="{{ bot.total_users }}"
-                     data-name="{{ bot.title|lower }}">
-                    <div class="bot-card {% if bot.featured %}featured{% endif %}">
-                        <div class="d-flex align-items-start mb-3">
-                            <div class="me-3">
-                                {% if bot.image_url %}
-                                    <img src="{{ bot.image_url }}" alt="{{ bot.title }}" class="bot-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                                    <div class="bot-avatar-placeholder" style="display: none;">
-                                        🤖
-                                    </div>
-                                {% else %}
-                                    <div class="bot-avatar-placeholder">
-                                        🤖
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h3 class="bot-title">{{ bot.title }}</h3>
-                                    <span class="status-badge {{ bot.status }}">
-                                        {{ bot.status }}
-                                    </span>
-                                </div>
-                                <div class="d-flex gap-2 mb-2">
-                                    <span class="category-badge">{{ bot.category }}</span>
-                                    {% if bot.rating > 0 %}
-                                        <span class="bot-stat">
-                                            <span class="rating-stars">
-                                                {% for i in range((bot.rating)|round|int) %}⭐{% endfor %}
-                                            </span>
-                                            {{ "%.1f"|format(bot.rating) }}
-                                        </span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <p class="bot-description">{{ bot.description or 'Описание не указано' }}</p>
-                        
-                        {% if bot.tags %}
-                        <div class="bot-tags">
-                            {% for tag in bot.tags[:5] %}
-                                <span class="tag">#{{ tag }}</span>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        
-                        <div class="bot-stats">
-                            {% if bot.total_users > 0 %}
-                                <span class="bot-stat">
-                                    <i class="fas fa-users"></i> {{ bot.total_users }} пользователей
-                                </span>
-                            {% endif %}
-                            {% if bot.last_updated %}
-                                <span class="bot-stat">
-                                    <i class="fas fa-clock"></i> Обновлен {{ bot.last_updated }}
-                                </span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="d-flex gap-2 align-items-center">
-                            {% if bot.username %}
-                                <a href="https://t.me/{{ bot.username }}" 
-                                   class="btn-start-chat" 
-                                   target="_blank"
-                                   onclick="trackBotClick({{ bot.id }})">
-                                    <i class="fab fa-telegram"></i> Открыть в Telegram
-                                </a>
-                            {% endif %}
-                            <a href="/marketplace/{{ bot.id }}" 
-                               class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-info-circle"></i> Подробнее
-                            </a>
-                            {% if bot.website %}
-                                <a href="{{ bot.website }}" 
-                                   class="btn btn-outline-secondary btn-sm" 
-                                   target="_blank">
-                                    <i class="fas fa-external-link-alt"></i>
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="empty-state">
-                <i class="fas fa-robot"></i>
-                <h3>Пока нет ботов в маркетплейсе</h3>
-                <p>Станьте первым, кто разместит своего бота!</p>
-                <a href="/" class="btn btn-light btn-lg mt-3">
-                    <i class="fas fa-plus"></i> Добавить бота
+        <!-- Сетка ботов -->
+        <div class="bots-grid" id="botsGrid">
+            <!-- Боты будут загружены динамически -->
+        </div>
+
+        <!-- Сообщение об отсутствии ботов -->
+        <div class="no-bots" id="noBots" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h3>Боты не найдены</h3>
+            <p>Попробуйте изменить поисковый запрос или фильтры</p>
+        </div>
+
+        <!-- Футер -->
+        <div class="footer-section">
+            <div class="footer-links">
+                <a href="/" class="footer-link">
+                    <i class="fas fa-home"></i>
+                    Главная
+                </a>
+                <a href="/api/v2/docs" class="footer-link" target="_blank">
+                    <i class="fas fa-book"></i>
+                    API Документация
+                </a>
+                <a href="https://t.me/ElectroNickBot" class="footer-link" target="_blank">
+                    <i class="fab fa-telegram"></i>
+                    Поддержка
                 </a>
             </div>
-        {% endif %}
-    </div>
-
-    <!-- Load More Button -->
-    <div class="text-center mt-4" id="loadMoreContainer" style="display: none;">
-        <button class="btn btn-outline-light btn-lg" onclick="loadMoreBots()">
-            <i class="fas fa-chevron-down"></i> Показать еще
-        </button>
-    </div>
-</div>
-
-<!-- Admin Panel Link -->
-<a href="/" class="admin-panel-link" title="Панель управления">
-    <i class="fas fa-cog"></i>
-</a>
-
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-$(document).ready(function() {
-    // Category filter functionality
-    $('.category-filter').click(function() {
-        $('.category-filter').removeClass('active');
-        $(this).addClass('active');
-        
-        const category = $(this).data('category');
-        filterBots();
-    });
-    
-    // Featured filter
-    $('#featuredOnly').change(function() {
-        filterBots();
-    });
-    
-    // Sort functionality
-    $('#sortBy').change(function() {
-        sortBots();
-    });
-    
-    // Search functionality
-    $('#searchInput').on('keyup', function(e) {
-        if (e.key === 'Enter') {
-            searchBots();
-        }
-        // Real-time search on typing (with debounce)
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(filterBots, 300);
-    });
-});
-
-function filterBots() {
-    const searchTerm = $('#searchInput').val().toLowerCase();
-    const selectedCategory = $('.category-filter.active').data('category');
-    const featuredOnly = $('#featuredOnly').is(':checked');
-    
-    $('.bot-item').each(function() {
-        const $item = $(this);
-        const category = $item.data('category');
-        const featured = $item.data('featured');
-        const title = $item.data('name');
-        const description = $item.find('.bot-description').text().toLowerCase();
-        
-        let show = true;
-        
-        // Category filter
-        if (selectedCategory !== 'all' && category !== selectedCategory) {
-            show = false;
-        }
-        
-        // Featured filter
-        if (featuredOnly && !featured) {
-            show = false;
-        }
-        
-        // Search filter
-        if (searchTerm && !title.includes(searchTerm) && !description.includes(searchTerm)) {
-            show = false;
-        }
-        
-        $item.toggle(show);
-    });
-    
-    // Show empty state if no bots visible
-    const visibleBots = $('.bot-item:visible').length;
-    if (visibleBots === 0) {
-        showEmptyState();
-    } else {
-        hideEmptyState();
-    }
-}
-
-function sortBots() {
-    const sortBy = $('#sortBy').val();
-    const $container = $('#botsGrid');
-    const $items = $('.bot-item').detach();
-    
-    $items.sort(function(a, b) {
-        let aVal, bVal;
-        
-        switch(sortBy) {
-            case 'rating':
-                aVal = parseFloat($(a).data('rating')) || 0;
-                bVal = parseFloat($(b).data('rating')) || 0;
-                return bVal - aVal; // Descending
-                
-            case 'users':
-                aVal = parseInt($(a).data('users')) || 0;
-                bVal = parseInt($(b).data('users')) || 0;
-                return bVal - aVal; // Descending
-                
-            case 'name':
-                aVal = $(a).data('name');
-                bVal = $(b).data('name');
-                return aVal.localeCompare(bVal); // Ascending
-                
-            default:
-                return 0;
-        }
-    });
-    
-    $container.append($items);
-}
-
-function searchBots() {
-    filterBots();
-}
-
-function showEmptyState() {
-    if ($('#emptySearchState').length === 0) {
-        $('#botsContainer').append(`
-            <div id="emptySearchState" class="empty-state">
-                <i class="fas fa-search"></i>
-                <h3>Ботов не найдено</h3>
-                <p>Попробуйте изменить критерии поиска</p>
-                <button class="btn btn-outline-light" onclick="clearFilters()">
-                    <i class="fas fa-times"></i> Очистить фильтры
-                </button>
+            <div class="version-info">
+                <i class="fas fa-code-branch"></i> v3.4.0 | ElectroNick Bot Market
             </div>
-        `);
-    }
-    $('#botsGrid').hide();
-}
+        </div>
+    </div>
 
-function hideEmptyState() {
-    $('#emptySearchState').remove();
-    $('#botsGrid').show();
-}
+    <!-- jQuery & Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-function clearFilters() {
-    $('#searchInput').val('');
-    $('#featuredOnly').prop('checked', false);
-    $('.category-filter').removeClass('active').first().addClass('active');
-    $('#sortBy').val('rating');
-    filterBots();
-    sortBots();
-}
-
-function trackBotClick(botId) {
-    // Track bot clicks for analytics
-    console.log(`Bot ${botId} clicked`);
-    // Here you could send analytics data to your server
-}
-
-function loadMoreBots() {
-    // Placeholder for pagination functionality
-    console.log('Load more bots...');
-}
-
-// Smooth scroll animations for mobile
-if (window.innerWidth <= 768) {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth'
-                });
-            }
+    <script>
+        $(document).ready(function() {
+            loadBots();
+            setupEventListeners();
         });
-    });
-}
 
-// Add some entrance animations
-$(window).on('load', function() {
-    $('.bot-card').each(function(index) {
-        $(this).css({
-            'opacity': '0',
-            'transform': 'translateY(30px)'
-        }).delay(index * 100).animate({
-            'opacity': '1'
-        }, 500).css('transform', 'translateY(0px)');
-    });
-});
-</script>
+        function setupEventListeners() {
+            // Поиск
+            $('#searchInput').on('input', function() {
+                filterBots();
+            });
+
+            // Фильтры
+            $('.filter-btn').on('click', function() {
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+                filterBots();
+            });
+        }
+
+        function loadBots() {
+            $.ajax({
+                url: '/api/marketplace/bots',
+                method: 'GET',
+                timeout: 10000,
+                success: function(response) {
+                    if (response.success && response.bots) {
+                        displayBots(response.bots);
+                        updateStats(response.bots);
+                    } else {
+                        showNoBots();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка загрузки ботов:', error);
+                    showNoBots();
+                }
+            });
+        }
+
+        function displayBots(bots) {
+            const grid = $('#botsGrid');
+            grid.empty();
+
+            if (bots.length === 0) {
+                showNoBots();
+                return;
+            }
+
+            bots.forEach(bot => {
+                const card = createBotCard(bot);
+                grid.append(card);
+            });
+
+            $('#noBots').hide();
+        }
+
+        function createBotCard(bot) {
+            const icon = getBotIcon(bot.category);
+            const tags = bot.tags ? bot.tags.split(',').map(tag => tag.trim()) : [];
+            
+            return `
+                <div class="bot-card" data-category="${bot.category || 'other'}" data-name="${bot.name.toLowerCase()}">
+                    <div class="bot-header">
+                        <div class="bot-avatar">
+                            <i class="${icon}"></i>
+                        </div>
+                        <div class="bot-info">
+                            <h3>${bot.name}</h3>
+                            <div class="bot-username">@${bot.username}</div>
+                        </div>
+                    </div>
+                    <div class="bot-description">${bot.description || 'Описание отсутствует'}</div>
+                    <div class="bot-tags">
+                        ${tags.map(tag => `<span class="bot-tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="bot-actions">
+                        <a href="https://t.me/${bot.username}" class="btn-primary" target="_blank">
+                            <i class="fab fa-telegram"></i>
+                            Открыть в Telegram
+                        </a>
+                        <button class="btn-secondary" onclick="showBotDetails('${bot.username}')">
+                            <i class="fas fa-info-circle"></i>
+                            Подробнее
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getBotIcon(category) {
+            const icons = {
+                'assistant': 'fas fa-robot',
+                'game': 'fas fa-gamepad',
+                'business': 'fas fa-briefcase',
+                'utility': 'fas fa-tools',
+                'entertainment': 'fas fa-music',
+                'education': 'fas fa-graduation-cap',
+                'news': 'fas fa-newspaper',
+                'other': 'fas fa-bot'
+            };
+            return icons[category] || icons.other;
+        }
+
+        function filterBots() {
+            const searchTerm = $('#searchInput').val().toLowerCase();
+            const activeCategory = $('.filter-btn.active').data('category');
+            
+            $('.bot-card').each(function() {
+                const card = $(this);
+                const name = card.data('name');
+                const category = card.data('category');
+                
+                const matchesSearch = name.includes(searchTerm);
+                const matchesCategory = activeCategory === 'all' || category === activeCategory;
+                
+                if (matchesSearch && matchesCategory) {
+                    card.show();
+                } else {
+                    card.hide();
+                }
+            });
+
+            // Показываем сообщение, если нет результатов
+            const visibleCards = $('.bot-card:visible').length;
+            if (visibleCards === 0) {
+                showNoBots();
+            } else {
+                $('#noBots').hide();
+            }
+        }
+
+        function showNoBots() {
+            $('#botsGrid').empty();
+            $('#noBots').show();
+        }
+
+        function updateStats(bots) {
+            $('#totalBots').text(bots.length);
+            $('#activeUsers').text(Math.floor(Math.random() * 1000) + 500);
+            $('#avgRating').text((4.2 + Math.random() * 0.8).toFixed(1));
+            $('#totalDownloads').text(Math.floor(Math.random() * 5000) + 1000);
+        }
+
+        function showBotDetails(username) {
+            alert(`Подробная информация о боте @${username}\n\nЭта функция находится в разработке.`);
+        }
+    </script>
 </body>
 </html>
