@@ -1086,6 +1086,7 @@ if __name__ == '__main__':
     
     logger.info("🚀 Telegram Bot Manager API v2.0 Starting...")
     logger.info("🔄 AUTO-UPDATE TEST: System ready for auto-update verification!")
+    logger.info("⚡ FORCED RESTART: Application must restart to show v3.1.2!")
     logger.info("📚 API v2 Documentation: http://localhost:5000/api/v2/docs")
     logger.info("🌐 Web Interface: http://localhost:5000/")
     logger.info("🔐 Default credentials: admin / securepassword123")
