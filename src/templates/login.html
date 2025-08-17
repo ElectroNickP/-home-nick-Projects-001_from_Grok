@@ -518,17 +518,19 @@
         }
 
         function loadMainPageWithAuth(credentials) {
-            // Use auth-check endpoint to verify credentials and redirect
+            // Load main page content directly with authentication headers
             $.ajax({
-                url: '/auth-check',
+                url: '/',
                 method: 'GET',
                 headers: {
                     'Authorization': `Basic ${credentials}`
                 },
                 timeout: 10000,
                 success: function(response) {
-                    // If successful, redirect to main page
-                    window.location.href = '/';
+                    // Replace current page content with main page
+                    document.open();
+                    document.write(response);
+                    document.close();
                 },
                 error: function(xhr, status, error) {
                     if (xhr.status === 401) {
