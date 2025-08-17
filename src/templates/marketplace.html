@@ -630,39 +630,47 @@
         }
 
         function loadBots() {
+            console.log('🔄 Загрузка ботов...');
             $.ajax({
                 url: '/api/marketplace/bots',
                 method: 'GET',
                 timeout: 10000,
                 success: function(response) {
+                    console.log('✅ Ответ API:', response);
                     if (response.success && response.data) {
+                        console.log('📋 Ботов найдено:', response.data.length);
                         displayBots(response.data);
                         updateStats(response.data);
                     } else {
+                        console.log('❌ Нет данных или ошибка');
                         showNoBots();
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error('Ошибка загрузки ботов:', error);
+                    console.error('❌ Ошибка загрузки ботов:', error);
                     showNoBots();
                 }
             });
         }
 
         function displayBots(bots) {
+            console.log('🎨 Отображение ботов:', bots);
             const grid = $('#botsGrid');
             grid.empty();
 
             if (bots.length === 0) {
+                console.log('❌ Нет ботов для отображения');
                 showNoBots();
                 return;
             }
 
-            bots.forEach(bot => {
+            bots.forEach((bot, index) => {
+                console.log(`📋 Создание карточки для бота ${index + 1}:`, bot);
                 const card = createBotCard(bot);
                 grid.append(card);
             });
 
+            console.log('✅ Карточки ботов созданы');
             $('#noBots').hide();
         }
 
