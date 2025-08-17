@@ -6,9 +6,12 @@ import subprocess
 import os
 import datetime
 from typing import Dict, Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Fallback version if git is not available
-FALLBACK_VERSION = "3.3.0"
+FALLBACK_VERSION = "3.4.0"  # Updated for authentication system
 
 def run_git_command(command: str) -> Optional[str]:
     """Execute git command and return output"""

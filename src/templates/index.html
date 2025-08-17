@@ -31,6 +31,18 @@
             <a href="/marketplace" class="btn btn-outline-primary btn-sm me-2">
                 <i class="fas fa-store"></i> ElectroNick bot Market
             </a>
+            <a href="/api/v2/docs" class="btn btn-outline-info btn-sm me-2" target="_blank">
+                <i class="fas fa-book"></i> API Документация
+            </a>
+        </div>
+        <div>
+            <span class="text-muted me-3">
+                <i class="fas fa-user"></i> 
+                <span id="currentUser">Администратор</span>
+            </span>
+            <button onclick="logout()" class="btn btn-outline-danger btn-sm">
+                <i class="fas fa-sign-out-alt"></i> Выйти
+            </button>
         </div>
     </div>
     
@@ -1109,6 +1121,81 @@ function cleanupBackups() {
 
 function showBackupInfo() {
     alert(`ℹ️ Информация о системе бэкапов\n\n📦 АВТОМАТИЧЕСКИЕ БЭКАПЫ:\n• Создаются перед каждым обновлением\n• Включают все критические файлы\n• Сохраняют конфигурации ботов\n• Фиксируют текущий Git commit\n\n🔄 ВОЗМОЖНОСТИ:\n• Просмотр списка всех бэкапов\n• Информация о версиях и размерах\n• Автоматическая очистка старых бэкапов\n• Восстановление из бэкапа (в разработке)\n\n📁 РАСПОЛОЖЕНИЕ:\n./backups/ - папка с бэкапами\n\n🛡️ БЕЗОПАСНОСТЬ:\nБэкапы создаются автоматически и обеспечивают возможность отката при сбоях обновления.`);
+}
+
+// Authentication management
+$(document).ready(function() {
+    // Check authentication status on page load
+    checkAuthStatus();
+    
+    // Set up authentication headers for all AJAX requests
+    setupAuthHeaders();
+});
+
+function checkAuthStatus() {
+    const credentials = localStorage.getItem('auth_credentials');
+    const username = localStorage.getItem('auth_username');
+    
+    if (credentials && username) {
+        // Update user display
+        $('#currentUser').text(username);
+        
+        // Test authentication
+        $.ajax({
+            url: '/api/v2/system/health',
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${credentials}`
+            },
+            timeout: 5000,
+            success: function(response) {
+                // Authentication is valid
+                console.log('Authentication valid');
+            },
+            error: function(xhr) {
+                if (xhr.status === 401) {
+                    // Authentication failed, redirect to login
+                    console.log('Authentication failed, redirecting to login');
+                    window.location.href = '/login';
+                }
+            }
+        });
+    } else {
+        // No credentials, redirect to login
+        console.log('No credentials found, redirecting to login');
+        window.location.href = '/login';
+    }
+}
+
+function setupAuthHeaders() {
+    // Add authentication headers to all AJAX requests
+    $.ajaxSetup({
+        beforeSend: function(xhr) {
+            const credentials = localStorage.getItem('auth_credentials');
+            if (credentials) {
+                xhr.setRequestHeader('Authorization', `Basic ${credentials}`);
+            }
+        },
+        error: function(xhr, status, error) {
+            if (xhr.status === 401) {
+                // Authentication failed, redirect to login
+                localStorage.removeItem('auth_credentials');
+                localStorage.removeItem('auth_username');
+                window.location.href = '/login';
+            }
+        }
+    });
+}
+
+function logout() {
+    if (confirm('Вы уверены, что хотите выйти из системы?')) {
+        // Clear authentication data
+        localStorage.removeItem('auth_credentials');
+        localStorage.removeItem('auth_username');
+        
+        // Redirect to logout page
+        window.location.href = '/logout';
+    }
 }
 </script>
 </body></html>

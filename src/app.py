@@ -40,6 +40,16 @@ def verify_password(username, password):
         return username
     return None
 
+@app.route("/login")
+def login_page():
+    """Страница авторизации"""
+    return render_template('login.html')
+
+@app.route("/logout")
+def logout():
+    """Выход из системы"""
+    return render_template('logout.html')
+
 def serialize_bot_entry(bot_entry):
     """Serialize bot entry for API v1 compatibility"""
     return {

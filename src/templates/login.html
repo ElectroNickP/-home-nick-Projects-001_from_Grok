@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>ElectroNick Bot Manager - Авторизация</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #8b5cf6;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-border: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-surface) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .login-container {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--dark-border);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            border-radius: 24px 24px 0 0;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+            100% { box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5); }
+        }
+
+        .logo i {
+            font-size: 36px;
+            color: white;
+        }
+
+        .brand-title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .brand-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .form-label {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid var(--dark-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            padding: 16px 20px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+            min-height: 56px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .form-control:focus + .input-icon {
+            color: var(--primary-color);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 16px 32px;
+            width: 100%;
+            min-height: 56px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border-left: 4px solid var(--error-color);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #6ee7b7;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--dark-border);
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+            margin: 0 12px;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .version-info {
+            text-align: center;
+            margin-top: 16px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+                margin: 10px;
+                border-radius: 20px;
+            }
+
+            .brand-title {
+                font-size: 24px;
+            }
+
+            .form-control {
+                font-size: 16px; /* Prevent zoom on iOS */
+                min-height: 48px;
+            }
+
+            .btn-login {
+                min-height: 48px;
+                font-size: 16px;
+            }
+        }
+
+        /* Dark theme support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            }
+        }
+
+        /* Touch optimizations */
+        .btn-login, .form-control, .password-toggle {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* Accessibility */
+        .form-control:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        .btn-login:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h1 class="brand-title">ElectroNick Bot Manager</h1>
+            <p class="brand-subtitle">Система управления Telegram ботами</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username" class="form-label">
+                    <i class="fas fa-user"></i> Имя пользователя
+                </label>
+                <input type="text" id="username" name="username" class="form-control" 
+                       placeholder="Введите имя пользователя" required autocomplete="username">
+                <i class="fas fa-user input-icon"></i>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock"></i> Пароль
+                </label>
+                <input type="password" id="password" name="password" class="form-control" 
+                       placeholder="Введите пароль" required autocomplete="current-password">
+                <button type="button" class="password-toggle" onclick="togglePassword()">
+                    <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                </button>
+            </div>
+
+            <button type="submit" class="btn-login" id="loginBtn">
+                <span class="loading-spinner" id="loadingSpinner"></span>
+                <span id="loginBtnText">Войти в систему</span>
+            </button>
+        </form>
+
+        <div class="footer-links">
+            <a href="/marketplace" target="_blank">
+                <i class="fas fa-store"></i> ElectroNick bot Market
+            </a>
+            <a href="/api/v2/docs" target="_blank">
+                <i class="fas fa-book"></i> API Документация
+            </a>
+        </div>
+
+        <div class="version-info">
+            <i class="fas fa-code-branch"></i> v3.3.0 | ElectroNick Bot Manager
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Auto-focus on username field
+            $('#username').focus();
+
+            // Handle form submission
+            $('#loginForm').on('submit', function(e) {
+                e.preventDefault();
+                handleLogin();
+            });
+
+            // Handle Enter key
+            $(document).on('keypress', function(e) {
+                if (e.which === 13) {
+                    $('#loginForm').submit();
+                }
+            });
+
+            // Check if user is already logged in
+            checkAuthStatus();
+        });
+
+        function togglePassword() {
+            const passwordField = $('#password');
+            const toggleIcon = $('#passwordToggleIcon');
+            
+            if (passwordField.attr('type') === 'password') {
+                passwordField.attr('type', 'text');
+                toggleIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                passwordField.attr('type', 'password');
+                toggleIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        }
+
+        function showAlert(message, type = 'error') {
+            const alert = $('#alert');
+            alert.removeClass('alert-error alert-success').addClass(`alert-${type}`);
+            alert.text(message).show();
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                alert.fadeOut();
+            }, 5000);
+        }
+
+        function setLoading(loading) {
+            const btn = $('#loginBtn');
+            const btnText = $('#loginBtnText');
+            const spinner = $('#loadingSpinner');
+            
+            if (loading) {
+                btn.prop('disabled', true);
+                spinner.show();
+                btnText.text('Вход в систему...');
+            } else {
+                btn.prop('disabled', false);
+                spinner.hide();
+                btnText.text('Войти в систему');
+            }
+        }
+
+        function handleLogin() {
+            const username = $('#username').val().trim();
+            const password = $('#password').val();
+
+            if (!username || !password) {
+                showAlert('Пожалуйста, заполните все поля');
+                return;
+            }
+
+            setLoading(true);
+
+            // Create basic auth header
+            const credentials = btoa(`${username}:${password}`);
+            
+            $.ajax({
+                url: '/api/v2/system/health',
+                method: 'GET',
+                headers: {
+                    'Authorization': `Basic ${credentials}`
+                },
+                timeout: 10000,
+                success: function(response) {
+                    // Store credentials for future requests
+                    localStorage.setItem('auth_credentials', credentials);
+                    localStorage.setItem('auth_username', username);
+                    
+                    showAlert('Успешная авторизация! Перенаправление...', 'success');
+                    
+                    // Redirect to main page
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                },
+                error: function(xhr, status, error) {
+                    setLoading(false);
+                    
+                    if (xhr.status === 401) {
+                        showAlert('Неверное имя пользователя или пароль');
+                    } else if (xhr.status === 0 || status === 'timeout') {
+                        showAlert('Ошибка подключения к серверу. Проверьте соединение.');
+                    } else {
+                        showAlert(`Ошибка авторизации: ${error}`);
+                    }
+                    
+                    // Clear password field on error
+                    $('#password').val('').focus();
+                }
+            });
+        }
+
+        function checkAuthStatus() {
+            const credentials = localStorage.getItem('auth_credentials');
+            if (credentials) {
+                $.ajax({
+                    url: '/api/v2/system/health',
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Basic ${credentials}`
+                    },
+                    timeout: 5000,
+                    success: function(response) {
+                        // User is already authenticated, redirect to main page
+                        window.location.href = '/';
+                    },
+                    error: function() {
+                        // Clear invalid credentials
+                        localStorage.removeItem('auth_credentials');
+                        localStorage.removeItem('auth_username');
+                    }
+                });
+            }
+        }
+
+        // Add some nice animations
+        $(document).ready(function() {
+            $('.login-container').hide().fadeIn(800);
+            
+            // Animate form elements on focus
+            $('.form-control').on('focus', function() {
+                $(this).parent().addClass('focused');
+            }).on('blur', function() {
+                $(this).parent().removeClass('focused');
+            });
+        });
+    </script>
+</body>
+</html>
