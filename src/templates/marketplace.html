@@ -635,9 +635,9 @@
                 method: 'GET',
                 timeout: 10000,
                 success: function(response) {
-                    if (response.success && response.bots) {
-                        displayBots(response.bots);
-                        updateStats(response.bots);
+                    if (response.success && response.data) {
+                        displayBots(response.data);
+                        updateStats(response.data);
                     } else {
                         showNoBots();
                     }
@@ -668,16 +668,16 @@
 
         function createBotCard(bot) {
             const icon = getBotIcon(bot.category);
-            const tags = bot.tags ? bot.tags.split(',').map(tag => tag.trim()) : [];
+            const tags = Array.isArray(bot.tags) ? bot.tags : [];
             
             return `
-                <div class="bot-card" data-category="${bot.category || 'other'}" data-name="${bot.name.toLowerCase()}">
+                <div class="bot-card" data-category="${bot.category || 'other'}" data-name="${bot.title.toLowerCase()}">
                     <div class="bot-header">
                         <div class="bot-avatar">
                             <i class="${icon}"></i>
                         </div>
                         <div class="bot-info">
-                            <h3>${bot.name}</h3>
+                            <h3>${bot.title}</h3>
                             <div class="bot-username">@${bot.username}</div>
                         </div>
                     </div>
