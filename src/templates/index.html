@@ -98,6 +98,15 @@
                         <small class="form-text text-muted">Сколько последних сообщений анализировать в группах</small>
                     </div>
                     <div class="col-md-6">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="enable_ai_responses" value="true" checked>
+                            <label class="form-check-label" for="enable_ai_responses">
+                                🧠 ИИ ответы
+                            </label>
+                        </div>
+                        <small class="form-text text-muted">Генерировать ответы через OpenAI (отключите для режима только транскрибации)</small>
+                    </div>
+                    <div class="col-md-6">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="enable_voice_responses" value="true">
                             <label class="form-check-label" for="enable_voice_responses">
@@ -140,7 +149,7 @@
     <div class="table-responsive">
         <table class="table table-hover align-middle" id="botsTable">
             <thead class="table-dark">
-                <tr><th>ID</th><th>Название</th><th>Token</th><th>OpenAI Key</th><th>Assistant ID</th><th>Контекст</th><th>TTS</th><th>Статус</th><th>Действия</th></tr>
+                <tr><th>ID</th><th>Название</th><th>Token</th><th>OpenAI Key</th><th>Assistant ID</th><th>Контекст</th><th>ИИ</th><th>TTS</th><th>Статус</th><th>Действия</th></tr>
             </thead>
             <tbody>
                 {% for bot in bots %}
@@ -151,6 +160,13 @@
                     <td class="bot-openai text-break">{{ bot.config.openai_api_key }}</td>
                     <td class="bot-assistant">{{ bot.config.assistant_id }}</td>
                     <td class="bot-context">{{ bot.config.group_context_limit or 15 }}</td>
+                    <td class="bot-ai">
+                        {% if bot.config.get('enable_ai_responses', True) %}
+                            <span class="badge bg-primary">🧠 ИИ</span>
+                        {% else %}
+                            <span class="badge bg-info">🎙️ Транскр</span>
+                        {% endif %}
+                    </td>
                     <td class="bot-voice">
                         {% if bot.config.enable_voice_responses %}
                             <span class="badge bg-success">🎤 Вкл</span><br>
@@ -188,6 +204,15 @@
                     <label class="form-label">Количество сообщений для контекста</label>
                     <input type="number" class="form-control" id="edit_group_context_limit" min="5" max="50" value="15">
                     <small class="form-text text-muted">Сколько последних сообщений анализировать в группах</small>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="edit_enable_ai_responses" value="true" checked>
+                        <label class="form-check-label" for="edit_enable_ai_responses">
+                            🧠 ИИ ответы
+                        </label>
+                    </div>
+                    <small class="form-text text-muted">Генерировать ответы через OpenAI (отключите для режима только транскрибации)</small>
                 </div>
                 <div class="mb-3">
                     <div class="form-check">
@@ -388,6 +413,7 @@ $(document).ready(function() {
             bot_name: $("#bot_name").val(), telegram_token: $("#telegram_token").val(),
             openai_api_key: $("#openai_api_key").val(), assistant_id: $("#assistant_id").val(),
             group_context_limit: parseInt($("#group_context_limit").val()) || 15,
+            enable_ai_responses: $("#enable_ai_responses").is(':checked'),
             enable_voice_responses: $("#enable_voice_responses").is(':checked'),
             voice_model: $("#voice_model").val() || "tts-1",
             voice_type: $("#voice_type").val() || "alloy"
@@ -406,6 +432,9 @@ $(document).ready(function() {
                 $("#edit_openai_api_key").val(bot.config.openai_api_key);
                 $("#edit_assistant_id").val(bot.config.assistant_id);
                 $("#edit_group_context_limit").val(bot.config.group_context_limit || 15);
+                
+                // ИИ настройки
+                $("#edit_enable_ai_responses").prop('checked', bot.config.enable_ai_responses !== false);
                 
                 // TTS настройки
                 $("#edit_enable_voice_responses").prop('checked', bot.config.enable_voice_responses || false);
@@ -430,7 +459,8 @@ $(document).ready(function() {
                 $("#edit_assistant_id").val(row.find(".bot-assistant").text());
                 $("#edit_group_context_limit").val(row.find(".bot-context").text() || 15);
                 
-                // Устанавливаем значения по умолчанию для TTS
+                // Устанавливаем значения по умолчанию
+                $("#edit_enable_ai_responses").prop('checked', true); // По умолчанию ИИ включены
                 $("#edit_enable_voice_responses").prop('checked', false);
                 $("#edit_voice_model").val("tts-1");
                 $("#edit_voice_type").val("alloy");
@@ -446,6 +476,7 @@ $(document).ready(function() {
             bot_name: $("#edit_bot_name").val(), telegram_token: $("#edit_telegram_token").val(),
             openai_api_key: $("#edit_openai_api_key").val(), assistant_id: $("#edit_assistant_id").val(),
             group_context_limit: parseInt($("#edit_group_context_limit").val()) || 15,
+            enable_ai_responses: $("#edit_enable_ai_responses").is(':checked'),
             enable_voice_responses: $("#edit_enable_voice_responses").is(':checked'),
             voice_model: $("#edit_voice_model").val() || "tts-1",
             voice_type: $("#edit_voice_type").val() || "alloy"

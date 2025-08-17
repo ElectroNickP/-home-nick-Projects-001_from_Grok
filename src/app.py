@@ -103,6 +103,8 @@ def create_bot():
         data["voice_model"] = "tts-1"
     if "voice_type" not in data:
         data["voice_type"] = "alloy"
+    if "enable_ai_responses" not in data:
+        data["enable_ai_responses"] = True  # По умолчанию включены для обратной совместимости
 
     with cm.BOT_CONFIGS_LOCK:
         bot_id = cm.NEXT_BOT_ID
@@ -623,7 +625,8 @@ def create_bot_v2():
             "group_context_limit": 15,
             "enable_voice_responses": False,
             "voice_model": "tts-1",
-            "voice_type": "alloy"
+            "voice_type": "alloy",
+            "enable_ai_responses": True  # По умолчанию включены для обратной совместимости
         }
         for key, default_value in defaults.items():
             if key not in data:

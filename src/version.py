@@ -8,7 +8,7 @@ import datetime
 from typing import Dict, Optional
 
 # Fallback version if git is not available
-FALLBACK_VERSION = "3.0.0"
+FALLBACK_VERSION = "3.1.0"
 
 def run_git_command(command: str) -> Optional[str]:
     """Execute git command and return output"""
