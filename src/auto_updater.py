@@ -268,7 +268,8 @@ class AutoUpdater:
                     f"log {local_commit}..{remote_commit} --oneline --max-count=10"
                 )
                 if success and log_output:
-                    commit_log = log_output.split('\n')
+                    # log_output is already a string from _run_git_command
+                    commit_log = log_output.strip().split('\n') if log_output.strip() else []
             
             result = {
                 "success": True,

@@ -36,6 +36,7 @@ def verify_password(username, password):
     return None
 
 def serialize_bot_entry(bot_entry):
+    """Serialize bot entry for API v1 compatibility"""
     return {
         "id": bot_entry["id"],
         "config": bot_entry["config"],
@@ -85,6 +86,34 @@ def dialogs_page(bot_id):
         'selected_conversation': selected_conv
     })
     return render_template('dialogs.html', **context)
+
+@app.route("/api/bots", methods=["GET"])
+@auth.login_required  
+def get_all_bots():
+    """Get all bots (API v1 compatibility)"""
+    try:
+        with cm.BOT_CONFIGS_LOCK:
+            bots = []
+            for bot_id, bot_data in cm.BOT_CONFIGS.items():
+                if bot_data is not None:
+                    # Extract actual config from bot_data, avoiding double nesting
+                    if 'config' in bot_data and isinstance(bot_data['config'], dict):
+                        actual_config = bot_data['config']
+                    else:
+                        # Fallback: use bot_data directly as config (excluding system fields)
+                        actual_config = {k: v for k, v in bot_data.items() 
+                                       if k not in ['thread', 'loop', 'stop_event', 'status', 'id']}
+                    
+                    bot_entry = {
+                        "id": bot_id,
+                        "config": actual_config,
+                        "status": bot_data.get("status", "stopped")
+                    }
+                    bots.append(serialize_bot_entry(bot_entry))
+            return jsonify(bots)
+    except Exception as e:
+        logger.error(f"Error in get_all_bots: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/bots", methods=["POST"])
 @auth.login_required
@@ -213,7 +242,11 @@ def restart_application():
 def check_updates_api():
     """API endpoint to check for available updates"""
     try:
-        success, message, local_commit, remote_commit, *commit_log = check_for_updates()
+        result = check_for_updates()
+        if not isinstance(result, tuple) or len(result) < 4:
+            return jsonify({"error": "Invalid update check result"}), 500
+        
+        success, message, local_commit, remote_commit, *commit_log = result
         
         if not success:
             return jsonify({"error": message}), 500
@@ -226,8 +259,9 @@ def check_updates_api():
             "current_version": version.get_version()
         }
         
-        if commit_log and commit_log[0]:
-            response["new_commits"] = commit_log[0].split('\n') if commit_log[0] else []
+        if commit_log:
+            # commit_log is already a list of commit lines
+            response["new_commits"] = commit_log if isinstance(commit_log, list) else []
         
         return jsonify(response)
         
