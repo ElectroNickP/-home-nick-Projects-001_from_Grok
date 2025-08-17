@@ -1,41 +1,47 @@
 nohup: ignoring input
-[2025-08-15 21:57:46,899] INFO: Конфигурации ботов загружены из файла: 1 ботов
-[2025-08-15 21:57:46,899] INFO: Бот 4 успешно запущен.
-[2025-08-15 21:57:46,900] INFO: 🚀 Telegram Bot Manager API v2.0 Starting...
-[2025-08-15 21:57:46,900] INFO: 📚 API v2 Documentation: http://localhost:60183/api/v2/docs
-[2025-08-15 21:57:46,900] INFO: 🌐 Web Interface: http://localhost:60183/
-[2025-08-15 21:57:46,900] INFO: 🔐 Default credentials: admin / securepassword123
-[2025-08-15 21:57:46,900] INFO: 📡 Professional API Endpoints Added:
-[2025-08-15 21:57:46,900] INFO:    • GET  /api/v2/system/health - System health check
-[2025-08-15 21:57:46,900] INFO:    • GET  /api/v2/system/info - Detailed system information
-[2025-08-15 21:57:46,900] INFO:    • GET  /api/v2/system/stats - Real-time statistics
-[2025-08-15 21:57:46,900] INFO:    • GET  /api/v2/bots - Enhanced bot listing with pagination
-[2025-08-15 21:57:46,900] INFO:    • POST /api/v2/bots - Create new bot
-[2025-08-15 21:57:46,901] INFO:    • GET  /api/v2/bots/{id}/status - Detailed bot status
-[2025-08-15 21:57:46,901] INFO:    • PUT  /api/v2/bots/{id} - Update bot configuration
-[2025-08-15 21:57:46,901] INFO:    • DELETE /api/v2/bots/{id} - Delete bot
-[2025-08-15 21:57:46,901] INFO:    • POST /api/v2/bots/{id}/start - Start bot
-[2025-08-15 21:57:46,901] INFO:    • POST /api/v2/bots/{id}/stop - Stop bot
-[2025-08-15 21:57:46,901] INFO:    • POST /api/v2/bots/{id}/restart - Restart bot
-[2025-08-15 21:57:46,901] INFO: ⚠️  Remember to change default credentials in production!
-[2025-08-15 21:57:46,901] INFO: 🔧 Запуск Flask-сервера на http://0.0.0.0:60183
+[2025-08-17 05:23:42,430] INFO: Конфигурации ботов загружены из файла: 2 ботов
+[2025-08-17 05:23:42,430] INFO: Бот 1 успешно запущен.
+[2025-08-17 05:23:42,431] INFO: Бот 2 успешно запущен.
+[2025-08-17 05:23:42,431] INFO: 🚀 Telegram Bot Manager API v2.0 Starting...
+[2025-08-17 05:23:42,431] INFO: 📚 API v2 Documentation: http://localhost:5000/api/v2/docs
+[2025-08-17 05:23:42,431] INFO: 🌐 Web Interface: http://localhost:5000/
+[2025-08-17 05:23:42,431] INFO: 🔐 Default credentials: admin / securepassword123
+[2025-08-17 05:23:42,431] INFO: 📡 Professional API Endpoints Added:
+[2025-08-17 05:23:42,431] INFO:    • GET  /api/v2/system/health - System health check
+[2025-08-17 05:23:42,432] INFO:    • GET  /api/v2/system/info - Detailed system information
+[2025-08-17 05:23:42,432] INFO:    • GET  /api/v2/system/stats - Real-time statistics
+[2025-08-17 05:23:42,432] INFO:    • GET  /api/v2/bots - Enhanced bot listing with pagination
+[2025-08-17 05:23:42,432] INFO:    • POST /api/v2/bots - Create new bot
+[2025-08-17 05:23:42,432] INFO:    • GET  /api/v2/bots/{id}/status - Detailed bot status
+[2025-08-17 05:23:42,432] INFO:    • PUT  /api/v2/bots/{id} - Update bot configuration
+[2025-08-17 05:23:42,432] INFO:    • DELETE /api/v2/bots/{id} - Delete bot
+[2025-08-17 05:23:42,432] INFO:    • POST /api/v2/bots/{id}/start - Start bot
+[2025-08-17 05:23:42,432] INFO:    • POST /api/v2/bots/{id}/stop - Stop bot
+[2025-08-17 05:23:42,432] INFO:    • POST /api/v2/bots/{id}/restart - Restart bot
+[2025-08-17 05:23:42,432] INFO: ⚠️  Remember to change default credentials in production!
+[2025-08-17 05:23:42,432] INFO: 🔧 Запуск Flask-сервера на http://0.0.0.0:5000
  * Serving Flask app 'app'
  * Debug mode: off
-[2025-08-15 21:57:46,906] INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+[2025-08-17 05:23:42,442] INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:60183
- * Running on http://192.168.1.102:60183
-[2025-08-15 21:57:46,906] INFO: [33mPress CTRL+C to quit[0m
-[2025-08-15 21:57:47,979] INFO: Бот diosybot запущен.
-[2025-08-15 21:57:47,980] INFO: Запуск Telegram-бота @diosybot...
-[2025-08-15 21:57:48,286] INFO: Start polling
-[2025-08-15 21:57:48,593] INFO: Run polling for bot @diosybot id=7684104886 - 'D!P$Y'
-[2025-08-15 21:57:56,927] INFO: 127.0.0.1 - - [15/Aug/2025 21:57:56] "[31m[1mGET / HTTP/1.1[0m" 401 -
-[2025-08-15 21:58:09,360] INFO: 127.0.0.1 - - [15/Aug/2025 21:58:09] "GET / HTTP/1.1" 200 -
-/home/nick/Projects/Phuket/-home-nick-Projects-001_from_Grok/src/app.py:336: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
-  "timestamp": datetime.utcnow().isoformat() + "Z"
-[2025-08-15 21:58:09,370] INFO: 127.0.0.1 - - [15/Aug/2025 21:58:09] "GET /api/v2/system/health HTTP/1.1" 200 -
-[2025-08-15 21:58:09,498] INFO: 127.0.0.1 - - [15/Aug/2025 21:58:09] "GET /api/v2/system/stats HTTP/1.1" 200 -
-[2025-08-15 21:58:09,508] INFO: 127.0.0.1 - - [15/Aug/2025 21:58:09] "GET /api/v2/bots HTTP/1.1" 200 -
-[2025-08-15 21:58:09,520] INFO: 127.0.0.1 - - [15/Aug/2025 21:58:09] "GET /api/v2/docs HTTP/1.1" 200 -
-[2025-08-15 21:58:21,199] INFO: 127.0.0.1 - - [15/Aug/2025 21:58:21] "GET /api/v2/system/stats HTTP/1.1" 200 -
+ * Running on http://127.0.0.1:5000
+ * Running on http://66.179.240.175:5000
+[2025-08-17 05:23:42,443] INFO: [33mPress CTRL+C to quit[0m
+[2025-08-17 05:23:42,805] INFO: Бот Mickey17_AI_bot запущен.
+[2025-08-17 05:23:42,806] INFO: Запуск Telegram-бота @Mickey17_AI_bot...
+[2025-08-17 05:23:42,810] INFO: Бот Unikku_show_bot запущен.
+[2025-08-17 05:23:42,810] INFO: Запуск Telegram-бота @Unikku_show_bot...
+[2025-08-17 05:23:42,916] INFO: Start polling
+[2025-08-17 05:23:42,931] INFO: Start polling
+[2025-08-17 05:23:43,026] INFO: Run polling for bot @Mickey17_AI_bot id=7858521362 - 'Mikky'
+[2025-08-17 05:23:43,044] INFO: Run polling for bot @Unikku_show_bot id=7993164165 - "Unikku show's"
+[2025-08-17 05:23:45,620] INFO: 171.5.2.29 - - [17/Aug/2025 05:23:45] "GET / HTTP/1.1" 200 -
+[2025-08-17 05:23:56,564] INFO: 66.179.240.175 - - [17/Aug/2025 05:23:56] "HEAD / HTTP/1.1" 200 -
+[2025-08-17 05:24:02,390] INFO: Запрос на остановку бота 1 отправлен.
+[2025-08-17 05:24:02,390] INFO: 171.5.2.29 - - [17/Aug/2025 05:24:02] "POST /api/bots/1/stop HTTP/1.1" 200 -
+[2025-08-17 05:24:02,390] INFO: Остановка бота @Unikku_show_bot по запросу.
+[2025-08-17 05:24:02,390] INFO: Polling stopped
+[2025-08-17 05:24:02,391] ERROR: Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+[2025-08-17 05:24:02,391] WARNING: Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 7993164165)
+[2025-08-17 05:24:02,713] INFO: 171.5.2.29 - - [17/Aug/2025 05:24:02] "GET / HTTP/1.1" 200 -
+[2025-08-17 05:24:04,554] INFO: 127.0.0.1 - - [17/Aug/2025 05:24:04] "GET /api/version HTTP/1.1" 200 -
