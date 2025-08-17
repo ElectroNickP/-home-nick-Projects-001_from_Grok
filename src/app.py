@@ -1206,12 +1206,14 @@ curl -u username:password \\
   }
 }</code></pre>
             
-            <h3>📱 Mobile Optimization:</h3>
+            <h3>📱 Mobile Optimization (v3.3.0):</h3>
             <ul class="list-unstyled small">
-                <li><i class="fas fa-check text-success"></i> Responsive design for all devices</li>
-                <li><i class="fas fa-check text-success"></i> Touch-friendly interface</li>
-                <li><i class="fas fa-check text-success"></i> Direct Telegram app integration</li>
-                <li><i class="fas fa-check text-success"></i> Fast loading and smooth animations</li>
+                <li><i class="fas fa-check text-success"></i> <strong>Telegram WebApp готовность</strong> - PWA функциональность</li>
+                <li><i class="fas fa-check text-success"></i> <strong>Touch-friendly интерфейс</strong> - Apple HIG кнопки 44px+</li>
+                <li><i class="fas fa-check text-success"></i> <strong>Responsive дизайн</strong> - адаптация 320px-2560px</li>
+                <li><i class="fas fa-check text-success"></i> <strong>Темная тема поддержка</strong> - prefers-color-scheme</li>
+                <li><i class="fas fa-check text-success"></i> <strong>Performance оптимизации</strong> - -webkit-text-size-adjust</li>
+                <li><i class="fas fa-check text-success"></i> <strong>Анимированный логотип</strong> - ElectroNick брендинг</li>
             </ul>
             
             <h2>🔗 Legacy API</h2>
