@@ -8,7 +8,7 @@ import time
 import sys
 import psutil
 from datetime import datetime
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory, redirect
 from flask_httpauth import HTTPBasicAuth
 
 import config_manager as cm
@@ -49,6 +49,12 @@ def login_page():
 def logout():
     """Выход из системы"""
     return render_template('logout.html')
+
+@app.route("/auth-check")
+@auth.login_required
+def auth_check():
+    """Проверка авторизации и перенаправление на главную страницу"""
+    return redirect('/')
 
 def serialize_bot_entry(bot_entry):
     """Serialize bot entry for API v1 compatibility"""

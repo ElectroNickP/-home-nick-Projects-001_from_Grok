@@ -1154,8 +1154,10 @@ function checkAuthStatus() {
             },
             error: function(xhr) {
                 if (xhr.status === 401) {
-                    // Authentication failed, redirect to login
+                    // Authentication failed, clear credentials and redirect to login
                     console.log('Authentication failed, redirecting to login');
+                    localStorage.removeItem('auth_credentials');
+                    localStorage.removeItem('auth_username');
                     window.location.href = '/login';
                 }
             }

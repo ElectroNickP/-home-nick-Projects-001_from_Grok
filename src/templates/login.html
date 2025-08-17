@@ -495,9 +495,9 @@
                     
                     showAlert('Успешная авторизация! Перенаправление...', 'success');
                     
-                    // Redirect to main page
+                    // Load main page with authentication headers
                     setTimeout(() => {
-                        window.location.href = '/';
+                        loadMainPageWithAuth(credentials);
                     }, 1000);
                 },
                 error: function(xhr, status, error) {
@@ -517,6 +517,32 @@
             });
         }
 
+        function loadMainPageWithAuth(credentials) {
+            // Use auth-check endpoint to verify credentials and redirect
+            $.ajax({
+                url: '/auth-check',
+                method: 'GET',
+                headers: {
+                    'Authorization': `Basic ${credentials}`
+                },
+                timeout: 10000,
+                success: function(response) {
+                    // If successful, redirect to main page
+                    window.location.href = '/';
+                },
+                error: function(xhr, status, error) {
+                    if (xhr.status === 401) {
+                        showAlert('Ошибка авторизации при загрузке главной страницы');
+                        localStorage.removeItem('auth_credentials');
+                        localStorage.removeItem('auth_username');
+                    } else {
+                        showAlert('Ошибка загрузки главной страницы');
+                    }
+                    setLoading(false);
+                }
+            });
+        }
+
         function checkAuthStatus() {
             const credentials = localStorage.getItem('auth_credentials');
             if (credentials) {
@@ -528,8 +554,8 @@
                     },
                     timeout: 5000,
                     success: function(response) {
-                        // User is already authenticated, redirect to main page
-                        window.location.href = '/';
+                        // User is already authenticated, load main page with auth
+                        loadMainPageWithAuth(credentials);
                     },
                     error: function() {
                         // Clear invalid credentials
