@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🤖 Маркетплейс ботов - Telegram Bot Manager</title>
+    <title>🤖 ElectroNick bot Market - Маркетплейс Telegram ботов</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <meta name="description" content="Откройте для себя лучших Telegram ботов. Ассистенты, игры, бизнес-решения и многое другое.">
-    <meta name="keywords" content="telegram боты, боты, чат-боты, ассистенты, автоматизация">
+    <meta name="description" content="ElectroNick bot Market - откройте для себя лучших Telegram ботов. Ассистенты, игры, бизнес-решения и многое другое.">
+    <meta name="keywords" content="electronick, telegram боты, боты, чат-боты, ассистенты, автоматизация, маркетплейс">
     
     <!-- Open Graph для соцсетей -->
-    <meta property="og:title" content="🤖 Маркетплейс ботов">
-    <meta property="og:description" content="Откройте для себя лучших Telegram ботов">
+    <meta property="og:title" content="🤖 ElectroNick bot Market">
+    <meta property="og:description" content="Откройте для себя лучших Telegram ботов в ElectroNick bot Market">
     <meta property="og:type" content="website">
     
     <style>
@@ -57,6 +57,26 @@
             background: transparent;
             padding: 0.5rem 1rem;
             font-size: 1.1rem;
+        }
+        
+        .logo-glow {
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.6));
+            animation: pulse-glow 3s ease-in-out infinite alternate;
+            transition: all 0.3s ease;
+        }
+        
+        .logo-glow:hover {
+            filter: drop-shadow(0 0 35px rgba(0, 212, 255, 0.9));
+            transform: scale(1.05);
+        }
+        
+        @keyframes pulse-glow {
+            from {
+                filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.6));
+            }
+            to {
+                filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.9));
+            }
         }
         
         .filters-container {
@@ -274,7 +294,13 @@
 <div class="container py-4">
     <!-- Hero Section -->
     <div class="hero-section text-center">
-        <h1 class="hero-title">🤖 Маркетплейс ботов</h1>
+        <div class="d-flex justify-content-center align-items-center mb-4">
+            <img src="/static/electronick-logo.png" alt="ElectroNick Logo" style="height: 80px; margin-right: 20px;" class="logo-glow">
+            <div class="text-start">
+                <h1 class="hero-title mb-0" style="font-size: 3.5rem; background: linear-gradient(45deg, #00d4ff, #ff6b35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">ElectroNick</h1>
+                <h2 class="text-primary mb-0" style="font-size: 1.8rem; margin-left: 10px;">bot Market</h2>
+            </div>
+        </div>
         <p class="hero-subtitle">Откройте для себя лучших Telegram ботов для любых задач</p>
         
         <!-- Search Bar -->

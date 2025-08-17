@@ -8,7 +8,7 @@ import time
 import sys
 import psutil
 from datetime import datetime
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_httpauth import HTTPBasicAuth
 
 import config_manager as cm
@@ -26,6 +26,11 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder='templates')
 auth = HTTPBasicAuth()
+
+# Маршрут для статических файлов (логотипы, стили и т.д.)
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
 
 USERS = {"admin": "securepassword123"}
 
@@ -1132,7 +1137,7 @@ curl -u username:password \\
                 <strong>voice_type</strong> - Тип голоса: "alloy", "echo", "fable", "onyx", "nova", "shimmer" (по умолчанию: "alloy")
             </div>
             
-            <h2>🏪 Marketplace API</h2>
+            <h2>🏪 ElectroNick bot Market API</h2>
             <p><strong>📋 Public Endpoints (No Authentication Required):</strong></p>
             
             <div class="endpoint">
