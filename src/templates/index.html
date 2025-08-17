@@ -25,6 +25,15 @@
         ⚠ Внимание: Измените логин и пароль в src/app.py (раздел USERS) для безопасности!
     </div>
     
+    <!-- Navigation -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <a href="/marketplace" class="btn btn-outline-primary btn-sm me-2">
+                <i class="fas fa-store"></i> Маркетплейс ботов
+            </a>
+        </div>
+    </div>
+    
     <!-- Version Info -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="text-muted small">
@@ -137,6 +146,88 @@
                             <option value="shimmer">Shimmer (женский, мягкий)</option>
                         </select>
                     </div>
+                    
+                    <!-- Marketplace Settings -->
+                    <div class="col-12">
+                        <hr class="my-3">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="marketplace_enabled" value="true">
+                            <label class="form-check-label" for="marketplace_enabled">
+                                <strong>🏪 Разместить в маркетплейсе</strong>
+                            </label>
+                            <small class="form-text text-muted d-block">Сделать бота доступным в публичном каталоге</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Marketplace Fields (initially hidden) -->
+                    <div id="marketplace_fields" style="display: none;">
+                        <div class="col-md-6">
+                            <label class="form-label">📝 Заголовок для маркетплейса</label>
+                            <input type="text" class="form-control" id="marketplace_title" placeholder="Название для показа в каталоге">
+                            <small class="form-text text-muted">Оставьте пустым для использования названия бота</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">📂 Категория</label>
+                            <select class="form-select" id="marketplace_category">
+                                <option value="assistant">🤖 Ассистенты</option>
+                                <option value="business">💼 Бизнес</option>
+                                <option value="education">📚 Образование</option>
+                                <option value="entertainment">🎮 Развлечения</option>
+                                <option value="productivity">⚡ Продуктивность</option>
+                                <option value="support">🛠️ Поддержка</option>
+                                <option value="social">👥 Социальные</option>
+                                <option value="news">📰 Новости</option>
+                                <option value="finance">💰 Финансы</option>
+                                <option value="health">🏥 Здоровье</option>
+                                <option value="travel">✈️ Путешествия</option>
+                                <option value="food">🍕 Еда</option>
+                                <option value="other" selected>📦 Другое</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">📄 Описание</label>
+                            <textarea class="form-control" id="marketplace_description" rows="3" placeholder="Подробное описание возможностей бота для пользователей"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">👤 Username бота</label>
+                            <div class="input-group">
+                                <span class="input-group-text">@</span>
+                                <input type="text" class="form-control" id="marketplace_username" placeholder="bot_username">
+                            </div>
+                            <small class="form-text text-muted">Имя бота в Telegram (без @)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">🌐 Веб-сайт (необязательно)</label>
+                            <input type="url" class="form-control" id="marketplace_website" placeholder="https://example.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">🖼️ URL изображения (необязательно)</label>
+                            <input type="url" class="form-control" id="marketplace_image_url" placeholder="https://example.com/bot-avatar.jpg">
+                            <small class="form-text text-muted">Рекомендуемый размер: 300x300px</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">🏷️ Теги</label>
+                            <input type="text" class="form-control" id="marketplace_tags" placeholder="помощник, чат, AI">
+                            <small class="form-text text-muted">Теги через запятую для поиска</small>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="marketplace_featured" value="true">
+                                <label class="form-check-label" for="marketplace_featured">
+                                    ⭐ Рекомендуемый бот
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">⭐ Рейтинг (0-5)</label>
+                            <input type="number" class="form-control" id="marketplace_rating" min="0" max="5" step="0.1" value="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">👥 Количество пользователей</label>
+                            <input type="number" class="form-control" id="marketplace_total_users" min="0" value="0">
+                        </div>
+                    </div>
+                    
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary" id="createBtn">
                             <span class="spinner-border spinner-border-sm spinner" role="status"></span> Создать
@@ -153,7 +244,7 @@
     <div class="table-responsive">
         <table class="table table-hover align-middle" id="botsTable">
             <thead class="table-dark">
-                <tr><th>ID</th><th>Название</th><th>Token</th><th>OpenAI Key</th><th>Assistant ID</th><th>Контекст</th><th>ИИ</th><th>TTS</th><th>Статус</th><th>Действия</th></tr>
+                <tr><th>ID</th><th>Название</th><th>Token</th><th>OpenAI Key</th><th>Assistant ID</th><th>Контекст</th><th>ИИ</th><th>TTS</th><th>Магазин</th><th>Статус</th><th>Действия</th></tr>
             </thead>
             <tbody>
                 {% for bot in bots %}
@@ -179,6 +270,17 @@
                             <span class="badge bg-secondary">Выкл</span>
                         {% endif %}
                     </td>
+                    <td class="bot-marketplace">
+                        {% if bot.config.get('marketplace', {}).get('enabled', False) %}
+                            <span class="badge bg-primary">🏪 Да</span><br>
+                            <small class="text-muted">{{ bot.config.marketplace.category or 'other' }}</small>
+                            {% if bot.config.marketplace.get('featured', False) %}
+                                <br><span class="badge bg-warning text-dark">⭐ Featured</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-secondary">Нет</span>
+                        {% endif %}
+                    </td>
                     <td class="bot-status {% if bot.status == 'running' %}status-running{% else %}status-stopped{% endif %}">{{ bot.status }}</td>
                     <td>
                         <button class="btn btn-sm btn-success start-btn" {% if bot.status == 'running' %}disabled{% endif %}>Старт</button>
@@ -186,6 +288,11 @@
                         <button class="btn btn-sm btn-info edit-btn">Править</button>
                         <button class="btn btn-sm btn-danger delete-btn">Удалить</button>
                         <a href="/dialogs/{{ bot.id }}" class="btn btn-sm btn-primary">Диалоги</a>
+                        {% if bot.config.get('marketplace', {}).get('enabled', False) %}
+                            <a href="/marketplace/{{ bot.id }}" class="btn btn-sm btn-outline-primary" title="Просмотр в маркетплейсе">
+                                <i class="fas fa-store"></i>
+                            </a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
@@ -247,6 +354,86 @@
                         </select>
                     </div>
                 </div>
+                
+                <!-- Marketplace Settings -->
+                <hr class="my-3">
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="edit_marketplace_enabled" value="true">
+                        <label class="form-check-label" for="edit_marketplace_enabled">
+                            <strong>🏪 Разместить в маркетплейсе</strong>
+                        </label>
+                    </div>
+                    <small class="form-text text-muted">Сделать бота доступным в публичном каталоге</small>
+                </div>
+                
+                <!-- Marketplace Fields (initially hidden) -->
+                <div id="edit_marketplace_fields" style="display: none;">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">📝 Заголовок для маркетплейса</label>
+                            <input type="text" class="form-control" id="edit_marketplace_title" placeholder="Название для показа в каталоге">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">📂 Категория</label>
+                            <select class="form-select" id="edit_marketplace_category">
+                                <option value="assistant">🤖 Ассистенты</option>
+                                <option value="business">💼 Бизнес</option>
+                                <option value="education">📚 Образование</option>
+                                <option value="entertainment">🎮 Развлечения</option>
+                                <option value="productivity">⚡ Продуктивность</option>
+                                <option value="support">🛠️ Поддержка</option>
+                                <option value="social">👥 Социальные</option>
+                                <option value="news">📰 Новости</option>
+                                <option value="finance">💰 Финансы</option>
+                                <option value="health">🏥 Здоровье</option>
+                                <option value="travel">✈️ Путешествия</option>
+                                <option value="food">🍕 Еда</option>
+                                <option value="other">📦 Другое</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">📄 Описание</label>
+                            <textarea class="form-control" id="edit_marketplace_description" rows="3" placeholder="Подробное описание возможностей бота"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">👤 Username бота</label>
+                            <div class="input-group">
+                                <span class="input-group-text">@</span>
+                                <input type="text" class="form-control" id="edit_marketplace_username" placeholder="bot_username">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">🌐 Веб-сайт</label>
+                            <input type="url" class="form-control" id="edit_marketplace_website" placeholder="https://example.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">🖼️ URL изображения</label>
+                            <input type="url" class="form-control" id="edit_marketplace_image_url" placeholder="https://example.com/bot-avatar.jpg">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">🏷️ Теги</label>
+                            <input type="text" class="form-control" id="edit_marketplace_tags" placeholder="помощник, чат, AI">
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="edit_marketplace_featured" value="true">
+                                <label class="form-check-label" for="edit_marketplace_featured">
+                                    ⭐ Рекомендуемый
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">⭐ Рейтинг</label>
+                            <input type="number" class="form-control" id="edit_marketplace_rating" min="0" max="5" step="0.1" value="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">👥 Пользователи</label>
+                            <input type="number" class="form-control" id="edit_marketplace_total_users" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+                
                 <button type="submit" class="btn btn-primary" id="saveEditBtn">Сохранить</button>
             </form>
         </div>
@@ -413,15 +600,42 @@ $(document).ready(function() {
     }
     $("#createBotForm").submit(e => {
         e.preventDefault();
-        apiCall("/api/bots", "POST", {
-            bot_name: $("#bot_name").val(), telegram_token: $("#telegram_token").val(),
-            openai_api_key: $("#openai_api_key").val(), assistant_id: $("#assistant_id").val(),
+        
+        // Parse tags
+        const tags = $("#marketplace_tags").val() ? 
+            $("#marketplace_tags").val().split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+        
+        const botData = {
+            bot_name: $("#bot_name").val(), 
+            telegram_token: $("#telegram_token").val(),
+            openai_api_key: $("#openai_api_key").val(), 
+            assistant_id: $("#assistant_id").val(),
             group_context_limit: parseInt($("#group_context_limit").val()) || 15,
             enable_ai_responses: $("#enable_ai_responses").is(':checked'),
             enable_voice_responses: $("#enable_voice_responses").is(':checked'),
             voice_model: $("#voice_model").val() || "tts-1",
             voice_type: $("#voice_type").val() || "alloy"
-        }, '#createBtn');
+        };
+        
+        // Add marketplace data if enabled
+        if ($("#marketplace_enabled").is(':checked')) {
+            botData.marketplace = {
+                enabled: true,
+                title: $("#marketplace_title").val() || "",
+                description: $("#marketplace_description").val() || "",
+                category: $("#marketplace_category").val() || "other",
+                username: $("#marketplace_username").val() || "",
+                website: $("#marketplace_website").val() || "",
+                image_url: $("#marketplace_image_url").val() || "",
+                tags: tags,
+                featured: $("#marketplace_featured").is(':checked'),
+                rating: parseFloat($("#marketplace_rating").val()) || 0,
+                total_users: parseInt($("#marketplace_total_users").val()) || 0,
+                last_updated: new Date().toISOString().split('T')[0]
+            };
+        }
+        
+        apiCall("/api/bots", "POST", botData, '#createBtn');
     });
     $('#botsTable').on('click', '.edit-btn', function() {
         var row = $(this).closest('tr');
@@ -445,11 +659,31 @@ $(document).ready(function() {
                 $("#edit_voice_model").val(bot.config.voice_model || "tts-1");
                 $("#edit_voice_type").val(bot.config.voice_type || "alloy");
                 
-                // Показываем/скрываем настройки голоса
+                // Marketplace настройки
+                const marketplace = bot.config.marketplace || {};
+                $("#edit_marketplace_enabled").prop('checked', marketplace.enabled || false);
+                $("#edit_marketplace_title").val(marketplace.title || "");
+                $("#edit_marketplace_description").val(marketplace.description || "");
+                $("#edit_marketplace_category").val(marketplace.category || "other");
+                $("#edit_marketplace_username").val(marketplace.username || "");
+                $("#edit_marketplace_website").val(marketplace.website || "");
+                $("#edit_marketplace_image_url").val(marketplace.image_url || "");
+                $("#edit_marketplace_tags").val((marketplace.tags || []).join(', '));
+                $("#edit_marketplace_featured").prop('checked', marketplace.featured || false);
+                $("#edit_marketplace_rating").val(marketplace.rating || 0);
+                $("#edit_marketplace_total_users").val(marketplace.total_users || 0);
+                
+                // Показываем/скрываем настройки
                 if (bot.config.enable_voice_responses) {
                     $("#edit_voice_settings").show();
                 } else {
                     $("#edit_voice_settings").hide();
+                }
+                
+                if (marketplace.enabled) {
+                    $("#edit_marketplace_fields").show();
+                } else {
+                    $("#edit_marketplace_fields").hide();
                 }
                 
                 new bootstrap.Modal('#editModal').show();
@@ -476,15 +710,40 @@ $(document).ready(function() {
     $("#editBotForm").submit(e => {
         e.preventDefault();
         var botId = $("#edit_bot_id").val();
-        apiCall(`/api/bots/${botId}`, "PUT", {
-            bot_name: $("#edit_bot_name").val(), telegram_token: $("#edit_telegram_token").val(),
-            openai_api_key: $("#edit_openai_api_key").val(), assistant_id: $("#edit_assistant_id").val(),
+        
+        // Parse tags
+        const editTags = $("#edit_marketplace_tags").val() ? 
+            $("#edit_marketplace_tags").val().split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+        
+        const editBotData = {
+            bot_name: $("#edit_bot_name").val(), 
+            telegram_token: $("#edit_telegram_token").val(),
+            openai_api_key: $("#edit_openai_api_key").val(), 
+            assistant_id: $("#edit_assistant_id").val(),
             group_context_limit: parseInt($("#edit_group_context_limit").val()) || 15,
             enable_ai_responses: $("#edit_enable_ai_responses").is(':checked'),
             enable_voice_responses: $("#edit_enable_voice_responses").is(':checked'),
             voice_model: $("#edit_voice_model").val() || "tts-1",
             voice_type: $("#edit_voice_type").val() || "alloy"
-        }, '#saveEditBtn');
+        };
+        
+        // Add marketplace data
+        editBotData.marketplace = {
+            enabled: $("#edit_marketplace_enabled").is(':checked'),
+            title: $("#edit_marketplace_title").val() || "",
+            description: $("#edit_marketplace_description").val() || "",
+            category: $("#edit_marketplace_category").val() || "other",
+            username: $("#edit_marketplace_username").val() || "",
+            website: $("#edit_marketplace_website").val() || "",
+            image_url: $("#edit_marketplace_image_url").val() || "",
+            tags: editTags,
+            featured: $("#edit_marketplace_featured").is(':checked'),
+            rating: parseFloat($("#edit_marketplace_rating").val()) || 0,
+            total_users: parseInt($("#edit_marketplace_total_users").val()) || 0,
+            last_updated: new Date().toISOString().split('T')[0]
+        };
+        
+        apiCall(`/api/bots/${botId}`, "PUT", editBotData, '#saveEditBtn');
     });
     $('#botsTable').on('click', '.delete-btn', function() {
         if (confirm("Удалить бота?")) apiCall(`/api/bots/${$(this).closest('tr').data('bot-id')}`, "DELETE", null, this);
@@ -511,6 +770,24 @@ $(document).ready(function() {
             $("#edit_voice_settings").show();
         } else {
             $("#edit_voice_settings").hide();
+        }
+    });
+    
+    // Показать/скрыть marketplace поля при изменении чекбокса (форма создания)
+    $("#marketplace_enabled").change(function() {
+        if ($(this).is(':checked')) {
+            $("#marketplace_fields").show();
+        } else {
+            $("#marketplace_fields").hide();
+        }
+    });
+    
+    // Показать/скрыть marketplace поля при изменении чекбокса (форма редактирования)
+    $("#edit_marketplace_enabled").change(function() {
+        if ($(this).is(':checked')) {
+            $("#edit_marketplace_fields").show();
+        } else {
+            $("#edit_marketplace_fields").hide();
         }
     });
 });

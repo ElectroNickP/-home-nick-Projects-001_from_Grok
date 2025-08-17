@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ bot.title }} - Маркетплейс ботов</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Meta tags for social sharing -->
+    <meta name="description" content="{{ bot.description or 'Telegram бот - ' + bot.title }}">
+    <meta property="og:title" content="{{ bot.title }} - Telegram бот">
+    <meta property="og:description" content="{{ bot.description or 'Откройте этого бота в Telegram' }}">
+    <meta property="og:type" content="website">
+    {% if bot.image_url %}
+    <meta property="og:image" content="{{ bot.image_url }}">
+    {% endif %}
+    
+    <style>
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            max-width: 1000px;
+        }
+        
+        .back-button {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .bot-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bot-header.featured::before {
+            content: "⭐ FEATURED BOT";
+            position: absolute;
+            top: 20px;
+            right: -40px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 8px 50px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transform: rotate(45deg);
+            box-shadow: 0 3px 15px rgba(255, 215, 0, 0.5);
+        }
+        
+        .bot-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .bot-avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            border: 4px solid #fff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .bot-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .bot-category {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        
+        .rating-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .rating-stars {
+            font-size: 1.5rem;
+            color: #ffc107;
+        }
+        
+        .rating-text {
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 15px;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-badge.running { background: linear-gradient(135deg, #28a745, #20c997); }
+        .status-badge.stopped { background: linear-gradient(135deg, #dc3545, #fd7e14); }
+        
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-item {
+            background: rgba(103, 126, 234, 0.1);
+            padding: 1rem;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-description {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(103, 126, 234, 0.05);
+            border-radius: 15px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tag {
+            background: rgba(108, 117, 125, 0.15);
+            color: #495057;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .btn-telegram {
+            background: linear-gradient(135deg, #0088cc, #00aced);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 136, 204, 0.3);
+        }
+        
+        .btn-telegram:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 136, 204, 0.5);
+            color: white;
+        }
+        
+        .btn-website {
+            background: rgba(108, 117, 125, 0.1);
+            border: 2px solid #6c757d;
+            color: #6c757d;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-website:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .share-section {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(103, 126, 234, 0.05);
+            border-radius: 15px;
+            margin-top: 1rem;
+        }
+        
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .share-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-3px);
+            color: white;
+        }
+        
+        .share-btn.twitter { background: #1da1f2; }
+        .share-btn.facebook { background: #3b5998; }
+        .share-btn.telegram { background: #0088cc; }
+        .share-btn.whatsapp { background: #25d366; }
+        
+        @media (max-width: 768px) {
+            .bot-title {
+                font-size: 1.8rem;
+            }
+            
+            .bot-avatar,
+            .bot-avatar-placeholder {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+            
+            .content-section {
+                padding: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-telegram,
+            .btn-website {
+                justify-content: center;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <!-- Back Button -->
+    <a href="/marketplace" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+        <span>Назад к маркетплейсу</span>
+    </a>
+
+    <!-- Bot Header -->
+    <div class="bot-header {% if bot.featured %}featured{% endif %}">
+        <div class="row align-items-center">
+            <div class="col-md-2 text-center mb-3 mb-md-0">
+                {% if bot.image_url %}
+                    <img src="{{ bot.image_url }}" alt="{{ bot.title }}" class="bot-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="bot-avatar-placeholder" style="display: none;">
+                        🤖
+                    </div>
+                {% else %}
+                    <div class="bot-avatar-placeholder">
+                        🤖
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-7">
+                <h1 class="bot-title">{{ bot.title }}</h1>
+                <div class="bot-category">{{ bot.category }}</div>
+                
+                {% if bot.rating > 0 %}
+                <div class="rating-section">
+                    <div class="rating-stars">
+                        {% for i in range((bot.rating)|round|int) %}⭐{% endfor %}
+                    </div>
+                    <span class="rating-text">{{ "%.1f"|format(bot.rating) }} из 5</span>
+                </div>
+                {% endif %}
+                
+                <p class="lead mb-0">{{ bot.description or 'Описание не указано' }}</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="mb-3">
+                    <span class="status-badge {{ bot.status }}">
+                        {% if bot.status == 'running' %}
+                            <i class="fas fa-play"></i> Активен
+                        {% else %}
+                            <i class="fas fa-pause"></i> Неактивен
+                        {% endif %}
+                    </span>
+                </div>
+                {% if bot.total_users > 0 %}
+                <div class="text-muted">
+                    <i class="fas fa-users"></i> {{ bot.total_users }} пользователей
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bot Features -->
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-star"></i>
+            Возможности бота
+        </h2>
+        
+        <div class="features-grid">
+            {% if bot.features.ai_responses %}
+            <div class="feature-item">
+                <div class="feature-title">🧠 ИИ Ассистент</div>
+                <div class="feature-description">Умные ответы на основе OpenAI Assistant API</div>
+            </div>
+            {% else %}
+            <div class="feature-item">
+                <div class="feature-title">🎙️ Транскрибатор</div>
+                <div class="feature-description">Преобразование голосовых сообщений в текст</div>
+            </div>
+            {% endif %}
+            
+            {% if bot.features.voice_responses %}
+            <div class="feature-item">
+                <div class="feature-title">🎤 Голосовые ответы</div>
+                <div class="feature-description">Озвучивание ответов голосом {{ bot.features.voice_type or 'alloy' }}</div>
+            </div>
+            {% endif %}
+            
+            <div class="feature-item">
+                <div class="feature-title">💬 Групповые чаты</div>
+                <div class="feature-description">Работа в группах с анализом контекста</div>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-title">🔒 Безопасность</div>
+                <div class="feature-description">Проверенный и безопасный бот</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    {% if bot.total_users > 0 or bot.rating > 0 %}
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-chart-bar"></i>
+            Статистика
+        </h2>
+        
+        <div class="stats-grid">
+            {% if bot.total_users > 0 %}
+            <div class="stat-item">
+                <span class="stat-number">{{ bot.total_users }}</span>
+                <span class="stat-label">Пользователей</span>
+            </div>
+            {% endif %}
+            
+            {% if bot.rating > 0 %}
+            <div class="stat-item">
+                <span class="stat-number">{{ "%.1f"|format(bot.rating) }}</span>
+                <span class="stat-label">Рейтинг</span>
+            </div>
+            {% endif %}
+            
+            <div class="stat-item">
+                <span class="stat-number">{{ bot.status }}</span>
+                <span class="stat-label">Статус</span>
+            </div>
+            
+            {% if bot.last_updated %}
+            <div class="stat-item">
+                <span class="stat-number">{{ bot.last_updated }}</span>
+                <span class="stat-label">Обновлен</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tags -->
+    {% if bot.tags %}
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-tags"></i>
+            Теги
+        </h2>
+        
+        <div class="tags-container">
+            {% for tag in bot.tags %}
+                <span class="tag">#{{ tag }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-rocket"></i>
+            Начать использование
+        </h2>
+        
+        <div class="action-buttons">
+            {% if bot.username %}
+                <a href="https://t.me/{{ bot.username }}" 
+                   class="btn-telegram" 
+                   target="_blank"
+                   onclick="trackBotStart('{{ bot.username }}')">
+                    <i class="fab fa-telegram"></i>
+                    <span>Открыть в Telegram</span>
+                </a>
+            {% endif %}
+            
+            {% if bot.website %}
+                <a href="{{ bot.website }}" 
+                   class="btn-website" 
+                   target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>Официальный сайт</span>
+                </a>
+            {% endif %}
+        </div>
+        
+        <!-- Share Section -->
+        <div class="share-section">
+            <h5>Поделиться ботом</h5>
+            <p class="text-muted mb-3">Расскажите друзьям об этом полезном боте</p>
+            
+            <div class="share-buttons">
+                <a href="https://twitter.com/intent/tweet?text={{ bot.title|urlencode }} - отличный Telegram бот!&url={{ request.url|urlencode }}" 
+                   target="_blank" 
+                   class="share-btn twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url|urlencode }}" 
+                   target="_blank" 
+                   class="share-btn facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://t.me/share/url?url={{ request.url|urlencode }}&text={{ bot.title|urlencode }} - отличный бот!" 
+                   target="_blank" 
+                   class="share-btn telegram">
+                    <i class="fab fa-telegram"></i>
+                </a>
+                <a href="https://wa.me/?text={{ bot.title|urlencode }} - отличный Telegram бот! {{ request.url|urlencode }}" 
+                   target="_blank" 
+                   class="share-btn whatsapp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function trackBotStart(username) {
+    // Track when users click to start the bot
+    console.log(`User clicked to start bot: ${username}`);
+    
+    // Send analytics data (you can implement this)
+    // fetch('/api/analytics/bot-start', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ bot_username: username, page: 'detail' })
+    // });
+}
+
+// Add entrance animations
+$(document).ready(function() {
+    $('.content-section').each(function(index) {
+        $(this).css({
+            'opacity': '0',
+            'transform': 'translateY(30px)'
+        }).delay(index * 200).animate({
+            'opacity': '1'
+        }, 600, function() {
+            $(this).css('transform', 'translateY(0px)');
+        });
+    });
+});
+
+// Copy URL functionality
+function copyBotURL() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        // Show temporary success message
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+        btn.classList.add('btn-success');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('btn-success');
+        }, 2000);
+    });
+}
+
+// Add QR code generation for mobile sharing
+function generateQRCode() {
+    const url = window.location.href;
+    const qrCodeURL = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    
+    const modal = `
+        <div class="modal fade" id="qrModal" tabindex="-1">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">QR код для быстрого доступа</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="${qrCodeURL}" alt="QR код" class="img-fluid">
+                        <p class="mt-2 text-muted">Отсканируйте камерой телефона</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('body').append(modal);
+    $('#qrModal').modal('show');
+    $('#qrModal').on('hidden.bs.modal', function() {
+        $(this).remove();
+    });
+}
+</script>
+</body>
+</html>
