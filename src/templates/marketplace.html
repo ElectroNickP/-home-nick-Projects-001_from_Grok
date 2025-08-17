@@ -611,6 +611,12 @@
 
     <script>
         $(document).ready(function() {
+            console.log('🚀 Страница marketplace загружена');
+            console.log('🔍 Проверяем элементы DOM...');
+            console.log('botsGrid:', $('#botsGrid').length);
+            console.log('noBots:', $('#noBots').length);
+            console.log('searchInput:', $('#searchInput').length);
+            
             loadBots();
             setupEventListeners();
         });
@@ -631,6 +637,19 @@
 
         function loadBots() {
             console.log('🔄 Загрузка ботов...');
+            console.log('jQuery версия:', $.fn.jquery);
+            console.log('jQuery доступен:', typeof $ !== 'undefined');
+            console.log('🔗 URL API:', '/api/marketplace/bots');
+            
+            // Проверяем доступность API
+            $.get('/api/marketplace/bots')
+                .done(function(data) {
+                    console.log('✅ API доступен, данные:', data);
+                })
+                .fail(function(xhr, status, error) {
+                    console.error('❌ API недоступен:', error);
+                });
+            
             $.ajax({
                 url: '/api/marketplace/bots',
                 method: 'GET',
@@ -648,6 +667,9 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('❌ Ошибка загрузки ботов:', error);
+                    console.error('❌ Status:', status);
+                    console.error('❌ XHR:', xhr);
+                    console.error('❌ Response Text:', xhr.responseText);
                     showNoBots();
                 }
             });
