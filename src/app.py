@@ -7,7 +7,8 @@ import threading
 import time
 import sys
 import psutil
-from datetime import datetime
+import socket
+from datetime import datetime, UTC
 from flask import Flask, request, jsonify, render_template, send_from_directory, redirect, session, url_for
 from functools import wraps
 
@@ -26,6 +27,17 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = 'your-secret-key-change-in-production'  # Секретный ключ для сессий
+
+def find_free_port(start_port=5000, max_attempts=100):
+    """Найти свободный порт начиная с start_port"""
+    for port in range(start_port, start_port + max_attempts):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('', port))
+                return port
+        except OSError:
+            continue
+    raise RuntimeError(f"Не удалось найти свободный порт в диапазоне {start_port}-{start_port + max_attempts}")
 
 # Маршрут для статических файлов (логотипы, стили и т.д.)
 @app.route('/static/<path:filename>')
@@ -430,20 +442,112 @@ def cleanup_backups():
 
 # ============== PROFESSIONAL API ENDPOINTS ==============
 
+def validate_input_data(data):
+    """Валидация входных данных для предотвращения атак"""
+    import re
+    
+    # Проверка на SQL инъекции
+    sql_patterns = [
+        r"(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)",
+        r"(--|/\*|\*/|;|xp_|sp_)",
+        r"(\b(or|and)\b\s+\d+\s*=\s*\d+)",
+        r"(\b(union|select)\b.*\bfrom\b)",
+        r"(\b(insert|update|delete)\b.*\binto\b)",
+        r"(\b(or|and)\b\s*['\"]?\d+['\"]?\s*=\s*['\"]?\d+['\"]?)",
+        r"(\b(or|and)\b\s*['\"]?1['\"]?\s*=\s*['\"]?1['\"]?)",
+        r"(\b(or|and)\b\s*['\"]?true['\"]?\s*=\s*['\"]?true['\"]?)",
+        r"(\b(or|and)\b\s*['\"]?false['\"]?\s*=\s*['\"]?false['\"]?)",
+        r"(\b(or|and)\b\s*['\"]?1['\"]?\s*=\s*['\"]?1['\"]?\s*--)",
+        r"(\b(or|and)\b\s*['\"]?1['\"]?\s*=\s*['\"]?1['\"]?\s*#)",
+        r"(\b(or|and)\b\s*['\"]?1['\"]?\s*=\s*['\"]?1['\"]?\s*/\*)",
+        r"(\b(or|and)\b\s*['\"]?1['\"]?\s*=\s*['\"]?1['\"]?\s*\*/)"
+    ]
+    
+    # Проверка на XSS
+    xss_patterns = [
+        r"<script[^>]*>.*?</script>",
+        r"<iframe[^>]*>.*?</iframe>",
+        r"javascript:",
+        r"on\w+\s*=",
+        r"<svg[^>]*>.*?</svg>",
+        r"<img[^>]*on\w+\s*="
+    ]
+    
+    # Проверка на path traversal
+    path_patterns = [
+        r"\.\./",
+        r"\.\.\\",
+        r"%2e%2e%2f",
+        r"%2e%2e%5c",
+        r"\.\.%2f",
+        r"\.\.%5c",
+        r"%252e%252e%252f",
+        r"%252e%252e%2525",
+        r"\.\.%252f",
+        r"\.\.%2525",
+        r"\.\.%2e%2e%2f",
+        r"\.\.%2e%2e%5c",
+        r"etc/passwd",
+        r"etc\\passwd",
+        r"windows\\system32",
+        r"windows/system32"
+    ]
+    
+    # Проверка длины полей
+    max_lengths = {
+        "bot_name": 100,
+        "telegram_token": 100,
+        "openai_api_key": 100,
+        "assistant_id": 100,
+        "group_context_limit": 10
+    }
+    
+    for field, value in data.items():
+        if isinstance(value, str):
+            # Проверка длины
+            if field in max_lengths and len(value) > max_lengths[field]:
+                return False, f"Поле {field} слишком длинное (максимум {max_lengths[field]} символов)"
+            
+            # Проверка на SQL инъекции
+            for pattern in sql_patterns:
+                if re.search(pattern, value, re.IGNORECASE):
+                    return False, f"Обнаружена попытка SQL инъекции в поле {field}"
+            
+            # Проверка на XSS
+            for pattern in xss_patterns:
+                if re.search(pattern, value, re.IGNORECASE):
+                    return False, f"Обнаружена попытка XSS атаки в поле {field}"
+            
+            # Проверка на path traversal
+            for pattern in path_patterns:
+                if re.search(pattern, value, re.IGNORECASE):
+                    return False, f"Обнаружена попытка path traversal атаки в поле {field}"
+            
+            # Валидация формата токенов
+            if field == "telegram_token":
+                if not re.match(r'^\d+:[A-Za-z0-9_-]{35,}$', value):
+                    return False, f"Неверный формат Telegram токена в поле {field}"
+            
+            if field == "openai_api_key":
+                if not re.match(r'^sk-[A-Za-z0-9]{32,}$', value):
+                    return False, f"Неверный формат OpenAI API ключа в поле {field}"
+    
+    return True, "Данные валидны"
+
 def api_response(data=None, message="Success", status_code=200, error=None):
     """Standard API response format"""
     if error:
         response = {
             "success": False,
             "error": error,
-            "timestamp": datetime.utcnow().isoformat() + "Z"
-        }
+                    "timestamp": datetime.now(UTC).isoformat() + "Z"
+    }
     else:
         response = {
             "success": True,
             "data": data,
             "message": message,
-            "timestamp": datetime.utcnow().isoformat() + "Z"
+            "timestamp": datetime.now(UTC).isoformat() + "Z"
         }
     return jsonify(response), status_code
 
@@ -649,6 +753,45 @@ def get_all_bots_v2():
         logger.error(f"Error getting bots: {e}")
         return api_response(error="Failed to retrieve bots", status_code=500)
 
+@app.route("/api/v2/bots/<int:bot_id>", methods=["GET"])
+@api_login_required
+def get_bot_v2(bot_id):
+    """Get a specific bot by ID"""
+    try:
+        with cm.BOT_CONFIGS_LOCK:
+            if bot_id not in cm.BOT_CONFIGS:
+                return api_response(error="Bot not found", status_code=404)
+            
+            bot_entry = cm.BOT_CONFIGS[bot_id]
+        
+        # Enhanced serialization
+        def serialize_bot_enhanced(bot_entry):
+            return {
+                "bot_id": bot_entry["id"],
+                "config": bot_entry["config"],
+                "status": bot_entry.get("status", "stopped"),
+                "has_runtime": all([
+                    bot_entry.get("thread") is not None,
+                    bot_entry.get("loop") is not None,
+                    bot_entry.get("stop_event") is not None
+                ]),
+                "features": {
+                    "voice_responses": bot_entry["config"].get("enable_voice_responses", False),
+                    "voice_model": bot_entry["config"].get("voice_model", "tts-1"),
+                    "voice_type": bot_entry["config"].get("voice_type", "alloy"),
+                    "context_limit": bot_entry["config"].get("group_context_limit", 15)
+                },
+                "created_at": bot_entry.get("created_at"),
+                "last_updated": bot_entry.get("last_updated")
+            }
+        
+        response_data = serialize_bot_enhanced(bot_entry)
+        return api_response(response_data, "Bot retrieved successfully")
+        
+    except Exception as e:
+        logger.error(f"Error getting bot {bot_id}: {e}")
+        return api_response(error="Failed to retrieve bot", status_code=500)
+
 @app.route("/api/v2/bots/<int:bot_id>/status", methods=["GET"])
 @api_login_required
 def get_bot_status_v2(bot_id):
@@ -730,6 +873,11 @@ def create_bot_v2():
         if missing:
             return api_response(error=f"Missing required fields: {', '.join(missing)}", status_code=400)
         
+        # Валидация входных данных
+        is_valid, validation_message = validate_input_data(data)
+        if not is_valid:
+            return api_response(error=validation_message, status_code=400)
+        
         # Set default values if not provided
         defaults = {
             "group_context_limit": 15,
@@ -767,8 +915,8 @@ def create_bot_v2():
                 "thread": None,
                 "loop": None,
                 "stop_event": None,
-                "created_at": datetime.utcnow().isoformat() + "Z",
-                "last_updated": datetime.utcnow().isoformat() + "Z"
+                "created_at": datetime.now(UTC).isoformat() + "Z",
+                "last_updated": datetime.now(UTC).isoformat() + "Z"
             }
             cm.BOT_CONFIGS[bot_id] = bot_entry
 
@@ -800,12 +948,17 @@ def update_bot_v2(bot_id):
         if not data:
             return api_response(error="JSON data required", status_code=400)
         
+        # Валидация входных данных
+        is_valid, validation_message = validate_input_data(data)
+        if not is_valid:
+            return api_response(error=validation_message, status_code=400)
+        
         with cm.BOT_CONFIGS_LOCK:
             bot_entry = cm.BOT_CONFIGS[bot_id]
             
             # Update configuration
             bot_entry["config"].update(data)
-            bot_entry["last_updated"] = datetime.utcnow().isoformat() + "Z"
+            bot_entry["last_updated"] = datetime.now(UTC).isoformat() + "Z"
             
             cm.BOT_CONFIGS[bot_id] = bot_entry
 
@@ -848,7 +1001,7 @@ def delete_bot_v2(bot_id):
         response_data = {
             "bot_id": bot_id,
             "bot_name": deleted_bot["config"]["bot_name"],
-            "deleted_at": datetime.utcnow().isoformat() + "Z"
+            "deleted_at": datetime.now(UTC).isoformat() + "Z"
         }
         
         return api_response(response_data, "Bot deleted successfully")
@@ -875,7 +1028,7 @@ def start_bot_v2(bot_id):
             response_data = {
                 "bot_id": bot_id,
                 "status": "running",
-                "started_at": datetime.utcnow().isoformat() + "Z"
+                "started_at": datetime.now(UTC).isoformat() + "Z"
             }
             return api_response(response_data, "Bot started successfully")
         else:
@@ -903,7 +1056,7 @@ def stop_bot_v2(bot_id):
             response_data = {
                 "bot_id": bot_id,
                 "status": "stopped",
-                "stopped_at": datetime.utcnow().isoformat() + "Z"
+                "stopped_at": datetime.now(UTC).isoformat() + "Z"
             }
             return api_response(response_data, "Bot stopped successfully")
         else:
@@ -1457,6 +1610,15 @@ if __name__ == '__main__':
     logger.info("   • POST /api/v2/bots/{id}/stop - Stop bot")
     logger.info("   • POST /api/v2/bots/{id}/restart - Restart bot")
     logger.info("⚠️  Remember to change default credentials in production!")
-    logger.info("🔧 Запуск Flask-сервера на http://0.0.0.0:60183")
     
-    app.run(host="0.0.0.0", port=60183, debug=False, threaded=True)
+    # Найти свободный порт
+    try:
+        port = find_free_port(5000, 100)
+        logger.info(f"🔧 Запуск Flask-сервера на http://0.0.0.0:{port}")
+        logger.info(f"📚 API v2 Documentation: http://localhost:{port}/api/v2/docs")
+        logger.info(f"🌐 Web Interface: http://localhost:{port}/")
+        
+        app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
+    except RuntimeError as e:
+        logger.error(f"❌ Ошибка запуска сервера: {e}")
+        sys.exit(1)

@@ -73,3 +73,82 @@ def save_configs_async():
 
     thread = threading.Thread(target=save_task, daemon=True)
     thread.start()
+
+def save_configs():
+    """Синхронно сохраняет конфигурации в файл"""
+    try:
+        if os.path.exists(CONFIG_FILE) and not os.access(CONFIG_FILE, os.W_OK):
+            raise PermissionError(f"Нет прав на запись в {CONFIG_FILE}")
+
+        with BOT_CONFIGS_LOCK:
+            # Очищаем конфигурацию от несериализуемых объектов
+            clean_configs = {}
+            for k, v in BOT_CONFIGS.items():
+                clean_bot = {
+                    "id": v["id"],
+                    "config": v["config"],
+                    "status": v.get("status", "stopped")
+                    # Исключаем thread, loop, stop_event - они не сериализуются в JSON
+                }
+                clean_configs[str(k)] = clean_bot
+            
+            data = {"bots": clean_configs}
+            temp_file = CONFIG_FILE + '.tmp'
+            with open(temp_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            os.replace(temp_file, CONFIG_FILE)
+            logger.info("Конфигурации ботов сохранены в файл")
+    except Exception as e:
+        logger.error(f"Ошибка сохранения конфигураций: {e}")
+        raise
+
+def get_bot_config(bot_id):
+    """Получить конфигурацию бота по ID"""
+    with BOT_CONFIGS_LOCK:
+        return BOT_CONFIGS.get(bot_id)
+
+def add_bot_config(bot_id, config):
+    """Добавить конфигурацию бота"""
+    with BOT_CONFIGS_LOCK:
+        BOT_CONFIGS[bot_id] = {
+            "id": bot_id,
+            "config": config,
+            "status": "stopped",
+            "thread": None,
+            "loop": None,
+            "stop_event": None
+        }
+
+def update_bot_config(bot_id, config):
+    """Обновить конфигурацию бота"""
+    with BOT_CONFIGS_LOCK:
+        if bot_id in BOT_CONFIGS:
+            BOT_CONFIGS[bot_id]["config"].update(config)
+
+def delete_bot_config(bot_id):
+    """Удалить конфигурацию бота"""
+    with BOT_CONFIGS_LOCK:
+        if bot_id in BOT_CONFIGS:
+            del BOT_CONFIGS[bot_id]
+
+def get_all_bot_configs():
+    """Получить все конфигурации ботов"""
+    with BOT_CONFIGS_LOCK:
+        return dict(BOT_CONFIGS)
+
+def get_bot_count():
+    """Получить количество ботов"""
+    with BOT_CONFIGS_LOCK:
+        return len(BOT_CONFIGS)
+
+def get_running_bot_count():
+    """Получить количество запущенных ботов"""
+    with BOT_CONFIGS_LOCK:
+        return sum(1 for bot in BOT_CONFIGS.values() if bot.get("status") == "running")
+
+def clear_all_configs():
+    """Очистить все конфигурации"""
+    with BOT_CONFIGS_LOCK:
+        BOT_CONFIGS.clear()
+        global NEXT_BOT_ID
+        NEXT_BOT_ID = 1

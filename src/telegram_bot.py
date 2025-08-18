@@ -4,14 +4,33 @@ import asyncio
 import logging
 import openai
 import subprocess
+import re
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.types import FSInputFile
+from aiogram.utils.token import validate_token
 
 from config_manager import CONVERSATIONS, CONVERSATIONS_LOCK, OPENAI_LOCK
 
 logger = logging.getLogger(__name__)
+
+def validate_telegram_token(token):
+    """Валидация Telegram токена"""
+    try:
+        # Проверяем формат токена (должен быть в формате 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)
+        if not re.match(r'^\d+:[A-Za-z0-9_-]{35}$', token):
+            logger.error(f"❌ Неверный формат токена: {token}")
+            return False, "Неверный формат токена"
+        
+        # Используем встроенную валидацию aiogram
+        validate_token(token)
+        logger.info(f"✅ Токен валиден: {token[:10]}...")
+        return True, "Токен валиден"
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка валидации токена: {e}")
+        return False, str(e)
 
 # Configuration for group context analysis
 GROUP_CONTEXT_MESSAGES_LIMIT = 15  # Number of recent messages to analyze in groups
@@ -168,11 +187,27 @@ async def ask_openai(prompt, config, conversation_key):
 
 async def aiogram_bot(config, stop_event):
     """Основная функция запуска бота aiogram с поддержкой групп."""
-    bot = Bot(token=config["telegram_token"], default=DefaultBotProperties(parse_mode="HTML"))
-    dp = Dispatcher()
-    bot_user = await bot.get_me()
-    bot_username = bot_user.username
-    logger.info(f"Бот {bot_username} запущен.")
+    
+    # Валидация токена перед запуском
+    token = config.get("telegram_token")
+    if not token:
+        logger.error("❌ Токен Telegram не найден в конфигурации")
+        return
+    
+    is_valid, message = validate_telegram_token(token)
+    if not is_valid:
+        logger.error(f"❌ Невалидный токен Telegram: {message}")
+        return
+    
+    try:
+        bot = Bot(token=token, default=DefaultBotProperties(parse_mode="HTML"))
+        dp = Dispatcher()
+        bot_user = await bot.get_me()
+        bot_username = bot_user.username
+        logger.info(f"Бот {bot_username} запущен.")
+    except Exception as e:
+        logger.error(f"❌ Ошибка подключения к Telegram API: {e}")
+        return
 
     @dp.message(Command(commands=["start"]))
     async def cmd_start(message: types.Message):

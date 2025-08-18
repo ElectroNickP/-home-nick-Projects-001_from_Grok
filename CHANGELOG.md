@@ -1,5 +1,41 @@
 # 📋 CHANGELOG - Telegram Bot Manager
 
+## [3.5.0] - 2025-08-17 🧪 **PROFESSIONAL TESTING & INTERFACE IMPROVEMENTS**
+
+### ✨ New Features
+- **Professional testing suite** - Complete test coverage (unit, integration, e2e, performance, security)
+- **Automated test reports** - HTML reports with detailed statistics and coverage
+- **Marketplace debugging** - Fixed display issues and data structure compatibility
+- **Interface improvements** - Enhanced bot list visualization and mobile optimization
+- **Performance monitoring** - Real-time performance metrics and optimization
+
+### 🧪 Testing Infrastructure
+- **Comprehensive test structure** - Organized test categories for different aspects
+- **Automated test runner** - `run_tests.py` with multiple execution options
+- **Test reporting system** - Detailed HTML reports with pass/fail statistics
+- **Debug logging** - Enhanced logging for troubleshooting and diagnostics
+- **Performance profiling** - Memory and CPU usage monitoring
+
+### 🎨 UI/UX Improvements
+- **Professional bot list design** - Improved visualization and user experience
+- **Mobile optimization** - Enhanced responsive design for all devices
+- **Marketplace fixes** - Resolved data display issues and compatibility problems
+- **Performance optimizations** - Faster loading and smoother animations
+
+### 🔧 Technical Enhancements
+- **Debug logging system** - Comprehensive logging for troubleshooting
+- **Data structure compatibility** - Fixed marketplace data handling
+- **Error handling improvements** - Better error messages and recovery
+- **Code quality improvements** - Enhanced maintainability and readability
+
+### 📱 Mobile & Performance
+- **Touch-friendly interface** - Optimized for mobile devices and tablets
+- **Performance monitoring** - Real-time metrics and optimization tools
+- **Cross-browser compatibility** - Tested and optimized for all major browsers
+- **Responsive design** - Perfect display on all screen sizes
+
+---
+
 ## [3.4.0] - 2025-08-17 🔐 **PROFESSIONAL AUTHENTICATION SYSTEM**
 
 ### ✨ New Features
