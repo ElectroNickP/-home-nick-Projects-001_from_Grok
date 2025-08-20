@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Fallback version if git is not available
-FALLBACK_VERSION = "3.5.0"  # Updated for testing and interface improvements
+FALLBACK_VERSION = "4.0.0"  # ELECTRONICK Future Fluid Glass-Tech major redesign
 
 def run_git_command(command: str) -> Optional[str]:
     """Execute git command and return output"""

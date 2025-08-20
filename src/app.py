@@ -8,7 +8,7 @@ import time
 import sys
 import psutil
 import socket
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from flask import Flask, request, jsonify, render_template, send_from_directory, redirect, session, url_for
 from functools import wraps
 
@@ -27,6 +27,13 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = 'your-secret-key-change-in-production'  # Секретный ключ для сессий
+
+# Настройки сессий для стабильной авторизации
+app.config['SESSION_COOKIE_SECURE'] = False  # True только для HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Защита от XSS
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF защита
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)  # 24 часа
+app.config['SESSION_COOKIE_NAME'] = 'electronick_session'  # Уникальное имя cookie
 
 def find_free_port(start_port=5000, max_attempts=100):
     """Найти свободный порт начиная с start_port"""
@@ -78,6 +85,7 @@ def login_page():
         password = request.form.get('password')
         
         if verify_credentials(username, password):
+            session.permanent = True  # Сделать сессию постоянной
             session['user_id'] = username
             session['username'] = username
             return redirect(url_for('index_page'))
@@ -100,6 +108,7 @@ def api_login():
     password = data.get('password')
     
     if verify_credentials(username, password):
+        session.permanent = True  # Сделать сессию постоянной
         session['user_id'] = username
         session['username'] = username
         return jsonify({'success': True, 'message': 'Авторизация успешна'})

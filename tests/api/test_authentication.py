@@ -32,12 +32,14 @@ class TestAuthentication:
         assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
         test_logger.success("Вход с невалидными учетными данными правильно отклонен")
     
-    def test_access_protected_endpoint_without_auth(self, session_manager):
+    def test_access_protected_endpoint_without_auth(self):
         """Тест доступа к защищенному endpoint без авторизации"""
         test_logger.info("Тестирование доступа к защищенному endpoint без авторизации")
         
-        # Пытаемся получить доступ к защищенному endpoint
-        response = session_manager.get("/api/v2/system/health")
+        # Создаем новую сессию без авторизации
+        import requests
+        session = requests.Session()
+        response = session.get("http://localhost:5000/api/v2/system/health")
         
         assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
         test_logger.success("Доступ к защищенному endpoint без авторизации правильно отклонен")
@@ -67,9 +69,18 @@ class TestAuthentication:
         assert response.status_code == 401, f"После выхода ожидался статус 401, получен {response.status_code}"
         test_logger.success("Функциональность выхода работает корректно")
     
-    def test_session_persistence(self, authenticated_session):
+    def test_session_persistence(self):
         """Тест сохранения сессии"""
         test_logger.info("Тестирование сохранения сессии")
+        
+        # Создаем новую сессию и логинимся
+        import requests
+        session = requests.Session()
+        
+        # Логинимся
+        login_data = {"username": "admin", "password": "securepassword123"}
+        login_response = session.post("http://localhost:5000/api/login", json=login_data)
+        assert login_response.status_code == 200, f"Ошибка логина: {login_response.status_code}"
         
         # Делаем несколько запросов подряд
         endpoints = [
@@ -79,7 +90,7 @@ class TestAuthentication:
         ]
         
         for endpoint in endpoints:
-            response = authenticated_session.get(endpoint)
+            response = session.get(f"http://localhost:5000{endpoint}")
             assert response.status_code == 200, f"Endpoint {endpoint} вернул статус {response.status_code}"
         
         test_logger.success("Сессия сохраняется между запросами")
@@ -104,12 +115,14 @@ class TestAuthentication:
         assert data["success"] == True, "Поле success должно быть True"
         test_logger.success("Структура ответа API авторизации корректна")
     
-    def test_unauthorized_api_response_structure(self, session_manager):
+    def test_unauthorized_api_response_structure(self):
         """Тест структуры ответа при неавторизованном доступе"""
         test_logger.info("Тестирование структуры ответа при неавторизованном доступе")
         
-        # Пытаемся получить доступ к защищенному endpoint
-        response = session_manager.get("/api/v2/system/health")
+        # Создаем новую сессию без авторизации
+        import requests
+        session = requests.Session()
+        response = session.get("http://localhost:5000/api/v2/system/health")
         
         assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
         

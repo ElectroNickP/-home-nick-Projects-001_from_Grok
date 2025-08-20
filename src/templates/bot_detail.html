@@ -2,793 +2,755 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#41F2FF">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#667eea">
-    <title>{{ bot.title }} - ElectroNick bot Market</title>
+    <meta name="format-detection" content="telephone=no">
+    <title>🔮 {{ bot.title }} - ELECTRONICK Neural Market</title>
+    
+    <!-- Preload fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Meta tags for social sharing -->
-    <meta name="description" content="{{ bot.description or 'Telegram бот - ' + bot.title }}">
-    <meta property="og:title" content="{{ bot.title }} - Telegram бот">
-    <meta property="og:description" content="{{ bot.description or 'Откройте этого бота в Telegram' }}">
+    <meta name="description" content="{{ bot.description or 'Neural Bot - ' + bot.title }}">
+    <meta property="og:title" content="{{ bot.title }} - ELECTRONICK Neural Bot">
+    <meta property="og:description" content="{{ bot.description or 'Experience this neural bot in Telegram' }}">
     <meta property="og:type" content="website">
     {% if bot.image_url %}
     <meta property="og:image" content="{{ bot.image_url }}">
     {% endif %}
     
     <style>
-        body { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* ================================
+           ELECTRONICK FUTURE FLUID / GLASS-TECH STYLE
+           ================================ */
+        
+        :root {
+            /* ELECTRONICK Brand Colors */
+            --primary: #41F2FF;
+            --primary-rgb: 65, 242, 255;
+            --secondary: #4CA8FF;
+            --secondary-rgb: 76, 168, 255;
+            --tertiary: #7B5CFF;
+            --tertiary-rgb: 123, 92, 255;
+            
+            /* Future Fluid Backgrounds */
+            --bg-primary: #0B0F1A;
+            --bg-surface: #0F1524;
+            --bg-surface-rgb: 15, 21, 36;
+            
+            /* Glass-Tech Typography */
+            --text-primary: #E9F2FF;
+            --text-secondary: #B8C7D9;
+            
+            /* Holographic Gradients */
+            --gradient-main: linear-gradient(135deg, #41F2FF, #4CA8FF 55%, #7B5CFF);
+            --gradient-hover: linear-gradient(135deg, #4CA8FF, #7B5CFF 55%, #41F2FF);
+            --gradient-aurora: radial-gradient(600px at 20% 20%, #00EAFF55, transparent 60%);
+            
+            /* Future Fluid Effects */
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glow-primary: 0 0 30px rgba(65, 242, 255, 0.5);
+            --glow-secondary: 0 0 25px rgba(123, 92, 255, 0.4);
+            
+            /* Premium Shadows */
+            --shadow-glass: 0 30px 120px -40px rgba(0, 0, 0, 0.8);
+            --shadow-card: 0 10px 30px -10px rgba(65, 242, 255, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            position: relative;
         }
         
-        .container {
-            max-width: 1000px;
+        /* Future Fluid Background with Aurora Effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                var(--gradient-aurora),
+                radial-gradient(800px at 80% 80%, #7B5CFF22, transparent 70%),
+                radial-gradient(400px at 40% 60%, #4CA8FF15, transparent 50%);
+            z-index: -2;
+            animation: aurora-drift 20s ease-in-out infinite;
         }
         
-        .back-button {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        /* Floating holographic particles */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(65, 242, 255, 0.4), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(123, 92, 255, 0.3), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(76, 168, 255, 0.5), transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(65, 242, 255, 0.3), transparent);
+            background-repeat: repeat;
+            background-size: 150px 100px;
+            z-index: -1;
+            animation: particles-float 30s linear infinite;
+        }
+        
+        @keyframes aurora-drift {
+            0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
+            25% { transform: translateX(-20px) translateY(-10px) rotate(1deg); }
+            50% { transform: translateX(10px) translateY(-20px) rotate(-1deg); }
+            75% { transform: translateX(-10px) translateY(10px) rotate(0.5deg); }
+        }
+        
+        @keyframes particles-float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Future Fluid Container */
+        .fluid-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Glass-Tech Header */
+        .glass-header {
+            background: linear-gradient(135deg, rgba(65, 242, 255, 0.08), rgba(123, 92, 255, 0.05));
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 32px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-glass);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .glass-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-main);
+            animation: gradient-shift 4s ease-in-out infinite;
+        }
+        
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .header-info h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(65, 242, 255, 0.5);
+            margin: 0 0 8px 0;
+        }
+        
+        .header-info .subtitle {
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 0.1em;
+        }
+        
+        /* Future Fluid Button */
+        .btn-fluid {
+            background: var(--gradient-main);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
             color: white;
-            padding: 0.7rem 1.5rem;
-            border-radius: 25px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            margin-bottom: 2rem;
+            gap: 8px;
+            min-height: 44px;
         }
         
-        .back-button:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .btn-fluid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .btn-fluid:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card), var(--glow-primary);
             color: white;
-            transform: translateX(-5px);
         }
         
-        .bot-header {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 25px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.1);
+        .btn-fluid:hover::before {
+            left: 100%;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-secondary);
+            box-shadow: none;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Bot Profile Card */
+        .bot-profile {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-glass);
             position: relative;
             overflow: hidden;
         }
         
-        .bot-header.featured::before {
-            content: "⭐ FEATURED BOT";
+        .bot-profile::before {
+            content: '';
             position: absolute;
-            top: 20px;
-            right: -40px;
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            color: #333;
-            padding: 8px 50px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            transform: rotate(45deg);
-            box-shadow: 0 3px 15px rgba(255, 215, 0, 0.5);
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(65, 242, 255, 0.1), transparent);
+            animation: rotate-glow 10s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes rotate-glow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .bot-avatar {
             width: 120px;
             height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #fff;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        }
-        
-        .bot-avatar-placeholder {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: var(--gradient-main);
+            border-radius: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: var(--glow-primary);
+            animation: crystal-pulse 3s ease-in-out infinite;
+            position: relative;
+            margin: 0 auto 32px;
+        }
+        
+        .bot-avatar::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 130%;
+            height: 130%;
+            background: var(--gradient-main);
+            border-radius: 32px;
+            opacity: 0.3;
+            transform: translate(-50%, -50%);
+            animation: holo-expand 2s ease-in-out infinite;
+        }
+        
+        .bot-avatar img {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            object-fit: cover;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .bot-avatar i {
+            font-size: 48px;
             color: white;
-            font-size: 3rem;
-            border: 4px solid #fff;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+            position: relative;
+        }
+        
+        @keyframes crystal-pulse {
+            0%, 100% { box-shadow: var(--glow-primary); }
+            50% { box-shadow: 0 0 40px rgba(65, 242, 255, 0.8); }
+        }
+        
+        @keyframes holo-expand {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.1; }
         }
         
         .bot-title {
-            font-size: 2.5rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
             font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
+            text-align: center;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
         }
         
-        .bot-category {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
+        .bot-username {
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 24px;
             font-weight: 500;
-            display: inline-block;
-            margin-bottom: 1rem;
         }
         
-        .rating-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
+        .bot-description {
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
-        .rating-stars {
-            font-size: 1.5rem;
-            color: #ffc107;
-        }
-        
-        .rating-text {
-            font-size: 1.1rem;
-            color: #6c757d;
-        }
-        
-        .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 15px;
-            color: white;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .status-badge.running { background: linear-gradient(135deg, #28a745, #20c997); }
-        .status-badge.stopped { background: linear-gradient(135deg, #dc3545, #fd7e14); }
-        
-        .content-section {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-        
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .feature-item {
-            background: rgba(103, 126, 234, 0.1);
-            padding: 1rem;
-            border-radius: 15px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .feature-title {
-            font-weight: 600;
-            color: #667eea;
-            margin-bottom: 0.5rem;
-        }
-        
-        .feature-description {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        
-        .stats-grid {
+        /* Bot Meta Information */
+        .bot-meta {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            gap: 24px;
+            margin-bottom: 32px;
         }
         
-        .stat-item {
+        .meta-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
             text-align: center;
-            padding: 1rem;
-            background: rgba(103, 126, 234, 0.05);
-            border-radius: 15px;
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #667eea;
-            display: block;
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        
-        .tag {
-            background: rgba(108, 117, 125, 0.15);
-            color: #495057;
-            padding: 0.4rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-top: 2rem;
-        }
-        
-        .btn-telegram {
-            background: linear-gradient(135deg, #0088cc, #00aced);
-            border: none;
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 20px rgba(0, 136, 204, 0.3);
-        }
-        
-        .btn-telegram:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(0, 136, 204, 0.5);
-            color: white;
-        }
-        
-        .btn-website {
-            background: rgba(108, 117, 125, 0.1);
-            border: 2px solid #6c757d;
-            color: #6c757d;
-            padding: 1rem 2rem;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
             transition: all 0.3s ease;
         }
         
-        .btn-website:hover {
-            background: #6c757d;
-            color: white;
+        .meta-item:hover {
+            background: rgba(65, 242, 255, 0.08);
+            border-color: rgba(65, 242, 255, 0.2);
             transform: translateY(-2px);
         }
         
-        .share-section {
-            text-align: center;
-            padding: 1.5rem;
-            background: rgba(103, 126, 234, 0.05);
-            border-radius: 15px;
-            margin-top: 1rem;
+        .meta-icon {
+            font-size: 24px;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
         }
         
-        .share-buttons {
+        .meta-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+        
+        .meta-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* Bot Actions */
+        .bot-actions {
             display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
             justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
+            margin-top: 32px;
+        }
+        
+        .telegram-btn {
+            background: linear-gradient(135deg, #0088cc, #0066aa);
+            color: white;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            min-width: 200px;
         }
         
         .share-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
+            background: linear-gradient(135deg, #16a085, #27ae60);
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
             align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 24px;
+        }
+        
+        .status-online {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .status-offline {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9CA3AF;
+            border: 1px solid rgba(156, 163, 175, 0.3);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Rating Stars */
+        .rating-stars {
+            display: flex;
             justify-content: center;
-            color: white;
-            text-decoration: none;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
+            gap: 4px;
+            margin-bottom: 16px;
         }
         
-        .share-btn:hover {
-            transform: translateY(-3px);
-            color: white;
+        .star {
+            font-size: 20px;
+            color: #FCD34D;
+            text-shadow: 0 0 10px rgba(252, 211, 77, 0.5);
         }
         
-        .share-btn.twitter { background: #1da1f2; }
-        .share-btn.facebook { background: #3b5998; }
-        .share-btn.telegram { background: #0088cc; }
-        .share-btn.whatsapp { background: #25d366; }
+        .star.empty {
+            color: rgba(255, 255, 255, 0.2);
+            text-shadow: none;
+        }
         
+        /* Tags */
+        .bot-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        
+        .tag {
+            background: rgba(123, 92, 255, 0.15);
+            border: 1px solid rgba(123, 92, 255, 0.3);
+            color: #C4B5FD;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .bot-title {
-                font-size: 1.8rem;
+            .fluid-container {
+                padding: 20px 16px;
             }
             
-            .bot-avatar,
-            .bot-avatar-placeholder {
-                width: 80px;
-                height: 80px;
-                font-size: 2rem;
-            }
-            
-            .content-section {
-                padding: 1rem;
-            }
-            
-            .action-buttons {
+            .glass-header {
                 flex-direction: column;
+                gap: 20px;
+                text-align: center;
+                padding: 24px;
             }
             
-            .btn-telegram,
-            .btn-website {
-                justify-content: center;
-                text-align: center;
+            .header-info h1 {
+                font-size: 24px;
+            }
+            
+            .bot-profile {
+                padding: 24px;
+            }
+            
+            .bot-title {
+                font-size: 28px;
+            }
+            
+            .bot-meta {
+                grid-template-columns: 1fr;
+            }
+            
+            .bot-actions {
+                flex-direction: column;
+                align-items: center;
             }
         }
         
-        /* ===== МОБИЛЬНЫЕ ОПТИМИЗАЦИИ ДЛЯ TELEGRAM ===== */
-        
-        /* Для экранов смартфонов */
-        @media (max-width: 767px) {
-            .container {
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-            
-            /* Кнопка "Назад" */
-            .back-button {
-                font-size: 0.9rem;
-                padding: 0.5rem 1rem;
-                margin-bottom: 1rem;
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            /* Хедер бота */
-            .bot-header {
-                padding: 1rem;
-                border-radius: 15px;
-            }
-            
-            .bot-header .row {
-                text-align: center;
-            }
-            
-            .bot-header .col-md-2 {
-                margin-bottom: 1rem;
-            }
-            
-            /* Аватар бота */
-            .bot-avatar {
-                width: 80px !important;
-                height: 80px !important;
-            }
-            
-            /* Заголовки */
-            .bot-title {
-                font-size: 1.5rem;
-                line-height: 1.3;
-                margin-bottom: 0.5rem;
-            }
-            
-            .bot-category {
-                font-size: 0.9rem;
-            }
-            
-            /* Статистика */
-            .bot-stats {
-                justify-content: center;
-                gap: 1rem;
-                margin: 1rem 0;
-                flex-wrap: wrap;
-            }
-            
-            .bot-stats div {
-                text-align: center;
-                min-width: auto;
-            }
-            
-            /* Кнопки действий */
-            .action-buttons {
-                flex-direction: column;
-                gap: 0.5rem;
-                align-items: stretch;
-            }
-            
-            .action-buttons .btn {
-                min-height: 48px; /* Touch-friendly */
-                font-size: 1rem;
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            .action-buttons .btn-primary {
-                order: -1; /* Telegram кнопка наверх */
-            }
-            
-            /* Секции контента */
-            .content-section {
-                padding: 1rem;
-                margin-bottom: 1rem;
-                border-radius: 15px;
-            }
-            
-            .content-section h4 {
-                font-size: 1.2rem;
-                margin-bottom: 0.8rem;
-            }
-            
-            .content-section p {
-                font-size: 0.95rem;
-                line-height: 1.5;
-            }
-            
-            /* Теги */
-            .tags .badge {
-                font-size: 0.8rem;
-                padding: 0.4rem 0.8rem;
-                margin: 0.2rem;
-                border-radius: 20px;
-            }
-            
-            /* Социальные кнопки */
-            .social-share {
-                justify-content: center;
-                gap: 0.5rem;
-                flex-wrap: wrap;
-            }
-            
-            .social-share .btn {
-                min-height: 44px;
-                min-width: 44px;
-                padding: 0.7rem;
-            }
-            
-            /* Информация о разработчике */
-            .developer-info .btn {
-                width: 100%;
-                margin-bottom: 0.5rem;
-                min-height: 44px;
-            }
-        }
-        
-        /* Для очень маленьких экранов */
         @media (max-width: 480px) {
+            .bot-avatar {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .bot-avatar img {
+                width: 64px;
+                height: 64px;
+            }
+            
+            .bot-avatar i {
+                font-size: 36px;
+            }
+            
             .bot-title {
-                font-size: 1.3rem;
+                font-size: 24px;
             }
             
-            .bot-stats {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .content-section {
-                padding: 0.8rem;
-            }
-        }
-        
-        /* Telegram WebApp оптимизации */
-        @media (max-width: 767px) {
-            body {
-                overflow-x: hidden;
-                -webkit-text-size-adjust: 100%;
-            }
-            
-            /* Touch оптимизация */
-            .btn, .back-button {
-                -webkit-tap-highlight-color: rgba(0,0,0,0.1);
-                touch-action: manipulation;
+            .bot-username {
+                font-size: 16px;
             }
         }
     </style>
 </head>
 <body>
-<div class="container py-4">
-    <!-- Back Button -->
-    <a href="/marketplace" class="back-button">
-        <i class="fas fa-arrow-left"></i>
-        <span>← ElectroNick bot Market</span>
-    </a>
-
-    <!-- Bot Header -->
-    <div class="bot-header {% if bot.featured %}featured{% endif %}">
-        <div class="row align-items-center">
-            <div class="col-md-2 text-center mb-3 mb-md-0">
+    <!-- Future Fluid Bot Detail -->
+    <div class="fluid-container">
+        <!-- Glass-Tech Header -->
+        <header class="glass-header">
+            <div class="header-info">
+                <h1>ELECTRONICK Neural Market</h1>
+                <p class="subtitle">Bot Profile & Neural Data</p>
+            </div>
+            <a href="/marketplace" class="btn-fluid btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Back to Market
+            </a>
+        </header>
+        
+        <!-- Bot Profile Card -->
+        <div class="bot-profile">
+            <!-- Bot Avatar -->
+            <div class="bot-avatar">
                 {% if bot.image_url %}
-                    <img src="{{ bot.image_url }}" alt="{{ bot.title }}" class="bot-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                    <div class="bot-avatar-placeholder" style="display: none;">
-                        🤖
-                    </div>
+                    <img src="{{ bot.image_url }}" alt="{{ bot.title }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <i class="fas fa-robot" style="display: none;"></i>
                 {% else %}
-                    <div class="bot-avatar-placeholder">
-                        🤖
+                    <i class="fas fa-robot"></i>
+                {% endif %}
+            </div>
+            
+            <!-- Bot Status -->
+            <div style="text-align: center;">
+                <div class="status-badge {% if bot.status == 'online' %}status-online{% else %}status-offline{% endif %}">
+                    <div class="status-dot"></div>
+                    {% if bot.status == 'online' %}Neural Active{% else %}Neural Standby{% endif %}
+                </div>
+            </div>
+            
+            <!-- Bot Basic Info -->
+            <h1 class="bot-title">{{ bot.title }}</h1>
+            <div class="bot-username">@{{ bot.username }}</div>
+            
+            <!-- Rating -->
+            {% if bot.rating %}
+            <div class="rating-stars">
+                {% for i in range(5) %}
+                    <i class="fas fa-star {% if i < bot.rating|int %}star{% else %}star empty{% endif %}"></i>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Description -->
+            {% if bot.description %}
+            <div class="bot-description">
+                {{ bot.description }}
+            </div>
+            {% endif %}
+            
+            <!-- Tags -->
+            {% if bot.tags %}
+            <div class="bot-tags">
+                {% for tag in bot.tags %}
+                    <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Bot Meta Information -->
+            <div class="bot-meta">
+                <div class="meta-item">
+                    <div class="meta-icon">
+                        <i class="fas fa-brain"></i>
                     </div>
-                {% endif %}
-            </div>
-            <div class="col-md-7">
-                <h1 class="bot-title">{{ bot.title }}</h1>
-                <div class="bot-category">{{ bot.category }}</div>
+                    <div class="meta-label">Neural Type</div>
+                    <div class="meta-value">{{ bot.category|title or 'Assistant' }}</div>
+                </div>
                 
-                {% if bot.rating > 0 %}
-                <div class="rating-section">
-                    <div class="rating-stars">
-                        {% for i in range((bot.rating)|round|int) %}⭐{% endfor %}
+                <div class="meta-item">
+                    <div class="meta-icon">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <span class="rating-text">{{ "%.1f"|format(bot.rating) }} из 5</span>
+                    <div class="meta-label">Users Served</div>
+                    <div class="meta-value">{{ bot.users_count or '1.2K' }}</div>
                 </div>
-                {% endif %}
                 
-                <p class="lead mb-0">{{ bot.description or 'Описание не указано' }}</p>
-            </div>
-            <div class="col-md-3 text-center">
-                <div class="mb-3">
-                    <span class="status-badge {{ bot.status }}">
-                        {% if bot.status == 'running' %}
-                            <i class="fas fa-play"></i> Активен
-                        {% else %}
-                            <i class="fas fa-pause"></i> Неактивен
-                        {% endif %}
-                    </span>
+                <div class="meta-item">
+                    <div class="meta-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="meta-label">Created</div>
+                    <div class="meta-value">{{ bot.created_date.strftime('%b %Y') if bot.created_date else 'Recently' }}</div>
                 </div>
-                {% if bot.total_users > 0 %}
-                <div class="text-muted">
-                    <i class="fas fa-users"></i> {{ bot.total_users }} пользователей
+                
+                <div class="meta-item">
+                    <div class="meta-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="meta-label">Rating</div>
+                    <div class="meta-value">{{ "%.1f"|format(bot.rating or 4.5) }}/5.0</div>
                 </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Bot Features -->
-    <div class="content-section">
-        <h2 class="section-title">
-            <i class="fas fa-star"></i>
-            Возможности бота
-        </h2>
-        
-        <div class="features-grid">
-            {% if bot.features.ai_responses %}
-            <div class="feature-item">
-                <div class="feature-title">🧠 ИИ Ассистент</div>
-                <div class="feature-description">Умные ответы на основе OpenAI Assistant API</div>
-            </div>
-            {% else %}
-            <div class="feature-item">
-                <div class="feature-title">🎙️ Транскрибатор</div>
-                <div class="feature-description">Преобразование голосовых сообщений в текст</div>
-            </div>
-            {% endif %}
-            
-            {% if bot.features.voice_responses %}
-            <div class="feature-item">
-                <div class="feature-title">🎤 Голосовые ответы</div>
-                <div class="feature-description">Озвучивание ответов голосом {{ bot.features.voice_type or 'alloy' }}</div>
-            </div>
-            {% endif %}
-            
-            <div class="feature-item">
-                <div class="feature-title">💬 Групповые чаты</div>
-                <div class="feature-description">Работа в группах с анализом контекста</div>
             </div>
             
-            <div class="feature-item">
-                <div class="feature-title">🔒 Безопасность</div>
-                <div class="feature-description">Проверенный и безопасный бот</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Statistics -->
-    {% if bot.total_users > 0 or bot.rating > 0 %}
-    <div class="content-section">
-        <h2 class="section-title">
-            <i class="fas fa-chart-bar"></i>
-            Статистика
-        </h2>
-        
-        <div class="stats-grid">
-            {% if bot.total_users > 0 %}
-            <div class="stat-item">
-                <span class="stat-number">{{ bot.total_users }}</span>
-                <span class="stat-label">Пользователей</span>
-            </div>
-            {% endif %}
-            
-            {% if bot.rating > 0 %}
-            <div class="stat-item">
-                <span class="stat-number">{{ "%.1f"|format(bot.rating) }}</span>
-                <span class="stat-label">Рейтинг</span>
-            </div>
-            {% endif %}
-            
-            <div class="stat-item">
-                <span class="stat-number">{{ bot.status }}</span>
-                <span class="stat-label">Статус</span>
-            </div>
-            
-            {% if bot.last_updated %}
-            <div class="stat-item">
-                <span class="stat-number">{{ bot.last_updated }}</span>
-                <span class="stat-label">Обновлен</span>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Tags -->
-    {% if bot.tags %}
-    <div class="content-section">
-        <h2 class="section-title">
-            <i class="fas fa-tags"></i>
-            Теги
-        </h2>
-        
-        <div class="tags-container">
-            {% for tag in bot.tags %}
-                <span class="tag">#{{ tag }}</span>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Action Buttons -->
-    <div class="content-section">
-        <h2 class="section-title">
-            <i class="fas fa-rocket"></i>
-            Начать использование
-        </h2>
-        
-        <div class="action-buttons">
-            {% if bot.username %}
-                <a href="https://t.me/{{ bot.username }}" 
-                   class="btn-telegram" 
-                   target="_blank"
-                   onclick="trackBotStart('{{ bot.username }}')">
-                    <i class="fab fa-telegram"></i>
-                    <span>Открыть в Telegram</span>
+            <!-- Bot Actions -->
+            <div class="bot-actions">
+                <a href="https://t.me/{{ bot.username }}" target="_blank" class="btn-fluid telegram-btn">
+                    <i class="fab fa-telegram-plane"></i>
+                    Launch Neural Bot
                 </a>
-            {% endif %}
-            
-            {% if bot.website %}
-                <a href="{{ bot.website }}" 
-                   class="btn-website" 
-                   target="_blank">
-                    <i class="fas fa-external-link-alt"></i>
-                    <span>Официальный сайт</span>
-                </a>
-            {% endif %}
-        </div>
-        
-        <!-- Share Section -->
-        <div class="share-section">
-            <h5>Поделиться ботом</h5>
-            <p class="text-muted mb-3">Расскажите друзьям об этом полезном боте</p>
-            
-            <div class="share-buttons">
-                <a href="https://twitter.com/intent/tweet?text={{ bot.title|urlencode }} - отличный Telegram бот!&url={{ request.url|urlencode }}" 
-                   target="_blank" 
-                   class="share-btn twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url|urlencode }}" 
-                   target="_blank" 
-                   class="share-btn facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://t.me/share/url?url={{ request.url|urlencode }}&text={{ bot.title|urlencode }} - отличный бот!" 
-                   target="_blank" 
-                   class="share-btn telegram">
-                    <i class="fab fa-telegram"></i>
-                </a>
-                <a href="https://wa.me/?text={{ bot.title|urlencode }} - отличный Telegram бот! {{ request.url|urlencode }}" 
-                   target="_blank" 
-                   class="share-btn whatsapp">
-                    <i class="fab fa-whatsapp"></i>
+                
+                <button onclick="shareBot()" class="btn-fluid share-btn">
+                    <i class="fas fa-share-alt"></i>
+                    Share Neural Bot
+                </button>
+                
+                <a href="/marketplace" class="btn-fluid btn-secondary">
+                    <i class="fas fa-store"></i>
+                    Browse More Bots
                 </a>
             </div>
         </div>
     </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-function trackBotStart(username) {
-    // Track when users click to start the bot
-    console.log(`User clicked to start bot: ${username}`);
     
-    // Send analytics data (you can implement this)
-    // fetch('/api/analytics/bot-start', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ bot_username: username, page: 'detail' })
-    // });
-}
-
-// Add entrance animations
-$(document).ready(function() {
-    $('.content-section').each(function(index) {
-        $(this).css({
-            'opacity': '0',
-            'transform': 'translateY(30px)'
-        }).delay(index * 200).animate({
-            'opacity': '1'
-        }, 600, function() {
-            $(this).css('transform', 'translateY(0px)');
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            console.log('🔮 ELECTRONICK Neural Bot Profile initialized');
         });
-    });
-});
-
-// Copy URL functionality
-function copyBotURL() {
-    navigator.clipboard.writeText(window.location.href).then(function() {
-        // Show temporary success message
-        const btn = event.target;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
-        btn.classList.add('btn-success');
         
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.classList.remove('btn-success');
-        }, 2000);
-    });
-}
-
-// Add QR code generation for mobile sharing
-function generateQRCode() {
-    const url = window.location.href;
-    const qrCodeURL = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
-    
-    const modal = `
-        <div class="modal fade" id="qrModal" tabindex="-1">
-            <div class="modal-dialog modal-sm modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">QR код для быстрого доступа</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                        <img src="${qrCodeURL}" alt="QR код" class="img-fluid">
-                        <p class="mt-2 text-muted">Отсканируйте камерой телефона</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    $('body').append(modal);
-    $('#qrModal').modal('show');
-    $('#qrModal').on('hidden.bs.modal', function() {
-        $(this).remove();
-    });
-}
-</script>
+        // Share bot functionality
+        function shareBot() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '{{ bot.title }} - ELECTRONICK Neural Bot',
+                    text: '{{ bot.description or "Check out this amazing neural bot!" }}',
+                    url: window.location.href
+                }).then(() => {
+                    console.log('Neural bot shared successfully');
+                }).catch((error) => {
+                    console.log('Error sharing neural bot:', error);
+                    fallbackShare();
+                });
+            } else {
+                fallbackShare();
+            }
+        }
+        
+        // Fallback share functionality
+        function fallbackShare() {
+            const url = window.location.href;
+            const text = 'Check out {{ bot.title }} - an amazing neural bot from ELECTRONICK!';
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(`${text} ${url}`).then(() => {
+                    alert('🔮 Neural bot link copied to clipboard!');
+                });
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = `${text} ${url}`;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('🔮 Neural bot link copied to clipboard!');
+            }
+        }
+        
+        // Image error handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const img = document.querySelector('.bot-avatar img');
+            if (img) {
+                img.addEventListener('error', function() {
+                    this.style.display = 'none';
+                    const fallbackIcon = this.nextElementSibling;
+                    if (fallbackIcon) {
+                        fallbackIcon.style.display = 'flex';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

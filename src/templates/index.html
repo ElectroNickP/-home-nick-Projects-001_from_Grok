@@ -2,804 +2,727 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление Telegram ботами</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#41F2FF">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>🔮 ELECTRONICK Neural Control Center</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --primary: #41F2FF;
+            --secondary: #4CA8FF;
+            --tertiary: #7B5CFF;
+            --bg-primary: #0B0F1A;
+            --bg-surface: #0F1524;
+            --text-primary: #E9F2FF;
+            --text-secondary: #B8C7D9;
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --gradient-main: linear-gradient(135deg, #41F2FF, #4CA8FF 55%, #7B5CFF);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(600px at 20% 20%, #00EAFF55, transparent 60%),
+                        radial-gradient(800px at 80% 80%, #7B5CFF22, transparent 70%);
+            z-index: -1;
+            animation: aurora 20s ease-in-out infinite;
+        }
+        
+        @keyframes aurora {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(-10px) translateY(-5px); }
         }
         
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            backdrop-filter: blur(16px);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            width: 50px; height: 50px;
+            background: var(--gradient-main);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(65, 242, 255, 0.4);
+        }
+        
+        .logo i {
+            font-size: 24px;
+            color: white;
+        }
+        
+        .brand h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        
+        .brand .subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .nav {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .logout-btn {
+            background: var(--gradient-main);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
             margin-bottom: 20px;
         }
-
-        /* Статистические карточки */
-        .stats-cards .stat-card {
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+        
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(16px);
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-
-        .stats-cards .stat-card:hover {
-            transform: translateY(-5px);
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
         }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 5px;
+        
+        .stat-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
+        
+        .stat-icon {
+            width: 40px; height: 40px;
+            background: var(--gradient-main);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        /* Поиск */
+        
+        .stat-info h3 {
+            font-size: 24px;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        
+        .stat-info span {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* Controls */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .search-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(16px);
+        }
+        
         .search-box {
             position: relative;
+            margin-bottom: 12px;
         }
-
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-            z-index: 10;
-        }
-
+        
         .search-input {
-            padding-left: 45px;
-            border-radius: 25px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s ease;
+            width: 100%;
+            padding: 10px 40px 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            outline: none;
         }
-
+        
         .search-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: var(--primary);
         }
-
-        /* Фильтры */
-        .filter-buttons {
+        
+        .filters {
             display: flex;
-            gap: 10px;
             flex-wrap: wrap;
+            gap: 6px;
         }
-
+        
         .filter-btn {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            color: #6c757d;
-            transition: all 0.3s ease;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 12px;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
-
+        
+        .filter-btn.active,
         .filter-btn:hover {
-            background: #667eea;
-            border-color: #667eea;
+            background: var(--gradient-main);
             color: white;
-            transform: translateY(-2px);
+            border-color: transparent;
         }
-
-        .filter-btn.active {
-            background: #667eea;
-            border-color: #667eea;
+        
+        .actions-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(16px);
+        }
+        
+        .action-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--gradient-main);
+            border: none;
+            border-radius: 8px;
             color: white;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
         }
-
-        /* Сетка ботов */
+        
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+        
+        /* Bots Grid */
         .bots-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
         }
-
-        /* Карточки ботов */
+        
         .bot-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            backdrop-filter: blur(16px);
             overflow: hidden;
             transition: all 0.3s ease;
-            border: 1px solid #e9ecef;
         }
-
+        
         .bot-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+            border-color: var(--primary);
         }
-
-        .bot-card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
+        
+        .bot-header {
+            padding: 16px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-
+        
         .bot-avatar {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
+            width: 36px; height: 36px;
+            background: var(--gradient-main);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
         }
-
-        .bot-info {
-            flex: 1;
+        
+        .bot-info h3 {
+            color: var(--text-primary);
+            font-size: 14px;
+            margin-bottom: 2px;
         }
-
-        .bot-name {
-            margin: 0;
-            font-size: 1.2rem;
+        
+        .bot-info .bot-id {
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+        
+        .bot-status {
+            margin-left: auto;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
             font-weight: 600;
         }
-
-        .bot-id {
-            font-size: 0.9rem;
-            opacity: 0.8;
+        
+        .bot-status.running {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
         }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.8rem;
+        
+        .bot-status.stopped {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .bot-body {
+            padding: 16px;
+        }
+        
+        .bot-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 11px;
+        }
+        
+        .detail-item {
+            color: var(--text-secondary);
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .bot-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+        
+        .bot-tag {
+            padding: 2px 6px;
+            background: rgba(65, 242, 255, 0.1);
+            border: 1px solid rgba(65, 242, 255, 0.2);
+            border-radius: 4px;
+            color: var(--primary);
+            font-size: 9px;
             font-weight: 500;
         }
-
-        .status-badge.running {
-            background: rgba(40, 167, 69, 0.2);
-            color: #28a745;
+        
+        .bot-actions {
+            display: flex;
+            gap: 6px;
         }
-
-        .status-badge.stopped {
-            background: rgba(220, 53, 69, 0.2);
-            color: #dc3545;
+        
+        .bot-btn {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .status-badge i {
-            font-size: 0.7rem;
-            margin-right: 5px;
+        
+        .bot-btn.primary {
+            background: var(--gradient-main);
+            color: white;
         }
-
-        /* Тело карточки */
-        .bot-card-body {
+        
+        .bot-btn.secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+        
+        .bot-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .bot-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
         }
-
-        .bot-details {
-            margin-bottom: 15px;
+        
+        .modal-content {
+            background: var(--bg-surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-
-        .detail-item {
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
         }
-
-        .detail-label {
-            color: #6c757d;
-            font-weight: 500;
-        }
-
-        .detail-value {
-            color: #495057;
+        
+        .modal-title {
+            color: var(--text-primary);
             font-weight: 600;
         }
-
-        /* Бейджи функций */
-        .feature-badges {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .feature-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .feature-badge.ai {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-        }
-
-        .feature-badge.transcriber {
-            background: rgba(23, 162, 184, 0.1);
-            color: #17a2b8;
-        }
-
-        .feature-badge.voice {
-            background: rgba(40, 167, 69, 0.1);
-            color: #28a745;
-        }
-
-        .feature-badge.marketplace {
-            background: rgba(255, 193, 7, 0.1);
-            color: #ffc107;
-        }
-
-        .feature-badge.featured {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-        }
-
-        /* Действия */
-        .bot-card-actions {
-            background: #f8f9fa;
-            padding: 15px 20px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .action-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+        
+        .modal-close {
+            background: none;
             border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            font-size: 20px;
             cursor: pointer;
         }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            color: var(--text-primary);
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-primary);
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary);
+        }
+        
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .form-checkbox input {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--gradient-main);
+            border: none;
+            border-radius: 8px;
             color: white;
-            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
         }
-
-        .action-btn.start-btn {
-            background: #28a745;
-        }
-
-        .action-btn.start-btn:hover {
-            background: #218838;
-        }
-
-        .action-btn.start-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .action-btn.stop-btn {
-            background: #ffc107;
-        }
-
-        .action-btn.stop-btn:hover {
-            background: #e0a800;
-        }
-
-        .action-btn.stop-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .action-btn.edit-btn {
-            background: #17a2b8;
-        }
-
-        .action-btn.edit-btn:hover {
-            background: #138496;
-        }
-
-        .action-btn[href*="dialogs"] {
-            background: #667eea;
-        }
-
-        .action-btn[href*="dialogs"]:hover {
-            background: #5a6fd8;
-        }
-
-        .action-btn[href*="marketplace"] {
-            background: #fd7e14;
-        }
-
-        .action-btn[href*="marketplace"]:hover {
-            background: #e8690b;
-        }
-
-        .action-btn.delete-btn {
-            background: #dc3545;
-        }
-
-        .action-btn.delete-btn:hover {
-            background: #c82333;
-        }
-
-        /* Сообщение об отсутствии ботов */
-        .no-bots-message {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        /* Адаптивность */
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .bots-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .filter-buttons {
-                justify-content: center;
-            }
-            
-            .stats-cards .row {
-                margin: 0;
-            }
-            
-            .stats-cards .col-4 {
-                padding: 0 5px;
-            }
+            .container { padding: 12px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .controls { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            .bots-grid { grid-template-columns: 1fr; }
+            .bot-details { grid-template-columns: 1fr; }
         }
-
-        /* Анимации */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        
+        .hidden { display: none !important; }
+        .spinner {
+            width: 12px; height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-
-        .bot-card {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .bot-card:nth-child(1) { animation-delay: 0.1s; }
-        .bot-card:nth-child(2) { animation-delay: 0.2s; }
-        .bot-card:nth-child(3) { animation-delay: 0.3s; }
-        .bot-card:nth-child(4) { animation-delay: 0.4s; }
-        .bot-card:nth-child(5) { animation-delay: 0.5s; }
-
-        /* Старые стили для совместимости */
-        .status-running { color: green; font-weight: bold; }
-        .status-stopped { color: red; font-weight: bold; }
-        .spinner { display: none; }
-        .table-responsive { max-height: 60vh; overflow-y: auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-<div class="container py-4">
-    <h1 class="mb-4">Управление Telegram ботами</h1>
-    <div class="alert alert-success mb-4" role="alert">
-        <i class="fas fa-sync-alt"></i> <strong>AUTO-UPDATE TEST v3.1.2:</strong> Система автообновлений работает корректно!
-        <br><strong>⚡ RESTART NEEDED:</strong> Приложение должно перезапуститься для отображения обновлений!
-    </div>
-    <div class="alert alert-warning" role="alert">
-        ⚠ Внимание: Измените логин и пароль в src/app.py (раздел USERS) для безопасности!
-    </div>
-    
-    <!-- Navigation -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <a href="/marketplace" class="btn btn-outline-primary btn-sm me-2">
-                <i class="fas fa-store"></i> ElectroNick bot Market
-            </a>
-            <a href="/api/v2/docs" class="btn btn-outline-info btn-sm me-2" target="_blank">
-                <i class="fas fa-book"></i> API Документация
-            </a>
-        </div>
-        <div>
-            <span class="text-muted me-3">
-                <i class="fas fa-user"></i> 
-                <span id="currentUser">Администратор</span>
-            </span>
-            <button onclick="logout()" class="btn btn-outline-danger btn-sm">
-                <i class="fas fa-sign-out-alt"></i> Выйти
-            </button>
-        </div>
-    </div>
-    
-    <!-- Version Info -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="text-muted small">
-            <i class="fas fa-code-branch"></i> Версия: 
-            <span class="fw-bold">{{ version }}</span>
-            {% if version_details.is_dev %}
-                <span class="badge bg-warning text-dark ms-1">DEV</span>
-            {% endif %}
-            <button class="btn btn-link btn-sm p-0 ms-2" data-bs-toggle="modal" data-bs-target="#versionModal">
-                <i class="fas fa-info-circle"></i> Подробнее
-            </button>
-        </div>
-        <div>
-            <div class="btn-group me-2" role="group">
-                <button id="checkUpdatesBtn" class="btn btn-outline-primary btn-sm" onclick="checkForUpdates()">
-                    <i class="fas fa-sync-alt"></i> Проверить обновления
-                </button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="toggleUpdateDetails()" title="Показать подробности">
-                    <i class="fas fa-chevron-down" id="detailsIcon"></i>
-                </button>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="brand">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div>
+                    <h1>ELECTRONICK</h1>
+                    <div class="subtitle">Neural Network Bot Manager</div>
+                </div>
             </div>
-            <button id="updateBtn" class="btn btn-success btn-sm me-2" onclick="performUpdate()" style="display: none;">
-                <i class="fas fa-download"></i> Обновить
-            </button>
-            <button class="btn btn-outline-warning btn-sm" onclick="showBackupManager()" title="Управление бэкапами">
-                <i class="fas fa-archive"></i> Бэкапы
-            </button>
             
-            <!-- Update Status Section -->
-            <div id="updateDetails" class="mt-2" style="display: none;">
-                <div id="updateStatus" class="text-muted small mb-2" style="display: none;"></div>
-                
-                <!-- Progress Bar -->
-                <div id="progressContainer" class="mb-2" style="display: none;">
-                    <div class="progress" style="height: 20px;">
-                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
-                             role="progressbar" style="width: 0%" 
-                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <span id="progressText">0%</span>
-                        </div>
+            <nav class="nav">
+                <a href="/marketplace" class="nav-btn">
+                    <i class="fas fa-store"></i> Marketplace
+                </a>
+                <a href="/api/v2/docs" class="nav-btn">
+                    <i class="fas fa-code"></i> API
+                </a>
+                <span class="nav-btn">
+                    <i class="fas fa-user"></i> <span id="currentUser">admin</span>
+                </span>
+                <button class="nav-btn logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </nav>
+        </header>
+        
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card" data-filter="all">
+                <div class="stat-content">
+                    <div class="stat-icon"><i class="fas fa-robot"></i></div>
+                    <div class="stat-info">
+                        <h3 id="totalBots">{{ bots|length }}</h3>
+                        <span>Total Bots</span>
                     </div>
-                    <div id="progressMessage" class="small text-muted mt-1"></div>
                 </div>
-                
-                <!-- Update Info -->
-                <div id="updateInfo" class="small" style="display: none;">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <strong>Текущая версия:</strong> <span id="currentCommit">-</span>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Новая версия:</strong> <span id="remoteCommit">-</span>
-                        </div>
+            </div>
+            <div class="stat-card" data-filter="running">
+                <div class="stat-content">
+                    <div class="stat-icon"><i class="fas fa-play"></i></div>
+                    <div class="stat-info">
+                        <h3 id="activeBots">{{ bots|selectattr('status', 'equalto', 'running')|list|length }}</h3>
+                        <span>Active</span>
                     </div>
-                    <div id="commitList" class="mt-2" style="display: none;">
-                        <strong>Изменения:</strong>
-                        <ul id="commitLogList" class="small mb-0"></ul>
+                </div>
+            </div>
+            <div class="stat-card" data-filter="stopped">
+                <div class="stat-content">
+                    <div class="stat-icon"><i class="fas fa-pause"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stoppedBots">{{ bots|selectattr('status', 'equalto', 'stopped')|list|length }}</h3>
+                        <span>Stopped</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card" data-filter="marketplace">
+                <div class="stat-content">
+                    <div class="stat-icon"><i class="fas fa-store"></i></div>
+                    <div class="stat-info">
+                        <h3 id="marketBots">{{ bots|selectattr('config.marketplace.enabled', 'equalto', true)|list|length }}</h3>
+                        <span>Market</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="card mb-4">
-        <div class="card-header">Добавить нового бота</div>
-        <div class="card-body">
-            <form id="createBotForm">
-                <div class="row g-3">
-                    <div class="col-md-6"><input type="text" class="form-control" id="bot_name" placeholder="Название бота" required></div>
-                    <div class="col-md-6"><input type="text" class="form-control" id="telegram_token" placeholder="Telegram Token" required></div>
-                    <div class="col-md-6"><input type="text" class="form-control" id="openai_api_key" placeholder="OpenAI API Key" required></div>
-                    <div class="col-md-6"><input type="text" class="form-control" id="assistant_id" placeholder="Assistant ID" required></div>
-                    <div class="col-md-6">
-                        <input type="number" class="form-control" id="group_context_limit" placeholder="Количество сообщений для контекста (по умолчанию: 15)" min="5" max="50" value="15">
-                        <small class="form-text text-muted">Сколько последних сообщений анализировать в группах</small>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="enable_ai_responses" value="true" checked>
-                            <label class="form-check-label" for="enable_ai_responses">
-                                🧠 ИИ ответы
-                            </label>
-                        </div>
-                        <small class="form-text text-muted">Генерировать ответы через OpenAI (отключите для режима только транскрибации)</small>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="enable_voice_responses" value="true">
-                            <label class="form-check-label" for="enable_voice_responses">
-                                🎤 Голосовые ответы
-                            </label>
-                        </div>
-                        <small class="form-text text-muted">Отправлять ответы голосом через TTS</small>
-                    </div>
-                    <div class="col-md-6" id="voice_settings" style="display: none;">
-                        <label class="form-label">Модель голоса</label>
-                        <select class="form-select" id="voice_model">
-                            <option value="tts-1">TTS-1 (Быстрая)</option>
-                            <option value="tts-1-hd">TTS-1-HD (Качественная)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6" id="voice_type_settings" style="display: none;">
-                        <label class="form-label">Тип голоса</label>
-                        <select class="form-select" id="voice_type">
-                            <option value="alloy">Alloy (универсальный)</option>
-                            <option value="echo">Echo (мужской)</option>
-                            <option value="fable">Fable (британский)</option>
-                            <option value="onyx">Onyx (мужской, глубокий)</option>
-                            <option value="nova">Nova (женский, молодой)</option>
-                            <option value="shimmer">Shimmer (женский, мягкий)</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Marketplace Settings -->
-                    <div class="col-12">
-                        <hr class="my-3">
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="marketplace_enabled" value="true">
-                            <label class="form-check-label" for="marketplace_enabled">
-                                <strong>🏪 Разместить в маркетплейсе</strong>
-                            </label>
-                            <small class="form-text text-muted d-block">Сделать бота доступным в публичном каталоге</small>
-                        </div>
-                    </div>
-                    
-                    <!-- Marketplace Fields (initially hidden) -->
-                    <div id="marketplace_fields" style="display: none;">
-                        <div class="col-md-6">
-                            <label class="form-label">📝 Заголовок для маркетплейса</label>
-                            <input type="text" class="form-control" id="marketplace_title" placeholder="Название для показа в каталоге">
-                            <small class="form-text text-muted">Оставьте пустым для использования названия бота</small>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">📂 Категория</label>
-                            <select class="form-select" id="marketplace_category">
-                                <option value="assistant">🤖 Ассистенты</option>
-                                <option value="business">💼 Бизнес</option>
-                                <option value="education">📚 Образование</option>
-                                <option value="entertainment">🎮 Развлечения</option>
-                                <option value="productivity">⚡ Продуктивность</option>
-                                <option value="support">🛠️ Поддержка</option>
-                                <option value="social">👥 Социальные</option>
-                                <option value="news">📰 Новости</option>
-                                <option value="finance">💰 Финансы</option>
-                                <option value="health">🏥 Здоровье</option>
-                                <option value="travel">✈️ Путешествия</option>
-                                <option value="food">🍕 Еда</option>
-                                <option value="other" selected>📦 Другое</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">📄 Описание</label>
-                            <textarea class="form-control" id="marketplace_description" rows="3" placeholder="Подробное описание возможностей бота для пользователей"></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">👤 Username бота</label>
-                            <div class="input-group">
-                                <span class="input-group-text">@</span>
-                                <input type="text" class="form-control" id="marketplace_username" placeholder="bot_username">
-                            </div>
-                            <small class="form-text text-muted">Имя бота в Telegram (без @)</small>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">🌐 Веб-сайт (необязательно)</label>
-                            <input type="url" class="form-control" id="marketplace_website" placeholder="https://example.com">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">🖼️ URL изображения (необязательно)</label>
-                            <input type="url" class="form-control" id="marketplace_image_url" placeholder="https://example.com/bot-avatar.jpg">
-                            <small class="form-text text-muted">Рекомендуемый размер: 300x300px</small>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">🏷️ Теги</label>
-                            <input type="text" class="form-control" id="marketplace_tags" placeholder="помощник, чат, AI">
-                            <small class="form-text text-muted">Теги через запятую для поиска</small>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-check mt-4">
-                                <input class="form-check-input" type="checkbox" id="marketplace_featured" value="true">
-                                <label class="form-check-label" for="marketplace_featured">
-                                    ⭐ Рекомендуемый бот
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">⭐ Рейтинг (0-5)</label>
-                            <input type="number" class="form-control" id="marketplace_rating" min="0" max="5" step="0.1" value="0">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">👥 Количество пользователей</label>
-                            <input type="number" class="form-control" id="marketplace_total_users" min="0" value="0">
-                        </div>
-                    </div>
-                    
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary" id="createBtn">
-                            <span class="spinner-border spinner-border-sm spinner" role="status"></span> Создать
-                        </button>
-                    </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-panel">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Search neural bots..." id="searchInput">
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Боты Dashboard -->
-    <div class="bots-dashboard">
-        <!-- Заголовок и статистика -->
-        <div class="dashboard-header mb-4">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h2 class="mb-0">
-                        <i class="fas fa-robot text-primary"></i>
-                        Список ботов
-                    </h2>
-                    <p class="text-muted mb-0">Управление и мониторинг Telegram ботов</p>
-                </div>
-                <div class="col-md-6">
-                    <div class="stats-cards">
-                        <div class="row g-2">
-                            <div class="col-4">
-                                <div class="stat-card bg-primary text-white">
-                                    <div class="stat-number" id="totalBots">{{ bots|length }}</div>
-                                    <div class="stat-label">Всего ботов</div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="stat-card bg-success text-white">
-                                    <div class="stat-number" id="runningBots">{{ bots|selectattr('status', 'equalto', 'running')|list|length }}</div>
-                                    <div class="stat-label">Работают</div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="stat-card bg-info text-white">
-                                    <div class="stat-number" id="marketplaceBots">{{ bots|selectattr('config.marketplace.enabled', 'equalto', true)|list|length }}</div>
-                                    <div class="stat-label">В маркетплейсе</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="filters">
+                    <div class="filter-btn active" data-filter="all">Все</div>
+                    <div class="filter-btn" data-filter="running">Работающие</div>
+                    <div class="filter-btn" data-filter="stopped">Остановленные</div>
+                    <div class="filter-btn" data-filter="marketplace">В маркетплейсе</div>
+                    <div class="filter-btn" data-filter="ai">ИИ боты</div>
+                    <div class="filter-btn" data-filter="transcriber">Транскрайберы</div>
                 </div>
             </div>
-        </div>
-
-        <!-- Фильтры и поиск -->
-        <div class="filters-section mb-4">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="search-box">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" class="form-control search-input" id="searchBots" placeholder="Поиск по названию бота...">
-                    </div>
-                </div>
-                <div class="col-md-8">
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="all">
-                            <i class="fas fa-list"></i> Все
-                        </button>
-                        <button class="filter-btn" data-filter="running">
-                            <i class="fas fa-play-circle"></i> Работающие
-                        </button>
-                        <button class="filter-btn" data-filter="stopped">
-                            <i class="fas fa-pause-circle"></i> Остановленные
-                        </button>
-                        <button class="filter-btn" data-filter="marketplace">
-                            <i class="fas fa-store"></i> В маркетплейсе
-                        </button>
-                        <button class="filter-btn" data-filter="ai">
-                            <i class="fas fa-brain"></i> ИИ боты
-                        </button>
-                        <button class="filter-btn" data-filter="transcriber">
-                            <i class="fas fa-microphone"></i> Транскрайберы
-                        </button>
-                    </div>
-                </div>
+            
+            <div class="actions-panel">
+                <button class="action-btn" onclick="openCreateBotModal()">
+                    <i class="fas fa-plus"></i> Создать бота
+                </button>
+                <button class="action-btn secondary" onclick="checkUpdates()">
+                    <i class="fas fa-sync-alt"></i> Обновления
+                </button>
+                <button class="action-btn secondary" onclick="openBackups()">
+                    <i class="fas fa-database"></i> Бэкапы
+                </button>
             </div>
         </div>
-
-        <!-- Список ботов в виде карточек -->
+        
+        <!-- Bots Grid -->
         <div class="bots-grid" id="botsGrid">
             {% for bot in bots %}
-            <div class="bot-card" data-bot-id="{{ bot.id }}" data-status="{{ bot.status }}" data-ai="{{ bot.config.get('enable_ai_responses', True) }}" data-marketplace="{{ bot.config.get('marketplace', {}).get('enabled', False) }}">
-                <!-- Заголовок карточки -->
-                <div class="bot-card-header">
+            <div class="bot-card" 
+                 data-bot-id="{{ bot.id }}" 
+                 data-status="{{ bot.status }}" 
+                 data-ai="{{ bot.config.get('enable_ai_responses', True)|lower }}"
+                 data-marketplace="{{ bot.config.get('marketplace', {}).get('enabled', False)|lower }}"
+                 data-transcriber="{{ not bot.config.get('enable_ai_responses', True)|lower }}">
+                
+                <div class="bot-header">
                     <div class="bot-avatar">
                         <i class="fas fa-robot"></i>
                     </div>
                     <div class="bot-info">
-                        <h5 class="bot-name">{{ bot.config.bot_name }}</h5>
+                        <h3 class="bot-name">{{ bot.config.bot_name }}</h3>
                         <div class="bot-id">ID: {{ bot.id }}</div>
                     </div>
-                    <div class="bot-status-indicator">
-                        {% if bot.status == 'running' %}
-                            <span class="status-badge running">
-                                <i class="fas fa-circle"></i> Работает
-                            </span>
-                        {% else %}
-                            <span class="status-badge stopped">
-                                <i class="fas fa-circle"></i> Остановлен
-                            </span>
-                        {% endif %}
+                    <div class="bot-status {{ bot.status }}">
+                        {% if bot.status == 'running' %}Работает{% else %}Остановлен{% endif %}
                     </div>
                 </div>
-
-                <!-- Основная информация -->
-                <div class="bot-card-body">
+                
+                <div class="bot-body">
                     <div class="bot-details">
                         <div class="detail-item">
-                            <span class="detail-label">Assistant ID:</span>
-                            <span class="detail-value">{{ bot.config.assistant_id[:20] }}...</span>
+                            <div class="detail-label">Assistant ID:</div>
+                            <div>{{ bot.config.assistant_id[:15] }}...</div>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">Контекст:</span>
-                            <span class="detail-value">{{ bot.config.group_context_limit or 15 }} сообщений</span>
+                            <div class="detail-label">Контекст:</div>
+                            <div>{{ bot.config.group_context_limit or 15 }} сообщений</div>
                         </div>
                     </div>
-
-                    <!-- Функциональность -->
-                    <div class="bot-features">
-                        <div class="feature-badges">
-                            {% if bot.config.get('enable_ai_responses', True) %}
-                                <span class="feature-badge ai">
-                                    <i class="fas fa-brain"></i> ИИ
-                                </span>
-                            {% else %}
-                                <span class="feature-badge transcriber">
-                                    <i class="fas fa-microphone"></i> Транскрайбер
-                                </span>
-                            {% endif %}
-
-                            {% if bot.config.enable_voice_responses %}
-                                <span class="feature-badge voice">
-                                    <i class="fas fa-volume-up"></i> TTS
-                                </span>
-                            {% endif %}
-
-                            {% if bot.config.get('marketplace', {}).get('enabled', False) %}
-                                <span class="feature-badge marketplace">
-                                    <i class="fas fa-store"></i> Маркетплейс
-                                </span>
-                                {% if bot.config.marketplace.get('featured', False) %}
-                                    <span class="feature-badge featured">
-                                        <i class="fas fa-star"></i> Featured
-                                    </span>
-                                {% endif %}
-                            {% endif %}
-                        </div>
+                    
+                    <div class="bot-tags">
+                        {% if bot.config.get('enable_ai_responses', True) %}
+                            <div class="bot-tag"><i class="fas fa-brain"></i> ИИ</div>
+                        {% else %}
+                            <div class="bot-tag"><i class="fas fa-microphone"></i> Транскрайбер</div>
+                        {% endif %}
+                        
+                        {% if bot.config.get('enable_voice_responses', False) %}
+                            <div class="bot-tag"><i class="fas fa-volume-up"></i> TTS</div>
+                        {% endif %}
+                        
+                        {% if bot.config.get('marketplace', {}).get('enabled', False) %}
+                            <div class="bot-tag"><i class="fas fa-store"></i> Маркетплейс</div>
+                        {% endif %}
+                        
+                        {% if bot.config.get('marketplace', {}).get('featured', False) %}
+                            <div class="bot-tag"><i class="fas fa-star"></i> Featured</div>
+                        {% endif %}
                     </div>
-                </div>
-
-                <!-- Действия -->
-                <div class="bot-card-actions">
-                    <div class="action-buttons">
-                        <button class="action-btn start-btn" {% if bot.status == 'running' %}disabled{% endif %} title="Запустить бота">
+                    
+                    <div class="bot-actions">
+                        <button class="bot-btn primary start-btn" 
+                                {% if bot.status == 'running' %}disabled{% endif %} 
+                                title="Запустить">
                             <i class="fas fa-play"></i>
                         </button>
-                        <button class="action-btn stop-btn" {% if bot.status != 'running' %}disabled{% endif %} title="Остановить бота">
-                            <i class="fas fa-stop"></i>
+                        <button class="bot-btn secondary stop-btn" 
+                                {% if bot.status != 'running' %}disabled{% endif %} 
+                                title="Остановить">
+                            <i class="fas fa-pause"></i>
                         </button>
-                        <button class="action-btn edit-btn" title="Редактировать">
+                        <button class="bot-btn secondary edit-btn" title="Редактировать">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <a href="/dialogs/{{ bot.id }}" class="action-btn" title="Диалоги">
+                        <a href="/dialogs/{{ bot.id }}" class="bot-btn secondary" title="Диалоги">
                             <i class="fas fa-comments"></i>
                         </a>
                         {% if bot.config.get('marketplace', {}).get('enabled', False) %}
-                            <a href="/marketplace/{{ bot.id }}" class="action-btn" title="Просмотр в маркетплейсе">
-                                <i class="fas fa-store"></i>
+                            <a href="/marketplace/{{ bot.id }}" class="bot-btn secondary" title="Маркетплейс">
+                                <i class="fas fa-external-link-alt"></i>
                             </a>
                         {% endif %}
-                        <button class="action-btn delete-btn" title="Удалить бота">
+                        <button class="bot-btn secondary delete-btn" title="Удалить">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -807,940 +730,272 @@
             </div>
             {% endfor %}
         </div>
-
-        <!-- Сообщение об отсутствии ботов -->
-        <div id="noBots" class="no-bots-message" style="display: none;">
-            <div class="text-center py-5">
-                <i class="fas fa-robot fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">Боты не найдены</h4>
-                <p class="text-muted">Попробуйте изменить фильтры или создать нового бота</p>
-            </div>
-        </div>
     </div>
-</div>
-
-<div class="modal fade" id="editModal" tabindex="-1">
-    <div class="modal-dialog"><div class="modal-content">
-        <div class="modal-header"><h5 class="modal-title">Редактировать бота</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
-            <form id="editBotForm">
-                <input type="hidden" id="edit_bot_id">
-                <div class="mb-3"><label class="form-label">Название</label><input type="text" class="form-control" id="edit_bot_name" required></div>
-                <div class="mb-3"><label class="form-label">Telegram Token</label><input type="text" class="form-control" id="edit_telegram_token" required></div>
-                <div class="mb-3"><label class="form-label">OpenAI API Key</label><input type="text" class="form-control" id="edit_openai_api_key" required></div>
-                <div class="mb-3"><label class="form-label">Assistant ID</label><input type="text" class="form-control" id="edit_assistant_id" required></div>
-                <div class="mb-3">
-                    <label class="form-label">Количество сообщений для контекста</label>
-                    <input type="number" class="form-control" id="edit_group_context_limit" min="5" max="50" value="15">
-                    <small class="form-text text-muted">Сколько последних сообщений анализировать в группах</small>
-                </div>
-                <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="edit_enable_ai_responses" value="true" checked>
-                        <label class="form-check-label" for="edit_enable_ai_responses">
-                            🧠 ИИ ответы
-                        </label>
-                    </div>
-                    <small class="form-text text-muted">Генерировать ответы через OpenAI (отключите для режима только транскрибации)</small>
-                </div>
-                <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="edit_enable_voice_responses" value="true">
-                        <label class="form-check-label" for="edit_enable_voice_responses">
-                            🎤 Голосовые ответы
-                        </label>
-                    </div>
-                    <small class="form-text text-muted">Отправлять ответы голосом через TTS</small>
-                </div>
-                <div class="row" id="edit_voice_settings" style="display: none;">
-                    <div class="col-md-6">
-                        <label class="form-label">Модель голоса</label>
-                        <select class="form-select" id="edit_voice_model">
-                            <option value="tts-1">TTS-1 (Быстрая)</option>
-                            <option value="tts-1-hd">TTS-1-HD (Качественная)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Тип голоса</label>
-                        <select class="form-select" id="edit_voice_type">
-                            <option value="alloy">Alloy (универсальный)</option>
-                            <option value="echo">Echo (мужской)</option>
-                            <option value="fable">Fable (британский)</option>
-                            <option value="onyx">Onyx (мужской, глубокий)</option>
-                            <option value="nova">Nova (женский, молодой)</option>
-                            <option value="shimmer">Shimmer (женский, мягкий)</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- Marketplace Settings -->
-                <hr class="my-3">
-                <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="edit_marketplace_enabled" value="true">
-                        <label class="form-check-label" for="edit_marketplace_enabled">
-                            <strong>🏪 Разместить в маркетплейсе</strong>
-                        </label>
-                    </div>
-                    <small class="form-text text-muted">Сделать бота доступным в публичном каталоге</small>
-                </div>
-                
-                <!-- Marketplace Fields (initially hidden) -->
-                <div id="edit_marketplace_fields" style="display: none;">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">📝 Заголовок для маркетплейса</label>
-                            <input type="text" class="form-control" id="edit_marketplace_title" placeholder="Название для показа в каталоге">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">📂 Категория</label>
-                            <select class="form-select" id="edit_marketplace_category">
-                                <option value="assistant">🤖 Ассистенты</option>
-                                <option value="business">💼 Бизнес</option>
-                                <option value="education">📚 Образование</option>
-                                <option value="entertainment">🎮 Развлечения</option>
-                                <option value="productivity">⚡ Продуктивность</option>
-                                <option value="support">🛠️ Поддержка</option>
-                                <option value="social">👥 Социальные</option>
-                                <option value="news">📰 Новости</option>
-                                <option value="finance">💰 Финансы</option>
-                                <option value="health">🏥 Здоровье</option>
-                                <option value="travel">✈️ Путешествия</option>
-                                <option value="food">🍕 Еда</option>
-                                <option value="other">📦 Другое</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">📄 Описание</label>
-                            <textarea class="form-control" id="edit_marketplace_description" rows="3" placeholder="Подробное описание возможностей бота"></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">👤 Username бота</label>
-                            <div class="input-group">
-                                <span class="input-group-text">@</span>
-                                <input type="text" class="form-control" id="edit_marketplace_username" placeholder="bot_username">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">🌐 Веб-сайт</label>
-                            <input type="url" class="form-control" id="edit_marketplace_website" placeholder="https://example.com">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">🖼️ URL изображения</label>
-                            <input type="url" class="form-control" id="edit_marketplace_image_url" placeholder="https://example.com/bot-avatar.jpg">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">🏷️ Теги</label>
-                            <input type="text" class="form-control" id="edit_marketplace_tags" placeholder="помощник, чат, AI">
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-check mt-4">
-                                <input class="form-check-input" type="checkbox" id="edit_marketplace_featured" value="true">
-                                <label class="form-check-label" for="edit_marketplace_featured">
-                                    ⭐ Рекомендуемый
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">⭐ Рейтинг</label>
-                            <input type="number" class="form-control" id="edit_marketplace_rating" min="0" max="5" step="0.1" value="0">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">👥 Пользователи</label>
-                            <input type="number" class="form-control" id="edit_marketplace_total_users" min="0" value="0">
-                        </div>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary" id="saveEditBtn">Сохранить</button>
-            </form>
-        </div>
-    </div></div>
-</div>
-
-<!-- Version Details Modal -->
-<div class="modal fade" id="versionModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    
+    <!-- Create Bot Modal -->
+    <div class="modal" id="createBotModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-info-circle text-primary"></i> Информация о версии
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-title">Создать нового бота</div>
+                <button class="modal-close" onclick="closeCreateBotModal()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-tag text-success"></i> Основная информация</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <td><strong>Версия:</strong></td>
-                                <td>{{ version_details.version }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Ветка:</strong></td>
-                                <td>
-                                    <span class="badge bg-{% if version_details.branch == 'main' %}success{% else %}warning{% endif %}">
-                                        {{ version_details.branch }}
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>Тип сборки:</strong></td>
-                                <td>
-                                    {% if version_details.is_dev %}
-                                        <span class="badge bg-warning text-dark">Разработка</span>
-                                    {% else %}
-                                        <span class="badge bg-success">Продакшн</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        </table>
+                <form id="createBotForm">
+                    <div class="form-group">
+                        <label class="form-label">Название бота</label>
+                        <input type="text" class="form-input" id="bot_name" placeholder="Мой ИИ помощник" required>
                     </div>
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-code-branch text-info"></i> Git информация</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <td><strong>Коммит:</strong></td>
-                                <td><code>{{ version_details.commit_hash }}</code></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Дата коммита:</strong></td>
-                                <td>{{ version_details.commit_date }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Сообщение:</strong></td>
-                                <td class="text-muted small">{{ version_details.commit_message[:50] }}{% if version_details.commit_message|length > 50 %}...{% endif %}</td>
-                            </tr>
-                        </table>
+                    <div class="form-group">
+                        <label class="form-label">Telegram Token</label>
+                        <input type="text" class="form-input" id="telegram_token" placeholder="1234567890:ABC..." required>
                     </div>
-                </div>
-                
-                <hr>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-cogs text-secondary"></i> Технические детали</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <td><strong>Python:</strong></td>
-                                <td>{{ version_details.python_version }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Время сборки:</strong></td>
-                                <td>{{ version_details.build_time }}</td>
-                            </tr>
-                        </table>
+                    <div class="form-group">
+                        <label class="form-label">OpenAI API Key</label>
+                        <input type="text" class="form-input" id="openai_api_key" placeholder="sk-..." required>
                     </div>
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-rocket text-primary"></i> Возможности</h6>
-                        <ul class="list-unstyled small">
-                            <li><i class="fas fa-check text-success"></i> Управление Telegram ботами</li>
-                            <li><i class="fas fa-check text-success"></i> OpenAI Assistant API</li>
-                            <li><i class="fas fa-check text-success"></i> Поддержка голосовых сообщений</li>
-                            <li><i class="fas fa-check text-success"></i> Анализ группового контекста</li>
-                            <li><i class="fas fa-check text-success"></i> Веб-интерфейс управления</li>
-                        </ul>
+                    <div class="form-group">
+                        <label class="form-label">Assistant ID</label>
+                        <input type="text" class="form-input" id="assistant_id" placeholder="asst_..." required>
                     </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                <button type="button" class="btn btn-primary" onclick="checkForUpdates()">
-                    <i class="fas fa-sync-alt"></i> Проверить обновления
-                </button>
+                    <div class="form-group">
+                        <label class="form-label">Контекст сообщений (5-50)</label>
+                        <input type="number" class="form-input" id="group_context_limit" value="15" min="5" max="50">
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="enable_ai_responses" checked>
+                        <label for="enable_ai_responses">🧠 ИИ ответы</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="enable_voice_responses">
+                        <label for="enable_voice_responses">🎤 Голосовые ответы</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="marketplace_enabled">
+                        <label for="marketplace_enabled">🏪 Разместить в маркетплейсе</label>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <span class="spinner hidden"></span>
+                        Создать бота
+                    </button>
+                </form>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Backup Manager Modal -->
-<div class="modal fade" id="backupModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-archive text-warning"></i> Управление бэкапами
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0">Доступные бэкапы</h6>
-                    <div>
-                        <button class="btn btn-outline-secondary btn-sm me-2" onclick="refreshBackupList()">
-                            <i class="fas fa-sync-alt"></i> Обновить
-                        </button>
-                        <button class="btn btn-outline-danger btn-sm" onclick="cleanupBackups()">
-                            <i class="fas fa-trash"></i> Очистка
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="backupLoading" class="text-center py-4" style="display: none;">
-                    <i class="fas fa-spinner fa-spin"></i> Загрузка бэкапов...
-                </div>
-                
-                <div id="backupsList">
-                    <!-- Backup list will be loaded here -->
-                </div>
-                
-                <div id="noBackups" class="text-center text-muted py-4" style="display: none;">
-                    <i class="fas fa-archive"></i>
-                    <p class="mb-0">Бэкапы не найдены</p>
-                    <small>Бэкапы создаются автоматически при обновлениях</small>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-                <button type="button" class="btn btn-info" onclick="showBackupInfo()">
-                    <i class="fas fa-info-circle"></i> О бэкапах
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-$(document).ready(function() {
-    function apiCall(url, method, data, btn) {
-        if (btn) $(btn).prop('disabled', true);
-        $.ajax({
-            url: url, method: method, contentType: "application/json", data: JSON.stringify(data),
-            success: () => location.reload(),
-            error: (xhr) => {
-                alert("Ошибка: " + (xhr.responseJSON?.error || "Неизвестная ошибка"));
-                if (btn) $(btn).prop('disabled', false);
-            }
-        });
-    }
-    $("#createBotForm").submit(e => {
-        e.preventDefault();
-        
-        // Parse tags
-        const tags = $("#marketplace_tags").val() ? 
-            $("#marketplace_tags").val().split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-        
-        const botData = {
-            bot_name: $("#bot_name").val(), 
-            telegram_token: $("#telegram_token").val(),
-            openai_api_key: $("#openai_api_key").val(), 
-            assistant_id: $("#assistant_id").val(),
-            group_context_limit: parseInt($("#group_context_limit").val()) || 15,
-            enable_ai_responses: $("#enable_ai_responses").is(':checked'),
-            enable_voice_responses: $("#enable_voice_responses").is(':checked'),
-            voice_model: $("#voice_model").val() || "tts-1",
-            voice_type: $("#voice_type").val() || "alloy"
-        };
-        
-        // Add marketplace data if enabled
-        if ($("#marketplace_enabled").is(':checked')) {
-            botData.marketplace = {
-                enabled: true,
-                title: $("#marketplace_title").val() || "",
-                description: $("#marketplace_description").val() || "",
-                category: $("#marketplace_category").val() || "other",
-                username: $("#marketplace_username").val() || "",
-                website: $("#marketplace_website").val() || "",
-                image_url: $("#marketplace_image_url").val() || "",
-                tags: tags,
-                featured: $("#marketplace_featured").is(':checked'),
-                rating: parseFloat($("#marketplace_rating").val()) || 0,
-                total_users: parseInt($("#marketplace_total_users").val()) || 0,
-                last_updated: new Date().toISOString().split('T')[0]
-            };
-        }
-        
-        apiCall("/api/bots", "POST", botData, '#createBtn');
-    });
-    // Фильтрация и поиск ботов
-    function filterBots() {
-        const searchTerm = $('#searchBots').val().toLowerCase();
-        const activeFilter = $('.filter-btn.active').data('filter');
-        
-        $('.bot-card').each(function() {
-            const card = $(this);
-            const botName = card.find('.bot-name').text().toLowerCase();
-            const botStatus = card.data('status');
-            const botAI = card.data('ai');
-            const botMarketplace = card.data('marketplace');
-            
-            let matchesSearch = botName.includes(searchTerm);
-            let matchesFilter = true;
-            
-            // Применяем фильтр
-            switch(activeFilter) {
-                case 'running':
-                    matchesFilter = botStatus === 'running';
-                    break;
-                case 'stopped':
-                    matchesFilter = botStatus === 'stopped';
-                    break;
-                case 'marketplace':
-                    matchesFilter = botMarketplace === true;
-                    break;
-                case 'ai':
-                    matchesFilter = botAI === true;
-                    break;
-                case 'transcriber':
-                    matchesFilter = botAI === false;
-                    break;
-                case 'all':
-                default:
-                    matchesFilter = true;
-                    break;
-            }
-            
-            if (matchesSearch && matchesFilter) {
-                card.show();
-            } else {
-                card.hide();
-            }
-        });
-        
-        // Показываем сообщение, если нет результатов
-        const visibleCards = $('.bot-card:visible').length;
-        if (visibleCards === 0) {
-            $('#noBots').show();
-        } else {
-            $('#noBots').hide();
-        }
-    }
-    
-    // Обработчики событий для фильтров и поиска
-    $('#searchBots').on('input', filterBots);
-    
-    $('.filter-btn').on('click', function() {
-        $('.filter-btn').removeClass('active');
-        $(this).addClass('active');
-        filterBots();
-    });
-    
-    // Обработчики для карточек ботов
-    $('#botsGrid').on('click', '.edit-btn', function() {
-        var card = $(this).closest('.bot-card');
-        var botId = card.data("bot-id");
-        
-        // Получаем данные бота через API для точности
-        $.get(`/api/bots/${botId}`)
-            .done(function(bot) {
-                $("#edit_bot_id").val(bot.id);
-                $("#edit_bot_name").val(bot.config.bot_name);
-                $("#edit_telegram_token").val(bot.config.telegram_token);
-                $("#edit_openai_api_key").val(bot.config.openai_api_key);
-                $("#edit_assistant_id").val(bot.config.assistant_id);
-                $("#edit_group_context_limit").val(bot.config.group_context_limit || 15);
-                
-                // ИИ настройки
-                $("#edit_enable_ai_responses").prop('checked', bot.config.enable_ai_responses !== false);
-                
-                // TTS настройки
-                $("#edit_enable_voice_responses").prop('checked', bot.config.enable_voice_responses || false);
-                $("#edit_voice_model").val(bot.config.voice_model || "tts-1");
-                $("#edit_voice_type").val(bot.config.voice_type || "alloy");
-                
-                // Marketplace настройки
-                const marketplace = bot.config.marketplace || {};
-                $("#edit_marketplace_enabled").prop('checked', marketplace.enabled || false);
-                $("#edit_marketplace_title").val(marketplace.title || "");
-                $("#edit_marketplace_description").val(marketplace.description || "");
-                $("#edit_marketplace_category").val(marketplace.category || "other");
-                $("#edit_marketplace_username").val(marketplace.username || "");
-                $("#edit_marketplace_website").val(marketplace.website || "");
-                $("#edit_marketplace_image_url").val(marketplace.image_url || "");
-                $("#edit_marketplace_tags").val((marketplace.tags || []).join(', '));
-                $("#edit_marketplace_featured").prop('checked', marketplace.featured || false);
-                $("#edit_marketplace_rating").val(marketplace.rating || 0);
-                $("#edit_marketplace_total_users").val(marketplace.total_users || 0);
-                
-                // Показываем/скрываем настройки
-                if (bot.config.enable_voice_responses) {
-                    $("#edit_voice_settings").show();
-                } else {
-                    $("#edit_voice_settings").hide();
-                }
-                
-                if (marketplace.enabled) {
-                    $("#edit_marketplace_fields").show();
-                } else {
-                    $("#edit_marketplace_fields").hide();
-                }
-                
-                new bootstrap.Modal('#editModal').show();
-            })
-            .fail(function() {
-                // Fallback к старому методу если API недоступен
-                $("#edit_bot_id").val(botId);
-                $("#edit_bot_name").val(row.find(".bot-name").text());
-                $("#edit_telegram_token").val(row.find(".bot-token").text());
-                $("#edit_openai_api_key").val(row.find(".bot-openai").text());
-                $("#edit_assistant_id").val(row.find(".bot-assistant").text());
-                $("#edit_group_context_limit").val(row.find(".bot-context").text() || 15);
-                
-                // Устанавливаем значения по умолчанию
-                $("#edit_enable_ai_responses").prop('checked', true); // По умолчанию ИИ включены
-                $("#edit_enable_voice_responses").prop('checked', false);
-                $("#edit_voice_model").val("tts-1");
-                $("#edit_voice_type").val("alloy");
-                $("#edit_voice_settings").hide();
-                
-                new bootstrap.Modal('#editModal').show();
-            });
-    });
-    $("#editBotForm").submit(e => {
-        e.preventDefault();
-        var botId = $("#edit_bot_id").val();
-        
-        // Parse tags
-        const editTags = $("#edit_marketplace_tags").val() ? 
-            $("#edit_marketplace_tags").val().split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-        
-        const editBotData = {
-            bot_name: $("#edit_bot_name").val(), 
-            telegram_token: $("#edit_telegram_token").val(),
-            openai_api_key: $("#edit_openai_api_key").val(), 
-            assistant_id: $("#edit_assistant_id").val(),
-            group_context_limit: parseInt($("#edit_group_context_limit").val()) || 15,
-            enable_ai_responses: $("#edit_enable_ai_responses").is(':checked'),
-            enable_voice_responses: $("#edit_enable_voice_responses").is(':checked'),
-            voice_model: $("#edit_voice_model").val() || "tts-1",
-            voice_type: $("#edit_voice_type").val() || "alloy"
-        };
-        
-        // Add marketplace data
-        editBotData.marketplace = {
-            enabled: $("#edit_marketplace_enabled").is(':checked'),
-            title: $("#edit_marketplace_title").val() || "",
-            description: $("#edit_marketplace_description").val() || "",
-            category: $("#edit_marketplace_category").val() || "other",
-            username: $("#edit_marketplace_username").val() || "",
-            website: $("#edit_marketplace_website").val() || "",
-            image_url: $("#edit_marketplace_image_url").val() || "",
-            tags: editTags,
-            featured: $("#edit_marketplace_featured").is(':checked'),
-            rating: parseFloat($("#edit_marketplace_rating").val()) || 0,
-            total_users: parseInt($("#edit_marketplace_total_users").val()) || 0,
-            last_updated: new Date().toISOString().split('T')[0]
-        };
-        
-        apiCall(`/api/bots/${botId}`, "PUT", editBotData, '#saveEditBtn');
-    });
-    $('#botsGrid').on('click', '.delete-btn', function() {
-        if (confirm("Удалить бота?")) apiCall(`/api/bots/${$(this).closest('.bot-card').data('bot-id')}`, "DELETE", null, this);
-    });
-    $('#botsGrid').on('click', '.start-btn', function() { apiCall(`/api/bots/${$(this).closest('.bot-card').data('bot-id')}/start`, "POST", null, this); });
-    $('#botsGrid').on('click', '.stop-btn', function() { apiCall(`/api/bots/${$(this).closest('.bot-card').data('bot-id')}/stop`, "POST", null, this); });
-    
-    // Старый поиск заменен на новый фильтр
-    // $("#searchBots").on("keyup", function() {
-    //     var value = $(this).val().toLowerCase();
-    //     $("#botsTable tbody tr").toggle(function() { return $(this).find(".bot-name").text().toLowerCase().indexOf(value) > -1; });
-    // });
-    
-    // Показать/скрыть настройки голоса при изменении чекбокса (форма создания)
-    $("#enable_voice_responses").change(function() {
-        if ($(this).is(':checked')) {
-            $("#voice_settings, #voice_type_settings").show();
-        } else {
-            $("#voice_settings, #voice_type_settings").hide();
-        }
-    });
-    
-    // Показать/скрыть настройки голоса при изменении чекбокса (форма редактирования)
-    $("#edit_enable_voice_responses").change(function() {
-        if ($(this).is(':checked')) {
-            $("#edit_voice_settings").show();
-        } else {
-            $("#edit_voice_settings").hide();
-        }
-    });
-    
-    // Показать/скрыть marketplace поля при изменении чекбокса (форма создания)
-    $("#marketplace_enabled").change(function() {
-        if ($(this).is(':checked')) {
-            $("#marketplace_fields").show();
-        } else {
-            $("#marketplace_fields").hide();
-        }
-    });
-    
-    // Показать/скрыть marketplace поля при изменении чекбокса (форма редактирования)
-    $("#edit_marketplace_enabled").change(function() {
-        if ($(this).is(':checked')) {
-            $("#edit_marketplace_fields").show();
-        } else {
-            $("#edit_marketplace_fields").hide();
-        }
-    });
-});
-
-function checkForUpdates() {
-    const btn = document.getElementById('checkUpdatesBtn');
-    const updateBtn = document.getElementById('updateBtn');
-    const statusDiv = document.getElementById('updateStatus');
-    const updateInfo = document.getElementById('updateInfo');
-    const currentCommit = document.getElementById('currentCommit');
-    const remoteCommit = document.getElementById('remoteCommit');
-    const commitList = document.getElementById('commitList');
-    const commitLogList = document.getElementById('commitLogList');
-    
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Проверка...';
-    btn.disabled = true;
-    updateBtn.style.display = 'none';
-    statusDiv.style.display = 'none';
-    updateInfo.style.display = 'none';
-    
-    $.get('/api/check-updates')
-        .done(function(data) {
-            if (data.has_updates) {
-                // Show update info
-                currentCommit.textContent = data.local_commit || 'неизвестно';
-                remoteCommit.textContent = data.remote_commit || 'неизвестно';
-                
-                // Show commit log if available
-                if (data.commit_log && data.commit_log.length > 0) {
-                    commitLogList.innerHTML = '';
-                    data.commit_log.forEach(commit => {
-                        const li = document.createElement('li');
-                        li.textContent = commit;
-                        commitLogList.appendChild(li);
-                    });
-                    commitList.style.display = 'block';
-                } else {
-                    commitList.style.display = 'none';
-                }
-                
-                statusDiv.innerHTML = '<i class="fas fa-arrow-up text-success"></i> Обновление доступно!';
-                statusDiv.style.display = 'block';
-                updateBtn.style.display = 'inline-block';
-                updateInfo.style.display = 'block';
-                
-                // Auto-expand details if collapsed
-                const updateDetails = document.getElementById('updateDetails');
-                if (updateDetails.style.display === 'none') {
-                    toggleUpdateDetails();
-                }
-                
-            } else {
-                statusDiv.innerHTML = '<i class="fas fa-check text-success"></i> У вас последняя версия!';
-                statusDiv.style.display = 'block';
-                updateBtn.style.display = 'none';
-                updateInfo.style.display = 'none';
-            }
-        })
-        .fail(function(xhr) {
-            const error = xhr.responseJSON ? xhr.responseJSON.error : 'Неизвестная ошибка';
-            statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle text-danger"></i> Ошибка: ${error}`;
-            statusDiv.style.display = 'block';
-            updateInfo.style.display = 'none';
-        })
-        .always(function() {
-            btn.innerHTML = '<i class="fas fa-sync-alt"></i> Проверить обновления';
-            btn.disabled = false;
-        });
-}
-
-function performUpdate() {
-    if (!confirm('Вы уверены, что хотите обновить приложение?\n\n🔒 ПРОФЕССИОНАЛЬНОЕ ОБНОВЛЕНИЕ:\n• Автоматическое создание бэкапа\n• Остановка всех ботов\n• Безопасное обновление кода\n• Автоматический rollback при ошибках\n• Проверка целостности после обновления\n• Надежный перезапуск\n\nПродолжить?')) {
-        return;
-    }
-    
-    const btn = document.getElementById('updateBtn');
-    const checkBtn = document.getElementById('checkUpdatesBtn');
-    const statusDiv = document.getElementById('updateStatus');
-    const progressContainer = document.getElementById('progressContainer');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const progressMessage = document.getElementById('progressMessage');
-    
-    // Initialize progress
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обновление...';
-    btn.disabled = true;
-    checkBtn.disabled = true;
-    
-    statusDiv.innerHTML = '<i class="fas fa-rocket text-primary"></i> Начинается профессиональное обновление...';
-    statusDiv.style.display = 'block';
-    
-    // Show progress bar
-    progressContainer.style.display = 'block';
-    updateProgress(0, 'Инициализация...');
-    
-    // Auto-expand details if collapsed
-    const updateDetails = document.getElementById('updateDetails');
-    if (updateDetails.style.display === 'none') {
-        toggleUpdateDetails();
-    }
-    
-    // Start update process
-    updateProgress(5, 'Проверка готовности к обновлению...');
-    
-    $.post('/api/update')
-        .done(function(data) {
-            updateProgress(100, 'Обновление завершено успешно!');
-            
-            statusDiv.innerHTML = `<i class="fas fa-check-circle text-success"></i> Обновление завершено! 
-                                   ${data.backup_id ? `(Бэкап: ${data.backup_id})` : ''}`;
-            
-            // Show success message
-            setTimeout(() => {
-                if(confirm(`✅ Профессиональное обновление завершено успешно!\n\n📦 Создан бэкап: ${data.backup_id || 'N/A'}\n🔄 Новая версия: ${data.new_version || 'N/A'}\n\n🔄 Приложение автоматически перезапустится.\nСтрока будет обновлена через 10 секунд.\n\nПерезагрузить сейчас?`)) {
-                    window.location.reload();
-                } else {
-                    // Auto reload after delay
-                    progressMessage.innerHTML = 'Автоматическая перезагрузка через 10 секунд...';
-                    setTimeout(() => window.location.reload(), 10000);
-                }
-            }, 1000);
-        })
-        .fail(function(xhr) {
-            const error = xhr.responseJSON ? xhr.responseJSON.error : 'Неизвестная ошибка';
-            const backupId = xhr.responseJSON ? xhr.responseJSON.backup_id : null;
-            
-            updateProgress(0, `Ошибка: ${error}`);
-            progressBar.classList.remove('progress-bar-animated');
-            progressBar.classList.add('bg-danger');
-            
-            statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle text-danger"></i> Ошибка обновления
-                                   ${backupId ? `(Доступен rollback: ${backupId})` : ''}`;
-            
-            alert(`❌ Ошибка при обновлении: ${error}${backupId ? `\n\n🔄 Бэкап создан: ${backupId}\nМожно выполнить rollback через интерфейс бэкапов.` : ''}`);
-            
-            btn.innerHTML = '<i class="fas fa-download"></i> Обновить';
-            btn.disabled = false;
-            checkBtn.disabled = false;
-            
-            setTimeout(() => {
-                progressContainer.style.display = 'none';
-                progressBar.classList.remove('bg-danger');
-                progressBar.classList.add('progress-bar-animated');
-            }, 3000);
-        });
-    
-    // Start progress monitoring
-    startUpdateProgressMonitoring();
-}
-
-function updateProgress(percent, message) {
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const progressMessage = document.getElementById('progressMessage');
-    
-    progressBar.style.width = percent + '%';
-    progressBar.setAttribute('aria-valuenow', percent);
-    progressText.textContent = percent + '%';
-    progressMessage.textContent = message;
-}
-
-function startUpdateProgressMonitoring() {
-    const checkProgress = () => {
-        $.get('/api/update/status')
-            .done(function(response) {
-                if (response.success && response.data) {
-                    const status = response.data;
-                    
-                    if (status.is_in_progress) {
-                        updateProgress(status.progress, status.message);
-                        
-                        // Continue monitoring
-                        setTimeout(checkProgress, 1000);
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Authentication
+        function checkAuthStatus() {
+            $.ajax({
+                url: '/api/v2/system/health',
+                method: 'GET',
+                timeout: 5000,
+                success: function(response) {
+                    console.log('Authentication valid');
+                    $('#currentUser').text('admin');
+                },
+                error: function(xhr) {
+                    if (xhr.status === 401) {
+                        console.log('Authentication failed, redirecting to login');
+                        window.location.href = '/login';
                     }
                 }
-            })
-            .fail(() => {
-                // If status endpoint fails, stop monitoring
-                // (Normal during restart)
             });
-    };
-    
-    // Start monitoring after a short delay
-    setTimeout(checkProgress, 1000);
-}
-
-function toggleUpdateDetails() {
-    const updateDetails = document.getElementById('updateDetails');
-    const detailsIcon = document.getElementById('detailsIcon');
-    
-    if (updateDetails.style.display === 'none' || updateDetails.style.display === '') {
-        updateDetails.style.display = 'block';
-        detailsIcon.className = 'fas fa-chevron-up';
-    } else {
-        updateDetails.style.display = 'none';
-        detailsIcon.className = 'fas fa-chevron-down';
-    }
-}
-
-function showBackupManager() {
-    $('#backupModal').modal('show');
-    refreshBackupList();
-}
-
-function refreshBackupList() {
-    const backupLoading = document.getElementById('backupLoading');
-    const backupsList = document.getElementById('backupsList');
-    const noBackups = document.getElementById('noBackups');
-    
-    backupLoading.style.display = 'block';
-    backupsList.style.display = 'none';
-    noBackups.style.display = 'none';
-    
-    $.get('/api/update/backups')
-        .done(function(response) {
-            if (response.success && response.data.length > 0) {
-                renderBackupList(response.data);
-                backupsList.style.display = 'block';
-            } else {
-                noBackups.style.display = 'block';
-            }
-        })
-        .fail(function(xhr) {
-            const error = xhr.responseJSON ? xhr.responseJSON.error : 'Ошибка загрузки';
-            backupsList.innerHTML = `<div class="alert alert-danger">Ошибка загрузки бэкапов: ${error}</div>`;
-            backupsList.style.display = 'block';
-        })
-        .always(function() {
-            backupLoading.style.display = 'none';
-        });
-}
-
-function renderBackupList(backups) {
-    const backupsList = document.getElementById('backupsList');
-    
-    let html = '<div class="list-group">';
-    
-    backups.forEach((backup, index) => {
-        const createdDate = new Date(backup.created_at).toLocaleString('ru-RU');
-        const isRecent = index < 3;
-        
-        html += `
-            <div class="list-group-item">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-1">
-                            ${backup.backup_id}
-                            ${isRecent ? '<span class="badge bg-success ms-2">Новый</span>' : ''}
-                        </h6>
-                        <p class="mb-1 small text-muted">
-                            <i class="fas fa-clock"></i> ${createdDate} &nbsp;
-                            <i class="fas fa-code-branch"></i> ${backup.commit_hash} &nbsp;
-                            <i class="fas fa-tag"></i> ${backup.version} &nbsp;
-                            <i class="fas fa-files-o"></i> ${backup.files_count} файлов &nbsp;
-                            <i class="fas fa-hdd"></i> ${backup.size_mb} MB
-                        </p>
-                    </div>
-                    <div class="btn-group-vertical btn-group-sm">
-                        <button class="btn btn-outline-info btn-sm" onclick="showBackupDetails('${backup.backup_id}')" title="Подробности">
-                            <i class="fas fa-info"></i>
-                        </button>
-                        <button class="btn btn-outline-warning btn-sm" onclick="confirmRestoreBackup('${backup.backup_id}')" title="Восстановить">
-                            <i class="fas fa-undo"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    backupsList.innerHTML = html;
-}
-
-function showBackupDetails(backupId) {
-    alert(`📋 Детали бэкапа: ${backupId}\n\nФункция в разработке.\nВ будущем здесь будет подробная информация о содержимом бэкапа.`);
-}
-
-function confirmRestoreBackup(backupId) {
-    if (confirm(`⚠️ ВНИМАНИЕ: Восстановление из бэкапа\n\nВы собираетесь восстановить систему из бэкапа:\n${backupId}\n\n🚨 ЭТО ДЕЙСТВИЕ:\n• Заменит текущий код на версию из бэкапа\n• Остановит все боты\n• Может потребовать ручного перезапуска\n• Отменит все изменения после создания бэкапа\n\nПродолжить восстановление?`)) {
-        alert('🚧 Функция восстановления из бэкапа находится в разработке.\n\nДля ручного восстановления:\n1. Остановите приложение\n2. Найдите бэкап в папке ./backups/\n3. Скопируйте файлы вручную\n4. Перезапустите приложение');
-    }
-}
-
-function cleanupBackups() {
-    const keepCount = prompt('Сколько последних бэкапов оставить?', '5');
-    
-    if (keepCount === null) return;
-    
-    const count = parseInt(keepCount);
-    if (isNaN(count) || count < 1) {
-        alert('Пожалуйста, введите корректное число (больше 0)');
-        return;
-    }
-    
-    if (!confirm(`Удалить старые бэкапы, оставив только ${count} последних?\n\nЭто действие нельзя отменить!`)) {
-        return;
-    }
-    
-    $.ajax({
-        url: '/api/update/backups/cleanup',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ keep_count: count })
-    })
-    .done(function(response) {
-        if (response.success) {
-            alert(`✅ Очистка завершена!\n\nУдалено бэкапов: ${response.removed_count}\nОставлено: ${count}`);
-            refreshBackupList();
-        } else {
-            alert(`❌ Ошибка очистки: ${response.error}`);
         }
-    })
-    .fail(function(xhr) {
-        const error = xhr.responseJSON ? xhr.responseJSON.error : 'Неизвестная ошибка';
-        alert(`❌ Ошибка очистки: ${error}`);
-    });
-}
-
-function showBackupInfo() {
-    alert(`ℹ️ Информация о системе бэкапов\n\n📦 АВТОМАТИЧЕСКИЕ БЭКАПЫ:\n• Создаются перед каждым обновлением\n• Включают все критические файлы\n• Сохраняют конфигурации ботов\n• Фиксируют текущий Git commit\n\n🔄 ВОЗМОЖНОСТИ:\n• Просмотр списка всех бэкапов\n• Информация о версиях и размерах\n• Автоматическая очистка старых бэкапов\n• Восстановление из бэкапа (в разработке)\n\n📁 РАСПОЛОЖЕНИЕ:\n./backups/ - папка с бэкапами\n\n🛡️ БЕЗОПАСНОСТЬ:\nБэкапы создаются автоматически и обеспечивают возможность отката при сбоях обновления.`);
-}
-
-// Authentication management
-$(document).ready(function() {
-    // Check authentication status on page load
-    checkAuthStatus();
-});
-
-function checkAuthStatus() {
-    const username = localStorage.getItem('auth_username');
-    
-    if (username) {
-        // Update user display
-        $('#currentUser').text(username);
         
-        // Test authentication by making a request to the server
-        $.ajax({
-            url: '/api/v2/system/health',
-            method: 'GET',
-            timeout: 5000,
-            success: function(response) {
-                // Authentication is valid
-                console.log('Authentication valid');
-            },
-            error: function(xhr) {
-                if (xhr.status === 401) {
-                    // Authentication failed, clear credentials and redirect to login
-                    console.log('Authentication failed, redirecting to login');
-                    localStorage.removeItem('auth_username');
-                    window.location.href = '/login';
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти из системы?')) {
+                window.location.href = '/logout';
+            }
+        }
+        
+        // Modal
+        function openCreateBotModal() {
+            $('#createBotModal').css('display', 'flex');
+        }
+        
+        function closeCreateBotModal() {
+            $('#createBotModal').hide();
+            $('#createBotForm')[0].reset();
+        }
+        
+        $('.modal').on('click', function(e) {
+            if (e.target === this) closeCreateBotModal();
+        });
+        
+        // Search and Filter
+        function filterBots() {
+            const searchTerm = $('#searchInput').val().toLowerCase();
+            const activeFilter = $('.filter-btn.active').data('filter');
+            
+            $('.bot-card').each(function() {
+                const card = $(this);
+                const botName = card.find('.bot-name').text().toLowerCase();
+                const botStatus = card.data('status');
+                const botAI = card.data('ai') === 'true';
+                const botMarketplace = card.data('marketplace') === 'true';
+                const botTranscriber = card.data('transcriber') === 'true';
+                
+                const matchesSearch = botName.includes(searchTerm);
+                let matchesFilter = true;
+                
+                switch (activeFilter) {
+                    case 'running': matchesFilter = botStatus === 'running'; break;
+                    case 'stopped': matchesFilter = botStatus === 'stopped'; break;
+                    case 'marketplace': matchesFilter = botMarketplace; break;
+                    case 'ai': matchesFilter = botAI; break;
+                    case 'transcriber': matchesFilter = botTranscriber; break;
+                    case 'all': default: matchesFilter = true;
                 }
+                
+                card.toggle(matchesSearch && matchesFilter);
+            });
+        }
+        
+        // Bot Actions
+        function botAction(botId, action, button) {
+            const $button = $(button);
+            const originalHtml = $button.html();
+            
+            $button.html('<div class="spinner"></div>').prop('disabled', true);
+            
+            $.ajax({
+                url: `/api/bots/${botId}/${action}`,
+                method: 'POST',
+                success: function() { location.reload(); },
+                error: function(xhr) {
+                    alert('Ошибка: ' + (xhr.responseJSON?.message || 'Неизвестная ошибка'));
+                    $button.html(originalHtml).prop('disabled', false);
+                }
+            });
+        }
+        
+        function deleteBot(botId, button) {
+            const $button = $(button);
+            const originalHtml = $button.html();
+            
+            $button.html('<div class="spinner"></div>').prop('disabled', true);
+            
+            $.ajax({
+                url: `/api/bots/${botId}`,
+                method: 'DELETE',
+                success: function() {
+                    $(button).closest('.bot-card').fadeOut(300, function() {
+                        $(this).remove();
+                        updateStats();
+                    });
+                },
+                error: function(xhr) {
+                    alert('Ошибка: ' + (xhr.responseJSON?.message || 'Неизвестная ошибка'));
+                    $button.html(originalHtml).prop('disabled', false);
+                }
+            });
+        }
+        
+        function createBot() {
+            const formData = {
+                bot_name: $('#bot_name').val(),
+                telegram_token: $('#telegram_token').val(),
+                openai_api_key: $('#openai_api_key').val(),
+                assistant_id: $('#assistant_id').val(),
+                group_context_limit: parseInt($('#group_context_limit').val()) || 15,
+                enable_ai_responses: $('#enable_ai_responses').is(':checked'),
+                enable_voice_responses: $('#enable_voice_responses').is(':checked'),
+                marketplace: { enabled: $('#marketplace_enabled').is(':checked') }
+            };
+            
+            $('.submit-btn .spinner').removeClass('hidden');
+            $('.submit-btn').prop('disabled', true);
+            
+            $.ajax({
+                url: '/api/bots',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function() {
+                    closeCreateBotModal();
+                    location.reload();
+                },
+                error: function(xhr) {
+                    alert('Ошибка: ' + (xhr.responseJSON?.message || 'Неизвестная ошибка'));
+                },
+                complete: function() {
+                    $('.submit-btn .spinner').addClass('hidden');
+                    $('.submit-btn').prop('disabled', false);
+                }
+            });
+        }
+        
+        function updateStats() {
+            const totalBots = $('.bot-card').length;
+            const activeBots = $('.bot-card[data-status="running"]').length;
+            const stoppedBots = $('.bot-card[data-status="stopped"]').length;
+            const marketBots = $('.bot-card[data-marketplace="true"]').length;
+            
+            $('#totalBots').text(totalBots);
+            $('#activeBots').text(activeBots);
+            $('#stoppedBots').text(stoppedBots);
+            $('#marketBots').text(marketBots);
+        }
+        
+        function checkUpdates() {
+            alert('Проверка обновлений будет реализована в следующей версии');
+        }
+        
+        function openBackups() {
+            alert('Управление бэкапами будет реализовано в следующей версии');
+        }
+        
+        // Event Handlers
+        $(document).ready(function() {
+            checkAuthStatus();
+            
+            $('#searchInput').on('input', filterBots);
+            
+            $('.filter-btn').on('click', function() {
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+                filterBots();
+            });
+            
+            $('.stat-card').on('click', function() {
+                const filter = $(this).data('filter');
+                if (filter) {
+                    $('.filter-btn').removeClass('active');
+                    $(`.filter-btn[data-filter="${filter}"]`).addClass('active');
+                    filterBots();
+                }
+            });
+            
+            $('#createBotForm').on('submit', function(e) {
+                e.preventDefault();
+                createBot();
+            });
+        });
+        
+        // Bot Actions Event Handlers
+        $('#botsGrid').on('click', '.start-btn', function() {
+            const botId = $(this).closest('.bot-card').data('bot-id');
+            botAction(botId, 'start', this);
+        });
+        
+        $('#botsGrid').on('click', '.stop-btn', function() {
+            const botId = $(this).closest('.bot-card').data('bot-id');
+            botAction(botId, 'stop', this);
+        });
+        
+        $('#botsGrid').on('click', '.delete-btn', function() {
+            if (confirm('Удалить бота?')) {
+                const botId = $(this).closest('.bot-card').data('bot-id');
+                deleteBot(botId, this);
             }
         });
-    } else {
-        // No credentials, redirect to login
-        console.log('No credentials found, redirecting to login');
-        window.location.href = '/login';
-    }
-}
-
-function logout() {
-    if (confirm('Вы уверены, что хотите выйти из системы?')) {
-        // Clear authentication data
-        localStorage.removeItem('auth_username');
         
-        // Redirect to logout page
-        window.location.href = '/logout';
-    }
-}
-</script>
-</body></html>
+        $('#botsGrid').on('click', '.edit-btn', function() {
+            alert('Редактирование будет реализовано в следующей версии');
+        });
+    </script>
+</body>
+</html>
