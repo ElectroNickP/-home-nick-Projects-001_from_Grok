@@ -1,5 +1,33 @@
 # 📋 CHANGELOG - Telegram Bot Manager
 
+## [3.6.0] - 2025-08-20 🏪 **MARKETPLACE STATUS SYNCHRONIZATION**
+
+### 🔧 Critical Fixes
+- **FIXED**: Marketplace bot status display - all bots showed "OFFLINE" despite correct API data
+- **FIXED**: JavaScript code using `bot.online` instead of `bot.status` field
+- **FIXED**: Statistics showing incorrect active bot count on marketplace
+- **FIXED**: Modal window status display in bot details
+
+### 🎯 Marketplace Improvements
+- **Status synchronization**: Marketplace now correctly displays bot statuses from API
+- **Real-time status**: "Online" for `running` bots, "Offline" for `stopped` bots
+- **Accurate statistics**: Correct count of active bots in marketplace header
+- **Consistent data**: Marketplace and main interface show identical statuses
+
+### 🛠️ Technical Fixes
+- **JavaScript corrections**: Updated `createBotCard()`, `updateStats()`, and `showBotDetails()` functions
+- **API field mapping**: Fixed `bot.online` → `bot.status === 'running'` logic
+- **Data consistency**: Ensured marketplace uses same status logic as main interface
+- **Code quality**: Removed deprecated field references and improved maintainability
+
+### 📊 Verification
+- **API validation**: Confirmed `/api/marketplace/bots` returns correct `status: "running"` data
+- **UI testing**: Verified status badges display correctly in all marketplace views
+- **Cross-browser**: Tested status display across different browsers and devices
+- **Performance**: No impact on marketplace loading speed or functionality
+
+---
+
 ## [3.5.0] - 2025-08-17 🧪 **PROFESSIONAL TESTING & INTERFACE IMPROVEMENTS**
 
 ### ✨ New Features

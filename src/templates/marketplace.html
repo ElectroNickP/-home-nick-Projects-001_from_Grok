@@ -977,8 +977,8 @@
                             <div class="stars">${generateStars(bot.rating || 0)}</div>
                             <span class="rating-value">(${bot.rating || 0})</span>
                         </div>
-                        <div class="status-badge ${bot.online ? 'status-online' : 'status-offline'}">
-                            ${bot.online ? 'Online' : 'Offline'}
+                        <div class="status-badge ${bot.status === 'running' ? 'status-online' : 'status-offline'}">
+                            ${bot.status === 'running' ? 'Online' : 'Offline'}
                         </div>
                     </div>
                     
@@ -1024,7 +1024,7 @@
         
         function updateStats(bots) {
             const totalBots = bots.length;
-            const activeBots = bots.filter(bot => bot.online).length;
+            const activeBots = bots.filter(bot => bot.status === 'running').length;
             const avgRating = bots.length > 0 ? 
                 (bots.reduce((sum, bot) => sum + (bot.rating || 0), 0) / bots.length).toFixed(1) : '0.0';
             
@@ -1130,8 +1130,8 @@
                         </div>
                         <div>
                             <strong style="color: var(--primary);">Status:</strong><br>
-                            <span class="status-badge ${bot.online ? 'status-online' : 'status-offline'}" style="display: inline-block; margin-top: 4px;">
-                                ${bot.online ? 'Online' : 'Offline'}
+                            <span class="status-badge ${bot.status === 'running' ? 'status-online' : 'status-offline'}" style="display: inline-block; margin-top: 4px;">
+                                ${bot.status === 'running' ? 'Online' : 'Offline'}
                             </span>
                         </div>
                     </div>
@@ -1173,6 +1173,8 @@
                 closeBotModal();
             }
         });
+        
+
     </script>
 </body>
 </html>

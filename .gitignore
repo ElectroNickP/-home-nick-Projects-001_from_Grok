@@ -56,3 +56,6 @@ logs/
 
 # Cyrillic named files
 *\320\221*.md
+
+# Cookie files
+cookies*.txt
