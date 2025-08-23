@@ -225,3 +225,4 @@ docker system prune -a
 ---
 
 *Docker Testing completed successfully - Avatar Upload System v1.0*
+

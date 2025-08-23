@@ -15,3 +15,4 @@ chmod +x start.py
 
 # Run the application
 python3 start.py
+

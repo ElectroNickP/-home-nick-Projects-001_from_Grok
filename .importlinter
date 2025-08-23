@@ -1,0 +1,7 @@
+[importlinter]
+root_package = /home/nick/Projects/Phuket/Telegram-Bot-Manager
+
+[contract:test]
+name = Test contract
+source_modules = core.ports
+forbidden_modules = src

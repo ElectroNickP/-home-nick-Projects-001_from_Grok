@@ -6,15 +6,20 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Установка системных зависимостей
+# Установка системных зависимостей включая Python 3.11
 RUN apt-get update && apt-get install -y \
-    python3 \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y \
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
     python3-pip \
-    python3-venv \
     git \
     curl \
     wget \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
 
 # Создание пользователя для безопасности
 RUN useradd -m -s /bin/bash testuser
