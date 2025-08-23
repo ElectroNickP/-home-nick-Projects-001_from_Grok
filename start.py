@@ -25,7 +25,7 @@ class Colors:
 def print_header():
     """Print application header"""
     print(f"\n{Colors.PURPLE}{'='*60}{Colors.END}")
-    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.7.0 - Production Ready{Colors.END}")
+    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.7.1 - Fixed Virtual Environment{Colors.END}")
     print(f"{Colors.PURPLE}{'='*60}{Colors.END}\n")
 
 def print_success(message):
@@ -69,10 +69,15 @@ def check_virtual_env():
             print_error("Failed to create virtual environment")
             return False
     
-    # Check if we're in virtual environment
+    # Check if we're in virtual environment  
     if hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
         print_success("Already in virtual environment")
-        return sys.executable
+        # Still return venv Python path, not system Python
+        if platform.system() == "Windows":
+            python_exe = venv_path / "Scripts" / "python.exe"
+        else:
+            python_exe = venv_path / "bin" / "python"
+        return python_exe.resolve()
     
     # Get activation script path
     if platform.system() == "Windows":
@@ -229,7 +234,7 @@ def print_help():
     print("  • Port detection and conflict resolution")
     print("  • Professional error handling")
     print("  • Production-ready deployment")
-    print(f"\nVersion: v3.7.0 - Production Ready{Colors.END}\n")
+    print(f"\nVersion: v3.7.1 - Fixed Virtual Environment{Colors.END}\n")
 
 if __name__ == "__main__":
     # Check for help flag
