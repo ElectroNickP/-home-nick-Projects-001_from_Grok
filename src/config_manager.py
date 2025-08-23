@@ -1,6 +1,6 @@
-import os
 import json
 import logging
+import os
 import threading
 
 logger = logging.getLogger(__name__)
@@ -8,18 +8,29 @@ logger = logging.getLogger(__name__)
 BOT_CONFIGS = {}
 NEXT_BOT_ID = 1
 CONVERSATIONS = {}
-CONFIG_FILE = "bot_configs.json"
+# Определяем абсолютный путь к файлу конфигурации в src директории
+_current_dir = os.path.dirname(os.path.abspath(__file__))
+CONFIG_FILE = os.path.join(_current_dir, "bot_configs.json")
 
 BOT_CONFIGS_LOCK = threading.Lock()
 CONVERSATIONS_LOCK = threading.Lock()
 OPENAI_LOCK = threading.Lock()
+
+# Конфигурация административного бота
+ADMIN_BOT_CONFIG = {
+    "enabled": False,
+    "token": "",
+    "admin_users": [],  # Список Telegram ID администраторов
+    "notifications": {"bot_status": True, "high_cpu": True, "errors": True, "weekly_stats": True},
+}
+
 
 def load_configs():
     """Загружает конфигурации ботов из файла"""
     global NEXT_BOT_ID
     try:
         if os.path.exists(CONFIG_FILE):
-            with open(CONFIG_FILE, 'r') as f:
+            with open(CONFIG_FILE) as f:
                 data = json.load(f)
                 BOT_CONFIGS.clear()
                 for k, v in data["bots"].items():
@@ -31,10 +42,10 @@ def load_configs():
                         "status": "stopped",  # Принудительно останавливаем все боты при перезапуске
                         "thread": None,
                         "loop": None,
-                        "stop_event": None
+                        "stop_event": None,
                     }
                     BOT_CONFIGS[int(k)] = bot_entry
-                
+
                 NEXT_BOT_ID = max([int(k) for k in data["bots"].keys()] + [0]) + 1
                 logger.info(f"Конфигурации ботов загружены из файла: {len(BOT_CONFIGS)} ботов")
         else:
@@ -42,8 +53,10 @@ def load_configs():
     except Exception as e:
         logger.error(f"Ошибка загрузки конфигураций: {e}")
 
+
 def save_configs_async():
     """Асинхронно сохраняет конфигурации в файл"""
+
     def save_task():
         try:
             if os.path.exists(CONFIG_FILE) and not os.access(CONFIG_FILE, os.W_OK):
@@ -56,14 +69,14 @@ def save_configs_async():
                     clean_bot = {
                         "id": v["id"],
                         "config": v["config"],
-                        "status": v.get("status", "stopped")
+                        "status": v.get("status", "stopped"),
                         # Исключаем thread, loop, stop_event - они не сериализуются в JSON
                     }
                     clean_configs[str(k)] = clean_bot
-                
+
                 data = {"bots": clean_configs}
-                temp_file = CONFIG_FILE + '.tmp'
-                with open(temp_file, 'w') as f:
+                temp_file = CONFIG_FILE + ".tmp"
+                with open(temp_file, "w") as f:
                     json.dump(data, f, indent=2)
                 os.replace(temp_file, CONFIG_FILE)
                 logger.info("Конфигурации ботов сохранены в файл")
@@ -73,6 +86,7 @@ def save_configs_async():
 
     thread = threading.Thread(target=save_task, daemon=True)
     thread.start()
+
 
 def save_configs():
     """Синхронно сохраняет конфигурации в файл"""
@@ -87,14 +101,14 @@ def save_configs():
                 clean_bot = {
                     "id": v["id"],
                     "config": v["config"],
-                    "status": v.get("status", "stopped")
+                    "status": v.get("status", "stopped"),
                     # Исключаем thread, loop, stop_event - они не сериализуются в JSON
                 }
                 clean_configs[str(k)] = clean_bot
-            
+
             data = {"bots": clean_configs}
-            temp_file = CONFIG_FILE + '.tmp'
-            with open(temp_file, 'w') as f:
+            temp_file = CONFIG_FILE + ".tmp"
+            with open(temp_file, "w") as f:
                 json.dump(data, f, indent=2)
             os.replace(temp_file, CONFIG_FILE)
             logger.info("Конфигурации ботов сохранены в файл")
@@ -102,10 +116,12 @@ def save_configs():
         logger.error(f"Ошибка сохранения конфигураций: {e}")
         raise
 
+
 def get_bot_config(bot_id):
     """Получить конфигурацию бота по ID"""
     with BOT_CONFIGS_LOCK:
         return BOT_CONFIGS.get(bot_id)
+
 
 def add_bot_config(bot_id, config):
     """Добавить конфигурацию бота"""
@@ -116,8 +132,9 @@ def add_bot_config(bot_id, config):
             "status": "stopped",
             "thread": None,
             "loop": None,
-            "stop_event": None
+            "stop_event": None,
         }
+
 
 def update_bot_config(bot_id, config):
     """Обновить конфигурацию бота"""
@@ -125,26 +142,31 @@ def update_bot_config(bot_id, config):
         if bot_id in BOT_CONFIGS:
             BOT_CONFIGS[bot_id]["config"].update(config)
 
+
 def delete_bot_config(bot_id):
     """Удалить конфигурацию бота"""
     with BOT_CONFIGS_LOCK:
         if bot_id in BOT_CONFIGS:
             del BOT_CONFIGS[bot_id]
 
+
 def get_all_bot_configs():
     """Получить все конфигурации ботов"""
     with BOT_CONFIGS_LOCK:
         return dict(BOT_CONFIGS)
+
 
 def get_bot_count():
     """Получить количество ботов"""
     with BOT_CONFIGS_LOCK:
         return len(BOT_CONFIGS)
 
+
 def get_running_bot_count():
     """Получить количество запущенных ботов"""
     with BOT_CONFIGS_LOCK:
         return sum(1 for bot in BOT_CONFIGS.values() if bot.get("status") == "running")
+
 
 def clear_all_configs():
     """Очистить все конфигурации"""
