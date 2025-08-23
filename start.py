@@ -104,10 +104,13 @@ def install_dependencies(python_exe):
             str(python_exe), "-m", "pip", "install", "-r", "requirements.txt", "--quiet"
         ], check=True)
         
-        # Install in editable mode
-        subprocess.run([
-            str(python_exe), "-m", "pip", "install", "-e", ".", "--quiet"
-        ], check=True)
+        # Install in editable mode only if pyproject.toml exists
+        if Path("pyproject.toml").exists():
+            subprocess.run([
+                str(python_exe), "-m", "pip", "install", "-e", ".", "--quiet"
+            ], check=True)
+        else:
+            print_warning("pyproject.toml not found, skipping editable install")
         
         print_success("Dependencies installed")
         return True
