@@ -87,7 +87,8 @@ def check_virtual_env():
         return False
     
     print_success("Virtual environment ready")
-    return python_exe
+    # Return absolute path as string to ensure compatibility
+    return python_exe.resolve()
 
 def install_dependencies(python_exe):
     """Install required dependencies"""
