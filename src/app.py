@@ -55,6 +55,11 @@ def create_app():
     
     # Configure Jinja2 filters
     app.jinja_env.filters["datetime"] = datetime_filter
+    
+    # Add version to template context
+    @app.context_processor
+    def inject_version():
+        return dict(app_version="v3.7.6 - Complete Symlink Fix")
 
     # Session configuration
     app.config.update(
