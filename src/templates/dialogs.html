@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#41F2FF">
     <title>🔮 ELECTRONICK Neural Dialogs - {{ bot_name }}</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="/static/favicon.png">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -287,7 +289,7 @@
     <div class="container">
         <header class="header">
             <div>
-                <h1>Neural Dialogs: {{ bot_name }}</h1>
+                <h1>Диалоги бота: {{ bot_name }}</h1>
                 <div class="version-info">
                     <i class="fas fa-microchip"></i>
                     Version: {{ version }}
@@ -306,19 +308,31 @@
             <div class="panel">
                 <h2 class="panel-title">
                     <i class="fas fa-comments panel-icon"></i>
-                    Active Conversations
+                    Активные диалоги
                 </h2>
                 
                 <div class="dialog-list">
                     {% for key, data in conversations.items() %}
                         <a href="?conv_key={{ key }}" class="dialog-item {% if selected_conv_key == key %}active{% endif %}">
                             <div class="dialog-user">
-                                <i class="fas fa-user"></i>
-                                User {{ key.split('_')[1] }}
+                                {% if data.user_info and data.user_info.display_name %}
+                                    {% if data.user_info.type == 'group' %}
+                                        <i class="fas fa-users"></i> {{ data.user_info.display_name }}
+                                    {% else %}
+                                        <i class="fas fa-user"></i> {{ data.user_info.display_name }}
+                                    {% endif %}
+                                {% else %}
+                                    {% set user_id = key.split('_')[-1] %}
+                                    {% if user_id.startswith('-') %}
+                                        <i class="fas fa-users"></i> Группа {{ user_id }}
+                                    {% else %}
+                                        <i class="fas fa-user"></i> Пользователь {{ user_id }}
+                                    {% endif %}
+                                {% endif %}
                             </div>
                             <div class="dialog-meta">
                                 <i class="fas fa-message"></i>
-                                {{ data.messages|length }} messages
+                                {{ data.messages|length }} сообщений
                             </div>
                         </a>
                     {% else %}
@@ -326,8 +340,8 @@
                             <div class="empty-icon">
                                 <i class="fas fa-comments"></i>
                             </div>
-                            <div class="empty-title">No Conversations</div>
-                            <div>Neural dialogs will appear here</div>
+                            <div class="empty-title">Нет диалогов</div>
+                            <div>Диалоги с пользователями появятся здесь</div>
                         </div>
                     {% endfor %}
                 </div>
@@ -336,9 +350,23 @@
             <div class="panel">
                 <h2 class="panel-title">
                     <i class="fas fa-brain panel-icon"></i>
-                    Neural Conversation
+                    Диалог с ботом
                     {% if selected_conv_key %}
-                        - User {{ selected_conv_key.split('_')[1] }}
+                        {% set selected_data = conversations.get(selected_conv_key, {}) %}
+                        {% if selected_data.user_info and selected_data.user_info.display_name %}
+                            {% if selected_data.user_info.type == 'group' %}
+                                - <i class="fas fa-users"></i> {{ selected_data.user_info.display_name }}
+                            {% else %}
+                                - <i class="fas fa-user"></i> {{ selected_data.user_info.display_name }}
+                            {% endif %}
+                        {% else %}
+                            {% set user_id = selected_conv_key.split('_')[-1] %}
+                            {% if user_id.startswith('-') %}
+                                - <i class="fas fa-users"></i> Группа {{ user_id }}
+                            {% else %}
+                                - <i class="fas fa-user"></i> Пользователь {{ user_id }}
+                            {% endif %}
+                        {% endif %}
                     {% endif %}
                 </h2>
                 
@@ -351,7 +379,12 @@
                                 </div>
                                 <div class="message-time">
                                     <i class="fas fa-clock"></i>
-                                    {{ msg.timestamp.strftime('%H:%M:%S') if msg.timestamp else 'Unknown time' }}
+                                    {% if msg.timestamp %}
+                                        {% set dt = msg.timestamp|datetime %}
+                                        {{ dt.strftime('%H:%M:%S') if dt else 'Unknown time' }}
+                                    {% else %}
+                                        Unknown time
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}
@@ -360,8 +393,8 @@
                             <div class="empty-icon">
                                 <i class="fas fa-robot"></i>
                             </div>
-                            <div class="empty-title">Select Conversation</div>
-                            <div>Choose a dialog to view neural conversation history</div>
+                            <div class="empty-title">Выберите диалог</div>
+                            <div>Выберите диалог чтобы посмотреть историю сообщений</div>
                         </div>
                     {% endif %}
                 </div>

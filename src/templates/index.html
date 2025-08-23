@@ -7,6 +7,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>🔮 ELECTRONICK Neural Control Center</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="shortcut icon" href="/static/favicon.png">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -190,6 +193,50 @@
             color: var(--text-secondary);
         }
         
+        /* Admin Section */
+        .admin-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(16px);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h3 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .admin-bot-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .form-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .form-section h4 {
+            margin: 0 0 15px 0;
+            color: var(--primary);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
         /* Controls */
         .controls {
             display: grid;
@@ -320,6 +367,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-size: 14px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .bot-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
         }
         
         .bot-info h3 {
@@ -442,6 +500,10 @@
             padding: 20px;
         }
         
+        .modal.show {
+            display: flex;
+        }
+        
         .modal-content {
             background: var(--bg-surface);
             border: 1px solid var(--glass-border);
@@ -543,7 +605,329 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+
+        .form-hint {
+            color: #666;
+            font-weight: normal;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+
+        .token-validation-status {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .token-validation-status.success {
+            color: #28a745;
+        }
+
+        .token-validation-status.error {
+            color: #dc3545;
+        }
+
+        .token-validation-status.loading {
+            color: #007bff;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Modal Tabs Styles */
+        .modal-tabs {
+            display: flex;
+            border-bottom: 2px solid rgba(65, 242, 255, 0.2);
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+        
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 12px 24px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 12px 12px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab-btn:hover {
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(65, 242, 255, 0.1);
+        }
+        
+        .tab-btn.active {
+            color: #41F2FF;
+            background: rgba(65, 242, 255, 0.15);
+            border-bottom: 2px solid #41F2FF;
+        }
+        
+        .tab-btn i {
+            font-size: 16px;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(65, 242, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(65, 242, 255, 0.2);
+        }
+        
+        .section-title {
+            margin: 0 0 20px 0;
+            color: #41F2FF;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Marketplace Toggle */
+        .marketplace-toggle {
+            padding: 20px;
+            background: rgba(65, 242, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(65, 242, 255, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        .marketplace-fields {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        
+        .marketplace-fields.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Enhanced form elements for marketplace */
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        
+        select.form-input {
+            background: rgba(20, 20, 20, 0.8);
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2341F2FF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 20px;
+            padding-right: 40px;
+            appearance: none;
+        }
+        
+        /* Enhanced help text */
+        .form-help {
+            display: block;
+            margin-top: 8px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        /* Image Upload Styles */
+        .image-upload-container {
+            border: 1px solid rgba(65, 242, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            background: rgba(65, 242, 255, 0.02);
+        }
+        
+        .image-preview {
+            position: relative;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(20, 20, 20, 0.8);
+        }
+        
+        .image-preview img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            max-height: 200px;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+        }
+        
+        .remove-image-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(239, 68, 68, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .remove-image-btn:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.1);
+        }
+        
+        .image-upload-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 8px;
+            padding: 4px;
+        }
+        
+        .upload-tab-btn {
+            flex: 1;
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .upload-tab-btn:hover {
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(65, 242, 255, 0.1);
+        }
+        
+        .upload-tab-btn.active {
+            background: rgba(65, 242, 255, 0.2);
+            color: #41F2FF;
+        }
+        
+        .upload-tab-content {
+            display: none;
+        }
+        
+        .upload-tab-content.active {
+            display: block;
+        }
+        
+        .btn-preview-url {
+            background: rgba(65, 242, 255, 0.1);
+            border: 1px solid rgba(65, 242, 255, 0.3);
+            color: #41F2FF;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-preview-url:hover {
+            background: rgba(65, 242, 255, 0.2);
+        }
+        
+        .file-upload-area {
+            border: 2px dashed rgba(65, 242, 255, 0.3);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .file-upload-area:hover {
+            border-color: rgba(65, 242, 255, 0.5);
+            background: rgba(65, 242, 255, 0.05);
+        }
+        
+        .file-upload-area.dragover {
+            border-color: #41F2FF;
+            background: rgba(65, 242, 255, 0.1);
+        }
+        
+        .upload-placeholder i {
+            font-size: 32px;
+            color: #41F2FF;
+            margin-bottom: 16px;
+        }
+        
+        .upload-placeholder p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .upload-placeholder small {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+        }
+        
+        .upload-link {
+            color: #41F2FF;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        
+        .upload-link:hover {
+            color: #4CA8FF;
+        }
+        
+        .upload-progress {
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(65, 242, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #41F2FF, #4CA8FF);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .progress-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -616,6 +1000,19 @@
             </div>
         </div>
         
+        <!-- Admin Bot Section -->
+        <div class="admin-section">
+            <div class="admin-header">
+                <h3>🔧 Административный бот</h3>
+                <div class="admin-bot-status" id="adminBotStatus">
+                    <span class="status-badge stopped">Неактивен</span>
+                    <button class="btn-primary" onclick="openCreateAdminBotModal()">
+                        <i class="fas fa-plus"></i> Создать админ-бота
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Controls -->
         <div class="controls">
             <div class="search-panel">
@@ -657,7 +1054,11 @@
                 
                 <div class="bot-header">
                     <div class="bot-avatar">
+                        {% if bot.config.get('marketplace', {}).get('image_url') %}
+                        <img src="{{ bot.config.marketplace.image_url }}" alt="{{ bot.config.bot_name }}" class="bot-avatar-img">
+                        {% else %}
                         <i class="fas fa-robot"></i>
+                        {% endif %}
                     </div>
                     <div class="bot-info">
                         <h3 class="bot-name">{{ bot.config.bot_name }}</h3>
@@ -744,12 +1145,16 @@
             <div class="modal-body">
                 <form id="createBotForm">
                     <div class="form-group">
-                        <label class="form-label">Название бота</label>
-                        <input type="text" class="form-input" id="bot_name" placeholder="Мой ИИ помощник" required>
+                        <label class="form-label">
+                            Название бота
+                            <small class="form-hint">Автоматически определяется из Telegram</small>
+                        </label>
+                        <input type="text" class="form-input" id="bot_name" placeholder="Автоматически заполнится после ввода токена">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Telegram Token</label>
                         <input type="text" class="form-input" id="telegram_token" placeholder="1234567890:ABC..." required>
+                        <div class="token-validation-status" id="token_validation_status" style="margin-top: 5px; font-size: 12px;"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">OpenAI API Key</label>
@@ -782,10 +1187,481 @@
                 </form>
             </div>
         </div>
-    </div>
+        </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Create Admin Bot Modal -->
+    <div class="modal" id="createAdminBotModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🔧 Создать административного бота</div>
+                <button class="modal-close" onclick="closeCreateAdminBotModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createAdminBotForm">
+                    <div class="form-group">
+                        <label class="form-label">Telegram Token</label>
+                        <input type="text" class="form-input" id="admin_bot_token" 
+                               placeholder="1234567890:ABC..." required>
+                        <small class="form-help">
+                            Получите токен у @BotFather, создав нового бота для управления
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telegram ID администраторов</label>
+                        <input type="text" class="form-input" id="admin_users" 
+                               placeholder="123456789,987654321" required>
+                        <small class="form-help">
+                            ID пользователей Telegram, которые будут иметь доступ к управлению (через запятую)
+                        </small>
+                    </div>
+                    <div class="form-section">
+                        <h4>🔔 Настройки уведомлений</h4>
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="notify_bot_status" checked>
+                            <label for="notify_bot_status">🔔 Уведомления о статусе ботов</label>
+                        </div>
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="notify_high_cpu" checked>
+                            <label for="notify_high_cpu">⚠️ Уведомления о высоком CPU</label>
+                        </div>
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="notify_errors" checked>
+                            <label for="notify_errors">🚨 Уведомления об ошибках</label>
+                        </div>
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="weekly_stats">
+                            <label for="weekly_stats">📈 Еженедельная статистика</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <span class="spinner hidden"></span>
+                        Создать админ-бота
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Bot Modal -->
+    <div class="modal" id="editBotModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">✏️ Редактировать бота</div>
+                <button class="modal-close" onclick="closeEditBotModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Modal Tabs -->
+                <div class="modal-tabs">
+                    <button class="tab-btn active" onclick="switchModalTab('basic')">
+                        <i class="fas fa-cog"></i> Основные настройки
+                    </button>
+                    <button class="tab-btn" onclick="switchModalTab('marketplace')">
+                        <i class="fas fa-store"></i> Маркетплейс
+                    </button>
+                </div>
+                
+                <form id="editBotForm" novalidate>
+                    <input type="hidden" id="edit_bot_id">
+                    
+                    <!-- Basic Settings Tab -->
+                    <div id="basic-tab" class="tab-content active">
+                        <div class="form-group">
+                            <label class="form-label">Название бота</label>
+                            <input type="text" class="form-input" id="edit_bot_name" name="bot_name" placeholder="Мой ИИ помощник" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Telegram Token</label>
+                            <input type="text" class="form-input" id="edit_telegram_token" name="telegram_token" placeholder="1234567890:ABC..." required>
+                            <small class="form-help">Токен можно изменить только при остановленном боте</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">OpenAI API Key</label>
+                            <input type="text" class="form-input" id="edit_openai_api_key" name="openai_api_key" placeholder="sk-..." required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Assistant ID</label>
+                            <input type="text" class="form-input" id="edit_assistant_id" name="assistant_id" placeholder="asst_..." required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Контекст сообщений (5-50)</label>
+                            <input type="number" class="form-input" id="edit_group_context_limit" value="15" min="5" max="50">
+                        </div>
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="edit_enable_ai_responses" checked>
+                            <label for="edit_enable_ai_responses">🧠 ИИ ответы</label>
+                        </div>
+                        <div class="form-checkbox">
+                            <input type="checkbox" id="edit_enable_voice_responses">
+                            <label for="edit_enable_voice_responses">🎤 Голосовые ответы</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Marketplace Settings Tab -->
+                    <div id="marketplace-tab" class="tab-content">
+                        <div class="form-checkbox marketplace-toggle">
+                            <input type="checkbox" id="edit_marketplace_enabled">
+                            <label for="edit_marketplace_enabled">🏪 Разместить в маркетплейсе</label>
+                            <small class="form-help">Сделать бота доступным для публичного использования</small>
+                        </div>
+                        
+                        <div id="marketplace-fields" class="marketplace-fields" style="display: none;">
+                            <div class="form-section">
+                                <h4 class="section-title">📝 Основная информация</h4>
+                                <div class="form-group">
+                                    <label class="form-label">Заголовок для маркетплейса</label>
+                                    <input type="text" class="form-input" id="edit_marketplace_title" placeholder="Мой ИИ помощник">
+                                    <small class="form-help">Название, которое увидят пользователи в маркетплейсе</small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Описание</label>
+                                    <textarea class="form-input" id="edit_marketplace_description" rows="4" placeholder="Описание возможностей вашего бота..."></textarea>
+                                    <small class="form-help">Подробное описание функций и возможностей бота</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h4 class="section-title">📂 Категоризация</h4>
+                                <div class="form-group">
+                                    <label class="form-label">Категория</label>
+                                    <select class="form-input" id="edit_marketplace_category">
+                                        <option value="assistant">🤖 Ассистенты</option>
+                                        <option value="business">💼 Бизнес</option>
+                                        <option value="education">📚 Образование</option>
+                                        <option value="entertainment">🎯 Развлечения</option>
+                                        <option value="productivity">⚡ Продуктивность</option>
+                                        <option value="games">🎮 Игры</option>
+                                        <option value="utility">🔧 Утилиты</option>
+                                        <option value="other">📋 Другое</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Теги</label>
+                                    <input type="text" class="form-input" id="edit_marketplace_tags" placeholder="ai, помощник, чат">
+                                    <small class="form-help">Ключевые слова через запятую для поиска</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h4 class="section-title">🌐 Медиа и ссылки</h4>
+                                <div class="form-group">
+                                    <label class="form-label">Изображение бота</label>
+                                    <div class="image-upload-container">
+                                        <!-- Image Preview -->
+                                        <div class="image-preview" id="edit_image_preview" style="display: none;">
+                                            <img id="edit_preview_img" src="" alt="Preview">
+                                            <button type="button" class="remove-image-btn" onclick="removeImagePreview()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Upload Options -->
+                                        <div class="image-upload-tabs">
+                                            <button type="button" class="upload-tab-btn active" onclick="switchUploadTab('url')">
+                                                <i class="fas fa-link"></i> URL
+                                            </button>
+                                            <button type="button" class="upload-tab-btn" onclick="switchUploadTab('file')">
+                                                <i class="fas fa-upload"></i> Загрузить
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- URL Input -->
+                                        <div class="upload-tab-content active" id="url-tab">
+                                            <input type="url" class="form-input" id="edit_marketplace_image_url" placeholder="https://example.com/image.png">
+                                            <button type="button" class="btn-preview-url" onclick="previewUrlImage()">
+                                                <i class="fas fa-eye"></i> Предпросмотр
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- File Upload -->
+                                        <div class="upload-tab-content" id="file-tab">
+                                            <div class="file-upload-area" id="file-upload-area">
+                                                <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
+                                                <div class="upload-placeholder">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                    <p>Перетащите изображение или <span class="upload-link">выберите файл</span></p>
+                                                    <small>PNG, JPG, GIF до 5MB</small>
+                                                </div>
+                                                <div class="upload-progress" style="display: none;">
+                                                    <div class="progress-bar">
+                                                        <div class="progress-fill"></div>
+                                                    </div>
+                                                    <span class="progress-text">Загрузка...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <small class="form-help">Логотип или скриншот вашего бота (рекомендуемый размер: 400x300px)</small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Веб-сайт</label>
+                                    <input type="url" class="form-input" id="edit_marketplace_website" placeholder="https://example.com">
+                                    <small class="form-help">Официальный сайт или страница документации</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h4 class="section-title">⭐ Продвижение</h4>
+                                <div class="form-checkbox">
+                                    <input type="checkbox" id="edit_marketplace_featured">
+                                    <label for="edit_marketplace_featured">🌟 Рекомендуемый</label>
+                                    <small class="form-help">Показывать в топе результатов поиска</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <span class="spinner hidden"></span>
+                        Сохранить изменения
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- jQuery - Local first, then CDN fallbacks -->
+    <script src="/static/js/jquery-3.6.0.min.js"></script>
     <script>
+        // jQuery fallback if local fails
+        if (typeof jQuery === 'undefined') {
+            document.write('<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>');
+        }
+    </script>
+    <script>
+        // Another fallback 
+        if (typeof jQuery === 'undefined') {
+            document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"><\/script>');
+        }
+    </script>
+    <script>
+        // Admin Bot Functions
+        function openCreateAdminBotModal() {
+            document.getElementById('createAdminBotModal').style.display = 'flex';
+        }
+
+        function closeCreateAdminBotModal() {
+            document.getElementById('createAdminBotModal').style.display = 'none';
+        }
+
+        function createAdminBot() {
+            const formData = {
+                token: $('#admin_bot_token').val(),
+                admin_users: $('#admin_users').val().split(',').map(id => parseInt(id.trim())),
+                notifications: {
+                    bot_status: $('#notify_bot_status').is(':checked'),
+                    high_cpu: $('#notify_high_cpu').is(':checked'),
+                    errors: $('#notify_errors').is(':checked'),
+                    weekly_stats: $('#weekly_stats').is(':checked')
+                }
+            };
+            
+            $('.submit-btn .spinner').removeClass('hidden');
+            $('.submit-btn').prop('disabled', true);
+            
+            $.ajax({
+                url: '/api/admin-bot',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    closeCreateAdminBotModal();
+                    updateAdminBotStatus();
+                    alert('✅ Административный бот создан и запущен!');
+                },
+                error: function(xhr) {
+                    alert('❌ Ошибка: ' + (xhr.responseJSON?.message || 'Неизвестная ошибка'));
+                },
+                complete: function() {
+                    $('.submit-btn .spinner').addClass('hidden');
+                    $('.submit-btn').prop('disabled', false);
+                }
+            });
+        }
+
+        function updateAdminBotStatus() {
+            $.ajax({
+                url: '/api/admin-bot',
+                method: 'GET',
+                success: function(response) {
+                    const statusElement = $('#adminBotStatus');
+                    if (response.enabled) {
+                        statusElement.html(`
+                            <span class="status-badge running">Активен</span>
+                            <button class="btn-secondary" onclick="stopAdminBot()">
+                                <i class="fas fa-stop"></i> Остановить
+                            </button>
+                        `);
+                    } else {
+                        statusElement.html(`
+                            <span class="status-badge stopped">Неактивен</span>
+                            <button class="btn-primary" onclick="openCreateAdminBotModal()">
+                                <i class="fas fa-plus"></i> Создать админ-бота
+                            </button>
+                        `);
+                    }
+                },
+                error: function() {
+                    console.log('Ошибка получения статуса админ-бота');
+                }
+            });
+        }
+
+        function stopAdminBot() {
+            if (confirm('Остановить административного бота?')) {
+                $.ajax({
+                    url: '/api/admin-bot',
+                    method: 'DELETE',
+                    success: function(response) {
+                        updateAdminBotStatus();
+                        alert('✅ Административный бот остановлен');
+                    },
+                    error: function(xhr) {
+                        alert('❌ Ошибка: ' + (xhr.responseJSON?.message || 'Неизвестная ошибка'));
+                    }
+                });
+            }
+        }
+
+        // Edit Bot Functions
+        function closeEditBotModal() {
+            $('#editBotModal').removeClass('show');
+        }
+        
+        // Modal Tab Functions
+        function switchModalTab(tabName) {
+            // Remove active class from all tabs and content
+            $('.tab-btn').removeClass('active');
+            $('.tab-content').removeClass('active');
+            
+            // Add active class to clicked tab and corresponding content
+            $(`[onclick="switchModalTab('${tabName}')"]`).addClass('active');
+            $(`#${tabName}-tab`).addClass('active');
+        }
+        
+        // Marketplace Toggle Functions
+        function toggleMarketplaceFields() {
+            const isEnabled = $('#edit_marketplace_enabled').is(':checked');
+            const fields = $('#marketplace-fields');
+            
+            if (isEnabled) {
+                fields.addClass('enabled').show();
+            } else {
+                fields.removeClass('enabled').hide();
+            }
+        }
+
+        function loadBotData(botId) {
+            $.ajax({
+                url: `/api/v2/bots/${botId}`,
+                method: 'GET',
+                success: function(response) {
+                    // API v2 returns data in {success: true, data: {...}} format
+                    const bot = response.data || response;
+                    
+                    if (!bot || !bot.config) {
+                        alert('❌ Ошибка: неверный формат данных бота');
+                        return;
+                    }
+                    
+                    // Fill form fields with bot data
+                    $('#edit_bot_id').val(bot.id);
+                    $('#edit_bot_name').val(bot.name || '');
+                    $('#edit_telegram_token').val(bot.config.telegram_token || '');
+                    $('#edit_openai_api_key').val(bot.config.openai_api_key || '');
+                    $('#edit_assistant_id').val(bot.config.assistant_id || '');
+                    $('#edit_group_context_limit').val(bot.config.group_context_limit || 15);
+                    $('#edit_enable_ai_responses').prop('checked', bot.config.enable_ai_responses !== false);
+                    $('#edit_enable_voice_responses').prop('checked', bot.config.enable_voice_responses === true);
+                    
+                    // Marketplace fields
+                    const marketplace = bot.config.marketplace || {};
+                    $('#edit_marketplace_enabled').prop('checked', marketplace.enabled === true);
+                    $('#edit_marketplace_title').val(marketplace.title || '');
+                    $('#edit_marketplace_description').val(marketplace.description || '');
+                    $('#edit_marketplace_category').val(marketplace.category || 'other');
+                    $('#edit_marketplace_tags').val(marketplace.tags ? marketplace.tags.join(', ') : '');
+                    $('#edit_marketplace_image_url').val(marketplace.image_url || '');
+                    $('#edit_marketplace_website').val(marketplace.website || '');
+                    $('#edit_marketplace_featured').prop('checked', marketplace.featured === true);
+                    
+                    // Show image preview if exists
+                    if (marketplace.image_url) {
+                        showImagePreview(marketplace.image_url);
+                    } else {
+                        removeImagePreview();
+                    }
+                    
+                    // Toggle marketplace fields visibility
+                    toggleMarketplaceFields();
+                },
+                error: function(xhr) {
+                    alert('❌ Ошибка загрузки данных бота: ' + (xhr.responseJSON?.error || xhr.responseJSON?.message || 'Неизвестная ошибка'));
+                }
+            });
+        }
+
+        function updateBot() {
+            console.log('🔧 updateBot() called');
+            const botId = $('#edit_bot_id').val();
+            
+            // Debug: check if save button is disabled
+            if ($('.submit-btn').prop('disabled')) {
+                console.warn('⚠️ Save button is disabled, but updateBot() was called');
+                $('.submit-btn').prop('disabled', false);
+            }
+            
+            const formData = {
+                name: $('#edit_bot_name').val(),
+                config: {
+                    telegram_token: $('#edit_telegram_token').val(),
+                    openai_api_key: $('#edit_openai_api_key').val(),
+                    assistant_id: $('#edit_assistant_id').val(),
+                    group_context_limit: parseInt($('#edit_group_context_limit').val()),
+                    enable_ai_responses: $('#edit_enable_ai_responses').is(':checked'),
+                    enable_voice_responses: $('#edit_enable_voice_responses').is(':checked'),
+                    marketplace: {
+                        enabled: $('#edit_marketplace_enabled').is(':checked'),
+                        title: $('#edit_marketplace_title').val() || '',
+                        description: $('#edit_marketplace_description').val() || '',
+                        category: $('#edit_marketplace_category').val() || 'other',
+                        tags: $('#edit_marketplace_tags').val().split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
+                        image_url: $('#edit_marketplace_image_url').val() || '',
+                        website: $('#edit_marketplace_website').val() || '',
+                        featured: $('#edit_marketplace_featured').is(':checked'),
+                        last_updated: new Date().toISOString()
+                    }
+                }
+            };
+            
+            console.log('📤 Sending formData:', formData);
+            
+            $('.submit-btn .spinner').removeClass('hidden');
+            $('.submit-btn').prop('disabled', true);
+            
+            $.ajax({
+                url: `/api/v2/bots/${botId}`,
+                method: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    closeEditBotModal();
+                    location.reload();
+                    alert('✅ Бот успешно обновлен!');
+                },
+                error: function(xhr) {
+                    alert('❌ Ошибка: ' + (xhr.responseJSON?.message || 'Неизвестная ошибка'));
+                },
+                complete: function() {
+                    $('.submit-btn .spinner').addClass('hidden');
+                    $('.submit-btn').prop('disabled', false);
+                }
+            });
+        }
+
         // Authentication
         function checkAuthStatus() {
             $.ajax({
@@ -894,6 +1770,57 @@
             });
         }
         
+        // Auto-fill bot name from Telegram token
+        function validateTokenAndFetchBotName() {
+            const token = $('#telegram_token').val().trim();
+            const statusDiv = $('#token_validation_status');
+            const botNameInput = $('#bot_name');
+            
+            if (!token) {
+                statusDiv.removeClass('success error loading').text('');
+                return;
+            }
+            
+            // Basic token format validation
+            if (!token.includes(':') || token.split(':').length !== 2) {
+                statusDiv.removeClass('success loading').addClass('error').text('❌ Неверный формат токена');
+                return;
+            }
+            
+            // Show loading
+            statusDiv.removeClass('success error').addClass('loading').text('🔄 Проверка токена...');
+            
+            // Fetch bot info from Telegram API
+            $.ajax({
+                url: '/api/v2/telegram/validate-token',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ token: token }),
+                success: function(response) {
+                    if (response.success === true && response.data) {
+                        const botInfo = response.data;
+                        statusDiv.removeClass('loading error').addClass('success')
+                               .text(`✅ ${botInfo.display_name || botInfo.username || 'Бот найден'}`);
+                        
+                        // Auto-fill bot name if empty
+                        if (!botNameInput.val() || botNameInput.val() === botNameInput.attr('placeholder')) {
+                            botNameInput.val(botInfo.display_name || botInfo.username || `Bot ${token.split(':')[0]}`);
+                        }
+                    } else {
+                        statusDiv.removeClass('loading success').addClass('error')
+                               .text('❌ Не удалось получить информацию о боте');
+                    }
+                },
+                error: function(xhr) {
+                    let errorMsg = '❌ Ошибка проверки токена';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = `❌ ${xhr.responseJSON.message}`;
+                    }
+                    statusDiv.removeClass('loading success').addClass('error').text(errorMsg);
+                }
+            });
+        }
+
         function createBot() {
             const formData = {
                 bot_name: $('#bot_name').val(),
@@ -928,6 +1855,24 @@
             });
         }
         
+        // Initialize event handlers when page loads
+        $(document).ready(function() {
+            // Auto-validate token and fetch bot name on input change
+            $('#telegram_token').on('input', function() {
+                // Debounce the API call
+                clearTimeout(window.tokenValidationTimeout);
+                window.tokenValidationTimeout = setTimeout(function() {
+                    validateTokenAndFetchBotName();
+                }, 1000); // Wait 1 second after user stops typing
+            });
+            
+            // Reset form when modal opens
+            $('#createBotModal').on('show.bs.modal', function() {
+                $('#bot_name').attr('placeholder', 'Автоматически заполнится после ввода токена');
+                $('#token_validation_status').removeClass('success error loading').text('');
+            });
+        });
+
         function updateStats() {
             const totalBots = $('.bot-card').length;
             const activeBots = $('.bot-card[data-status="running"]').length;
@@ -951,6 +1896,7 @@
         // Event Handlers
         $(document).ready(function() {
             checkAuthStatus();
+            updateAdminBotStatus();
             
             $('#searchInput').on('input', filterBots);
             
@@ -973,6 +1919,18 @@
                 e.preventDefault();
                 createBot();
             });
+            
+            // Admin bot form handler
+            $('#createAdminBotForm').on('submit', function(e) {
+                e.preventDefault();
+                createAdminBot();
+            });
+            
+            // Edit bot form handler
+            $('#editBotForm').on('submit', function(e) {
+                e.preventDefault();
+                updateBot();
+            });
         });
         
         // Bot Actions Event Handlers
@@ -994,7 +1952,193 @@
         });
         
         $('#botsGrid').on('click', '.edit-btn', function() {
-            alert('Редактирование будет реализовано в следующей версии');
+            const botCard = $(this).closest('.bot-card');
+            const botId = botCard.data('bot-id');
+            
+            // Загружаем данные бота и показываем модальное окно
+            loadBotData(botId);
+            $('#editBotModal').addClass('show');
+            
+            // Reset to basic tab
+            switchModalTab('basic');
+        });
+        
+        // Marketplace toggle event
+        $(document).on('change', '#edit_marketplace_enabled', function() {
+            toggleMarketplaceFields();
+        });
+        
+        // Image Upload Functions
+        function switchUploadTab(tab) {
+            // Remove active class from tabs
+            $('.upload-tab-btn').removeClass('active');
+            $('.upload-tab-content').removeClass('active');
+            
+            // Add active class to selected tab
+            $(`[onclick="switchUploadTab('${tab}')"]`).addClass('active');
+            $(`#${tab}-tab`).addClass('active');
+        }
+        
+        function previewUrlImage() {
+            const url = $('#edit_marketplace_image_url').val();
+            if (!url) return;
+            
+            showImagePreview(url);
+        }
+        
+        function showImagePreview(src) {
+            $('#edit_preview_img').attr('src', src);
+            $('#edit_image_preview').show();
+            
+            // Ensure save button is always enabled after preview
+            $('.submit-btn').prop('disabled', false);
+            console.log('✅ Image preview shown, save button enabled');
+        }
+        
+        function removeImagePreview() {
+            $('#edit_image_preview').hide();
+            $('#edit_preview_img').attr('src', '');
+            $('#edit_marketplace_image_url').val('');
+            
+            // Reset file input
+            $('#avatar-file-input').val('');
+            
+            // Reset upload area
+            $('.upload-placeholder').show();
+            $('.upload-progress').hide();
+        }
+        
+        function uploadFile(file) {
+            if (!file) return;
+            
+            // Validate file
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+            
+            if (file.size > maxSize) {
+                alert('Файл слишком большой. Максимальный размер: 5MB');
+                return;
+            }
+            
+            if (!allowedTypes.includes(file.type)) {
+                alert('Неподдерживаемый тип файла. Используйте PNG, JPG, GIF или WebP');
+                return;
+            }
+            
+            // Show progress
+            $('.upload-placeholder').hide();
+            $('.upload-progress').show();
+            
+            // Don't disable save button during upload - user should be able to save
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('avatar', file);
+            
+            // Upload with progress
+            $.ajax({
+                url: '/api/v2/upload/avatar',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                xhr: function() {
+                    const xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            const percentComplete = (e.loaded / e.total) * 100;
+                            $('.progress-fill').css('width', percentComplete + '%');
+                            $('.progress-text').text(`Загрузка: ${Math.round(percentComplete)}%`);
+                        }
+                    });
+                    return xhr;
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const fileUrl = response.data.file_url;
+                        $('#edit_marketplace_image_url').val(fileUrl);
+                        showImagePreview(fileUrl);
+                        
+                        // Hide progress and show success
+                        $('.upload-progress').hide();
+                        $('.upload-placeholder').show();
+                        $('.progress-text').text('Загружено!');
+                        
+                        // Re-enable save button if it was disabled
+                        $('.submit-btn').prop('disabled', false);
+                        
+                        console.log('Файл загружен:', response.data);
+                    } else {
+                        throw new Error(response.error || 'Upload failed');
+                    }
+                },
+                error: function(xhr) {
+                    const error = xhr.responseJSON?.error || 'Ошибка загрузки файла';
+                    alert('Ошибка: ' + error);
+                    
+                    // Reset upload area
+                    $('.upload-progress').hide();
+                    $('.upload-placeholder').show();
+                    $('#avatar-file-input').val('');
+                    
+                    // Re-enable save button if it was disabled
+                    $('.submit-btn').prop('disabled', false);
+                }
+            });
+        }
+        
+        // File upload event handlers
+        $(document).ready(function() {
+            const fileInput = $('#avatar-file-input');
+            const uploadArea = $('#file-upload-area');
+            
+            // Click to select file
+            uploadArea.on('click', function() {
+                fileInput.click();
+            });
+            
+            // File selection
+            fileInput.on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    uploadFile(file);
+                }
+            });
+            
+            // Drag and drop
+            uploadArea.on('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).addClass('dragover');
+            });
+            
+            uploadArea.on('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('dragover');
+            });
+            
+            uploadArea.on('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('dragover');
+                
+                const files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    console.log('🔄 Drag & Drop: Starting file upload');
+                    
+                    // Ensure save button is enabled before upload
+                    $('.submit-btn').prop('disabled', false);
+                    
+                    uploadFile(files[0]);
+                    
+                    // Set a fallback timeout to re-enable button
+                    setTimeout(function() {
+                        $('.submit-btn').prop('disabled', false);
+                        console.log('⏰ Fallback: Save button re-enabled after timeout');
+                    }, 10000); // 10 seconds fallback
+                }
+            });
         });
     </script>
 </body>

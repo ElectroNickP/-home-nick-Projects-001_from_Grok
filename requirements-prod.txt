@@ -1,0 +1,21 @@
+# Production dependencies for Telegram Bot Manager
+# Core AI and messaging
+openai>=1.0.0
+aiogram>=3.0.0
+python-dotenv>=1.0.0
+pydub>=0.25.0
+
+# Web framework and API
+flask>=2.3.0
+flask_httpauth>=4.8.0
+flask-restx>=1.3.0
+marshmallow>=3.20.0
+
+# System utilities and image processing
+psutil>=5.9.0
+Pillow>=10.0.0
+
+# Data validation and HTTP
+jsonschema>=4.0.0
+PyYAML>=6.0.0
+requests>=2.31.0

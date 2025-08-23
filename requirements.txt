@@ -1,17 +1,29 @@
-openai
-aiogram
-python-dotenv
-pydub
-flask
-flask_httpauth
-flask-restx
-marshmallow
-psutil
-pytest
-pytest-asyncio
-pytest-cov
-pytest-html
-pytest-mock
-requests
-selenium
-locust
+# Core dependencies
+openai>=1.0.0
+aiogram>=3.0.0
+python-dotenv>=1.0.0
+pydub>=0.25.0
+
+# Web framework
+flask>=2.3.0
+flask_httpauth>=4.8.0
+flask-restx>=1.3.0
+marshmallow>=3.20.0
+
+# System utilities
+psutil>=5.9.0
+Pillow>=10.0.0
+
+# API validation
+jsonschema>=4.0.0
+PyYAML>=6.0.0
+requests>=2.31.0
+
+# Development and testing (optional for prod)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0  
+pytest-cov>=4.1.0
+pytest-html>=3.2.0
+pytest-mock>=3.11.0
+selenium>=4.15.0
+locust>=2.17.0

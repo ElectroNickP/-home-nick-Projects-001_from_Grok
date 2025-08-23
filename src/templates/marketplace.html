@@ -8,6 +8,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
     <title>🔮 ELECTRONICK AI Market - Future Fluid Glass-Tech</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="/static/favicon.png">
     
     <!-- Preload fonts for premium typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -963,14 +965,27 @@
         }
         
         function createBotCard(bot) {
+            // Generate bot avatar
+            const avatarContent = bot.image_url ? 
+                `<img src="${bot.image_url}" alt="${bot.title || bot.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">
+                 <i class="fas fa-robot" style="display: none; font-size: 32px; color: var(--primary);"></i>` :
+                `<i class="fas fa-robot" style="font-size: 32px; color: var(--primary);"></i>`;
+            
+            // Featured badge
+            const featuredBadge = bot.featured ? '<div class="featured-badge" style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: bold;"><i class="fas fa-star"></i> Featured</div>' : '';
+            
+            // Users count display
+            const usersDisplay = bot.total_users > 0 ? `<div class="bot-users" style="text-align: center; margin: 8px 0; color: var(--text-secondary); font-size: 12px;"><i class="fas fa-users"></i> ${bot.total_users} users</div>` : '';
+            
             const card = $(`
-                <div class="bot-holo" style="opacity: 0; transform: translateY(30px); transition: all 0.6s ease;">
+                <div class="bot-holo" style="opacity: 0; transform: translateY(30px); transition: all 0.6s ease; position: relative;">
+                    ${featuredBadge}
                     <div class="bot-avatar">
-                        <i class="fas fa-robot"></i>
+                        ${avatarContent}
                     </div>
                     <h3 class="bot-title">${bot.title || bot.name || 'Unknown Bot'}</h3>
                     <div class="bot-username">@${bot.username || 'unknown'}</div>
-                    <p class="bot-description">${(bot.description || 'No description available').substring(0, 120)}...</p>
+                    <p class="bot-description">${(bot.description || 'No description available').substring(0, 120)}${(bot.description && bot.description.length > 120) ? '...' : ''}</p>
                     
                     <div class="bot-meta">
                         <div class="bot-rating">
@@ -982,8 +997,10 @@
                         </div>
                     </div>
                     
+                    ${usersDisplay}
+                    
                     <div class="bot-tags">
-                        ${(bot.tags || [bot.category]).slice(0, 3).map(tag => 
+                        ${(bot.tags || [bot.category]).filter(tag => tag).slice(0, 3).map(tag => 
                             `<span class="tag">${tag}</span>`
                         ).join('')}
                     </div>
@@ -1103,22 +1120,41 @@
             const modal = $('#botModal');
             const content = $('#modalContent');
             
+            // Generate bot avatar for details
+            const detailAvatarContent = bot.image_url ? 
+                `<img src="${bot.image_url}" alt="${bot.title || bot.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">
+                 <i class="fas fa-robot" style="display: none; font-size: 32px; color: var(--primary);"></i>` :
+                `<i class="fas fa-robot" style="font-size: 32px; color: var(--primary);"></i>`;
+            
+            // Featured status
+            const featuredStatus = bot.featured ? '<span style="color: var(--primary);"><i class="fas fa-star"></i> Featured Bot</span>' : '';
+            
+            // Website link
+            const websiteLink = bot.website ? 
+                `<div style="margin-bottom: 16px; text-align: center;">
+                    <a href="${bot.website}" target="_blank" class="btn-fluid btn-ghost" style="margin-right: 8px;">
+                        <i class="fas fa-globe"></i>
+                        Visit Website
+                    </a>
+                </div>` : '';
+            
             content.html(`
                 <div style="text-align: center; margin-bottom: 32px;">
-                    <div class="bot-avatar" style="margin: 0 auto 20px;">
-                        <i class="fas fa-robot"></i>
+                    <div class="bot-avatar" style="margin: 0 auto 20px; width: 80px; height: 80px;">
+                        ${detailAvatarContent}
                     </div>
                     <h2 class="bot-title">${bot.title || bot.name || 'Unknown Bot'}</h2>
                     <div class="bot-username">@${bot.username}</div>
+                    ${featuredStatus ? `<div style="margin-top: 8px;">${featuredStatus}</div>` : ''}
                 </div>
                 
                 <div style="margin-bottom: 24px;">
-                    <h4 style="color: var(--text-primary); margin-bottom: 12px;">Description</h4>
+                    <h4 style="color: var(--text-primary); margin-bottom: 12px;"><i class="fas fa-info-circle"></i> Description</h4>
                     <p style="color: var(--text-secondary); line-height: 1.6;">${bot.description || 'No description available'}</p>
                 </div>
                 
                 <div style="margin-bottom: 24px;">
-                    <h4 style="color: var(--text-primary); margin-bottom: 12px;">Details</h4>
+                    <h4 style="color: var(--text-primary); margin-bottom: 12px;"><i class="fas fa-cog"></i> Details</h4>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                         <div>
                             <strong style="color: var(--primary);">Category:</strong><br>
@@ -1126,7 +1162,8 @@
                         </div>
                         <div>
                             <strong style="color: var(--primary);">Rating:</strong><br>
-                            <span style="color: var(--text-secondary);">${bot.rating || 0}/5</span>
+                            <div class="stars" style="margin-top: 4px;">${generateStars(bot.rating || 0)}</div>
+                            <span style="color: var(--text-secondary);">(${bot.rating || 0}/5)</span>
                         </div>
                         <div>
                             <strong style="color: var(--primary);">Status:</strong><br>
@@ -1134,8 +1171,25 @@
                                 ${bot.status === 'running' ? 'Online' : 'Offline'}
                             </span>
                         </div>
+                        ${bot.total_users > 0 ? `
+                        <div>
+                            <strong style="color: var(--primary);">Users:</strong><br>
+                            <span style="color: var(--text-secondary);"><i class="fas fa-users"></i> ${bot.total_users}</span>
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
+                
+                ${(bot.tags && bot.tags.length > 0) ? `
+                <div style="margin-bottom: 24px;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 12px;"><i class="fas fa-tags"></i> Tags</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        ${bot.tags.map(tag => `<span class="tag" style="background: rgba(65, 242, 255, 0.1); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 12px;">${tag}</span>`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${websiteLink}
                 
                 <div style="text-align: center; margin-top: 32px;">
                     <a href="https://t.me/${bot.username}" class="btn-fluid" target="_blank" style="margin-right: 12px;">
