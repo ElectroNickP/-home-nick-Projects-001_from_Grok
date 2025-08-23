@@ -25,7 +25,7 @@ class Colors:
 def print_header():
     """Print application header"""
     print(f"\n{Colors.PURPLE}{'='*60}{Colors.END}")
-    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.7.2 - Debug Virtual Environment{Colors.END}")
+    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.7.3 - Fixed Virtual Environment Bug{Colors.END}")
     print(f"{Colors.PURPLE}{'='*60}{Colors.END}\n")
 
 def print_success(message):
@@ -69,18 +69,8 @@ def check_virtual_env():
             print_error("Failed to create virtual environment")
             return False
     
-    # Check if we're in virtual environment  
-    if hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
-        print_success("Already in virtual environment")
-        # Still return venv Python path, not system Python
-        if platform.system() == "Windows":
-            python_exe = venv_path / "Scripts" / "python.exe"
-        else:
-            python_exe = venv_path / "bin" / "python"
-        resolved_path = python_exe.resolve()
-        print_info(f"🔄 Returning venv Python path: {resolved_path}")  
-        print_info(f"📂 Path exists: {resolved_path.exists()}")
-        return resolved_path
+    # ALWAYS use venv Python, regardless of current environment
+    # The old logic was buggy and returned system Python
     
     # Get activation script path
     if platform.system() == "Windows":
@@ -96,19 +86,11 @@ def check_virtual_env():
     
     print_success("Virtual environment ready")
     # Return absolute path as string to ensure compatibility
-    resolved_path = python_exe.resolve()
-    print_info(f"🔄 Returning Python path: {resolved_path}")
-    print_info(f"📂 Path exists: {resolved_path.exists()}")
-    return resolved_path
+    return python_exe.resolve()
 
 def install_dependencies(python_exe):
     """Install required dependencies"""
     print_info("Checking dependencies...")
-    
-    # Debug: Show which Python we're using
-    print_info(f"🐍 Using Python: {python_exe}")
-    print_info(f"🔍 Python type: {type(python_exe)}")
-    print_info(f"📁 Python exists: {Path(python_exe).exists()}")
     
     try:
         # Check if requirements.txt exists
@@ -117,7 +99,6 @@ def install_dependencies(python_exe):
             return False
         
         # Install dependencies
-        print_info(f"🔧 Installing with: {str(python_exe)}")
         subprocess.run([
             str(python_exe), "-m", "pip", "install", "-r", "requirements.txt", "--quiet"
         ], check=True)
@@ -246,7 +227,7 @@ def print_help():
     print("  • Port detection and conflict resolution")
     print("  • Professional error handling")
     print("  • Production-ready deployment")
-    print(f"\nVersion: v3.7.2 - Debug Virtual Environment{Colors.END}\n")
+    print(f"\nVersion: v3.7.3 - Fixed Virtual Environment Bug{Colors.END}\n")
 
 if __name__ == "__main__":
     # Check for help flag
