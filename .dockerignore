@@ -1,0 +1,32 @@
+# Docker ignore для тестирования развертывания
+
+# Virtual environments
+venv/
+__pycache__/
+*.pyc
+
+# Logs and temporary files  
+*.log
+*.tmp
+*.temp
+*.pid
+
+# Development files
+.git/
+.vscode/
+.idea/
+
+# Test results
+test-results/
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Development configs that shouldn't be in container
+bot_configs.json
+src/bot_configs.json
+
+# Node modules if any
+node_modules/
