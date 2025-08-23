@@ -25,7 +25,7 @@ class Colors:
 def print_header():
     """Print application header"""
     print(f"\n{Colors.PURPLE}{'='*60}{Colors.END}")
-    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.7.5 - FINAL FIX: No Symlink Resolve{Colors.END}")
+    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.7.6 - Complete Symlink Fix{Colors.END}")
     print(f"{Colors.PURPLE}{'='*60}{Colors.END}\n")
 
 def print_success(message):
@@ -135,8 +135,8 @@ def start_application(python_exe, port=5000, host='127.0.0.1'):
     """Start the Flask application"""
     print_info(f"Starting application on {host}:{port}...")
     
-    # Get absolute path to python executable before changing directory
-    python_exe_abs = Path(python_exe).resolve()
+    # Get absolute path to python executable before changing directory (don't resolve symlinks!)
+    python_exe_abs = Path(python_exe).absolute()
     
     # Set environment variables
     env = os.environ.copy()
@@ -227,7 +227,7 @@ def print_help():
     print("  • Port detection and conflict resolution")
     print("  • Professional error handling")
     print("  • Production-ready deployment")
-    print(f"\nVersion: v3.7.5 - FINAL FIX: No Symlink Resolve{Colors.END}\n")
+    print(f"\nVersion: v3.7.6 - Complete Symlink Fix{Colors.END}\n")
 
 if __name__ == "__main__":
     # Check for help flag
