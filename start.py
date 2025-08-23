@@ -25,7 +25,7 @@ class Colors:
 def print_header():
     """Print application header"""
     print(f"\n{Colors.PURPLE}{'='*60}{Colors.END}")
-    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.6.0 - Professional Entry Point{Colors.END}")
+    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.7.0 - Production Ready{Colors.END}")
     print(f"{Colors.PURPLE}{'='*60}{Colors.END}\n")
 
 def print_success(message):
@@ -229,7 +229,7 @@ def print_help():
     print("  • Port detection and conflict resolution")
     print("  • Professional error handling")
     print("  • Production-ready deployment")
-    print(f"\nVersion: v3.6.0{Colors.END}\n")
+    print(f"\nVersion: v3.7.0 - Production Ready{Colors.END}\n")
 
 if __name__ == "__main__":
     # Check for help flag
