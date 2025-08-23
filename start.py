@@ -136,6 +136,9 @@ def start_application(python_exe, port=5000, host='127.0.0.1'):
     """Start the Flask application"""
     print_info(f"Starting application on {host}:{port}...")
     
+    # Get absolute path to python executable before changing directory
+    python_exe_abs = Path(python_exe).resolve()
+    
     # Set environment variables
     env = os.environ.copy()
     env['PYTHONPATH'] = str(Path.cwd())
@@ -156,7 +159,7 @@ def start_application(python_exe, port=5000, host='127.0.0.1'):
         
         # Run the application
         subprocess.run([
-            str(python_exe), "app.py"
+            str(python_exe_abs), "app.py"
         ], env=env, check=True)
         
     except KeyboardInterrupt:
