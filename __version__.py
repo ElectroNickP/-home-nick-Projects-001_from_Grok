@@ -41,11 +41,11 @@ def get_version():
                             return line.split('"')[1]
         
         # Ultimate fallback
-        return "3.8.1"
+        return "3.8.2"
         
     except Exception:
         # If anything fails, return fallback version
-        return "3.8.1"
+        return "3.8.2"
 
 def get_version_info():
     """
@@ -57,7 +57,7 @@ def get_version_info():
     return {
         "version": get_version(),
         "name": "Telegram Bot Manager",
-        "description": "Smart Port Management & Auto-Cleanup"
+        "description": "Fixed Admin Bot Configuration Persistence"
     }
 
 def get_full_version():

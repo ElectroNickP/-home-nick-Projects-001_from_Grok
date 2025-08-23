@@ -75,6 +75,9 @@ def create_admin_bot():
                 ),
             }
         )
+        
+        # Сохраняем конфигурацию в файл
+        cm.save_configs_async()
 
         # Запускаем админ-бота
         try:
@@ -142,6 +145,9 @@ def stop_admin_bot():
         cm.ADMIN_BOT_CONFIG["enabled"] = False
         cm.ADMIN_BOT_CONFIG["token"] = ""
         cm.ADMIN_BOT_CONFIG["admin_users"] = []
+        
+        # Сохраняем конфигурацию в файл
+        cm.save_configs_async()
 
         logger.info("Административный бот остановлен")
         return jsonify({"success": True, "message": "Административный бот остановлен"})

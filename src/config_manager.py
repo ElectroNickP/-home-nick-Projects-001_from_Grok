@@ -27,27 +27,38 @@ ADMIN_BOT_CONFIG = {
 
 def load_configs():
     """Загружает конфигурации ботов из файла"""
-    global NEXT_BOT_ID
+    global NEXT_BOT_ID, ADMIN_BOT_CONFIG
     try:
         if os.path.exists(CONFIG_FILE):
             with open(CONFIG_FILE) as f:
                 data = json.load(f)
                 BOT_CONFIGS.clear()
-                for k, v in data["bots"].items():
-                    # Восстанавливаем полную структуру бота с runtime полями
-                    # При загрузке все боты останавливаются (runtime объекты не сохраняются)
-                    bot_entry = {
-                        "id": v["id"],
-                        "config": v["config"],
-                        "status": "stopped",  # Принудительно останавливаем все боты при перезапуске
-                        "thread": None,
-                        "loop": None,
-                        "stop_event": None,
-                    }
-                    BOT_CONFIGS[int(k)] = bot_entry
+                
+                # Загрузка обычных ботов
+                if "bots" in data:
+                    for k, v in data["bots"].items():
+                        # Восстанавливаем полную структуру бота с runtime полями
+                        # При загрузке все боты останавливаются (runtime объекты не сохраняются)
+                        bot_entry = {
+                            "id": v["id"],
+                            "config": v["config"],
+                            "status": "stopped",  # Принудительно останавливаем все боты при перезапуске
+                            "thread": None,
+                            "loop": None,
+                            "stop_event": None,
+                        }
+                        BOT_CONFIGS[int(k)] = bot_entry
 
-                NEXT_BOT_ID = max([int(k) for k in data["bots"].keys()] + [0]) + 1
-                logger.info(f"Конфигурации ботов загружены из файла: {len(BOT_CONFIGS)} ботов")
+                    NEXT_BOT_ID = max([int(k) for k in data["bots"].keys()] + [0]) + 1
+                    logger.info(f"Конфигурации ботов загружены из файла: {len(BOT_CONFIGS)} ботов")
+                
+                # Загрузка admin bot конфигурации
+                if "admin_bot" in data and data["admin_bot"]:
+                    ADMIN_BOT_CONFIG.update(data["admin_bot"])
+                    logger.info("Admin bot конфигурация загружена из файла")
+                else:
+                    logger.info("Admin bot конфигурация не найдена в файле, используются значения по умолчанию")
+                    
         else:
             logger.info(f"Файл {CONFIG_FILE} не существует, будет создан новый")
     except Exception as e:
@@ -106,12 +117,17 @@ def save_configs():
                 }
                 clean_configs[str(k)] = clean_bot
 
-            data = {"bots": clean_configs}
+            # Сохраняем обычные боты И admin bot конфигурацию
+            data = {
+                "bots": clean_configs,
+                "admin_bot": ADMIN_BOT_CONFIG.copy()  # Добавляем admin bot конфигурацию
+            }
+            
             temp_file = CONFIG_FILE + ".tmp"
-            with open(temp_file, "w") as f:
-                json.dump(data, f, indent=2)
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
             os.replace(temp_file, CONFIG_FILE)
-            logger.info("Конфигурации ботов сохранены в файл")
+            logger.info("Конфигурации ботов и admin bot сохранены в файл")
     except Exception as e:
         logger.error(f"Ошибка сохранения конфигураций: {e}")
         raise
