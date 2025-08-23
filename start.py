@@ -9,6 +9,11 @@ import sys
 import subprocess
 import platform
 from pathlib import Path
+import signal
+import time
+
+# PID file path  
+PID_FILE = Path.cwd() / "telegram-bot-manager.pid"
 
 # Colors for terminal output
 class Colors:
@@ -47,6 +52,119 @@ def print_error(message):
 def print_warning(message):
     """Print warning message"""
     print(f"{Colors.YELLOW}⚠️ {message}{Colors.END}")
+
+def daemonize():
+    """
+    Daemonize the current process - detach from terminal and run in background
+    Professional Unix daemon implementation
+    """
+    try:
+        # First fork
+        if os.fork() > 0:
+            sys.exit(0)  # Exit parent process
+    except OSError as e:
+        print_error(f"Fork #1 failed: {e}")
+        sys.exit(1)
+        
+    # Decouple from parent environment
+    os.chdir("/")
+    os.setsid() 
+    os.umask(0)
+    
+    # Second fork  
+    try:
+        if os.fork() > 0:
+            sys.exit(0)  # Exit second parent process
+    except OSError as e:
+        print_error(f"Fork #2 failed: {e}")
+        sys.exit(1)
+        
+    # Redirect standard file descriptors
+    sys.stdout.flush()
+    sys.stderr.flush()
+    
+    # Redirect stdin/stdout/stderr to /dev/null
+    with open('/dev/null', 'r') as f:
+        os.dup2(f.fileno(), sys.stdin.fileno())
+    with open('/dev/null', 'w') as f:
+        os.dup2(f.fileno(), sys.stdout.fileno())
+        os.dup2(f.fileno(), sys.stderr.fileno())
+
+def create_pid_file():
+    """Create PID file for daemon management"""
+    try:
+        with open(PID_FILE, 'w') as f:
+            f.write(str(os.getpid()))
+        print_success(f"PID file created: {PID_FILE}")
+        return True
+    except Exception as e:
+        print_error(f"Failed to create PID file: {e}")
+        return False
+
+def remove_pid_file():
+    """Remove PID file"""
+    try:
+        if PID_FILE.exists():
+            PID_FILE.unlink()
+        return True
+    except Exception as e:
+        print_error(f"Failed to remove PID file: {e}")
+        return False
+
+def get_daemon_pid():
+    """Get PID of running daemon"""
+    try:
+        if PID_FILE.exists():
+            with open(PID_FILE, 'r') as f:
+                pid = int(f.read().strip())
+                # Check if process is still running
+                try:
+                    os.kill(pid, 0)  # Signal 0 just checks if process exists
+                    return pid
+                except OSError:
+                    # Process is dead, remove stale PID file
+                    remove_pid_file()
+                    return None
+        return None
+    except Exception:
+        return None
+
+def stop_daemon():
+    """Stop running daemon"""
+    pid = get_daemon_pid()
+    if pid is None:
+        print_warning("No daemon is currently running")
+        return False
+        
+    try:
+        print_info(f"Stopping daemon (PID: {pid})...")
+        os.kill(pid, signal.SIGTERM)
+        
+        # Wait for process to stop (max 10 seconds)
+        for i in range(10):
+            try:
+                os.kill(pid, 0)
+                time.sleep(1)
+            except OSError:
+                break
+        else:
+            # Force kill if still running
+            print_warning("Daemon didn't stop gracefully, force killing...")
+            os.kill(pid, signal.SIGKILL)
+            
+        remove_pid_file()
+        print_success("Daemon stopped successfully")
+        return True
+        
+    except OSError as e:
+        print_error(f"Failed to stop daemon: {e}")
+        return False
+
+def signal_handler(signum, frame):
+    """Handle shutdown signals gracefully"""
+    print_info(f"Received signal {signum}, shutting down...")
+    remove_pid_file()
+    sys.exit(0)
 
 def print_info(message):
     """Print info message"""
@@ -210,6 +328,39 @@ def main():
         # Check for daemon mode
         daemon_mode = '--daemon' in sys.argv or '-d' in sys.argv
         
+        if daemon_mode:
+            # Check if daemon is already running
+            existing_pid = get_daemon_pid()
+            if existing_pid:
+                print_warning(f"Daemon is already running (PID: {existing_pid})")
+                print_info("Use 'python start.py --stop' to stop it first")
+                sys.exit(1)
+            
+            print_info("Starting in daemon mode...")
+            print_success("🌟 Daemon will start in background")
+            print_info(f"🌐 Web Interface will be available at: http://127.0.0.1:{port}")
+            print_info("🔐 Login credentials: admin / securepassword123")
+            print_info(f"📄 PID file: {PID_FILE}")
+            print_info("Use 'python start.py --stop' to stop the daemon")
+            print_info("Use 'python start.py --status' to check daemon status")
+            
+            # Return to original directory before daemonizing
+            original_dir = Path.cwd()
+            
+            # Daemonize the process
+            daemonize()
+            
+            # After daemonization, we're in a new process
+            # Change back to original directory
+            os.chdir(str(original_dir))
+            
+            # Setup signal handlers  
+            signal.signal(signal.SIGTERM, signal_handler)
+            signal.signal(signal.SIGINT, signal_handler)
+            
+            # Create PID file
+            create_pid_file()
+        
         # Step 5: Start application
         success = start_application(python_exe, port, daemon=daemon_mode)
         
@@ -240,8 +391,10 @@ def print_help():
     
     print(f"{Colors.BOLD}Usage:{Colors.END}")
     print("  python start.py              - Start in interactive mode")
-    print("  python start.py --daemon     - Start in background mode")  
-    print("  python start.py -d           - Start in background mode (short)")
+    print("  python start.py --daemon     - Start as background daemon")  
+    print("  python start.py -d           - Start as background daemon (short)")
+    print("  python start.py --stop       - Stop running daemon")
+    print("  python start.py --status     - Check daemon status")
     print("  python start.py --help       - Show this help message")
     print("  python start.py -h           - Show this help message")
     
@@ -257,7 +410,9 @@ def print_help():
     print("  • Automatic virtual environment setup")
     print("  • Dependency installation and verification")
     print("  • Port detection and conflict resolution")
-    print("  • Background daemon mode support")
+    print("  • True Unix daemon mode (detaches from terminal)")
+    print("  • PID file management for daemon control")
+    print("  • Graceful shutdown with signal handling")
     print("  • Systemd service integration")
     print("  • Professional error handling")
     print("  • Production-ready deployment")
@@ -269,6 +424,32 @@ if __name__ == "__main__":
     # Check for help flag
     if len(sys.argv) > 1 and sys.argv[1] in ['--help', '-h', 'help']:
         print_help()
+        sys.exit(0)
+    
+    # Check for stop flag
+    if '--stop' in sys.argv:
+        stop_daemon()
+        sys.exit(0)
+        
+    # Check for status flag
+    if '--status' in sys.argv:
+        pid = get_daemon_pid()
+        if pid:
+            print_success(f"Daemon is running (PID: {pid})")
+            print_info(f"PID file: {PID_FILE}")
+            try:
+                # Try to get process info
+                import psutil
+                process = psutil.Process(pid)
+                print_info(f"CPU: {process.cpu_percent()}%")
+                print_info(f"Memory: {process.memory_info().rss / 1024 / 1024:.1f} MB")
+                print_info(f"Started: {process.create_time()}")
+            except ImportError:
+                print_info("Install psutil for detailed process info: pip install psutil")
+            except Exception:
+                pass
+        else:
+            print_warning("No daemon is currently running")
         sys.exit(0)
     
     main()

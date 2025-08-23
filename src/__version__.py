@@ -41,11 +41,11 @@ def get_version():
                             return line.split('"')[1]
         
         # Ultimate fallback
-        return "3.7.6"
+        return "3.8.0"
         
     except Exception:
         # If anything fails, return fallback version
-        return "3.7.6"
+        return "3.8.0"
 
 def get_version_info():
     """
@@ -57,7 +57,7 @@ def get_version_info():
     return {
         "version": get_version(),
         "name": "Telegram Bot Manager",
-        "description": "Complete Symlink Fix"
+        "description": "True Unix Daemon Mode"
     }
 
 def get_full_version():
