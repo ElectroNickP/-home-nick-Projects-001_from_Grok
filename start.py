@@ -25,7 +25,7 @@ class Colors:
 def print_header():
     """Print application header"""
     print(f"\n{Colors.PURPLE}{'='*60}{Colors.END}")
-    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.7.3 - Fixed Virtual Environment Bug{Colors.END}")
+    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.7.4 - Debug venv Issue AGAIN{Colors.END}")
     print(f"{Colors.PURPLE}{'='*60}{Colors.END}\n")
 
 def print_success(message):
@@ -86,11 +86,19 @@ def check_virtual_env():
     
     print_success("Virtual environment ready")
     # Return absolute path as string to ensure compatibility
-    return python_exe.resolve()
+    resolved_path = python_exe.resolve()
+    print_info(f"🔄 DEBUG: Returning Python path: {resolved_path}")
+    print_info(f"📂 DEBUG: Path exists: {resolved_path.exists()}")
+    return resolved_path
 
 def install_dependencies(python_exe):
     """Install required dependencies"""
     print_info("Checking dependencies...")
+    
+    # DEBUG: Show received python_exe
+    print_info(f"🐍 DEBUG: Received python_exe: {python_exe}")
+    print_info(f"🔍 DEBUG: Type: {type(python_exe)}")
+    print_info(f"📁 DEBUG: Exists: {Path(python_exe).exists()}")
     
     try:
         # Check if requirements.txt exists
@@ -99,9 +107,9 @@ def install_dependencies(python_exe):
             return False
         
         # Install dependencies
-        subprocess.run([
-            str(python_exe), "-m", "pip", "install", "-r", "requirements.txt", "--quiet"
-        ], check=True)
+        cmd_list = [str(python_exe), "-m", "pip", "install", "-r", "requirements.txt", "--quiet"]
+        print_info(f"🔧 DEBUG: Command: {cmd_list}")
+        subprocess.run(cmd_list, check=True)
         
         # Install in editable mode only if pyproject.toml exists
         if Path("pyproject.toml").exists():
@@ -227,7 +235,7 @@ def print_help():
     print("  • Port detection and conflict resolution")
     print("  • Professional error handling")
     print("  • Production-ready deployment")
-    print(f"\nVersion: v3.7.3 - Fixed Virtual Environment Bug{Colors.END}\n")
+    print(f"\nVersion: v3.7.4 - Debug venv Issue AGAIN{Colors.END}\n")
 
 if __name__ == "__main__":
     # Check for help flag
