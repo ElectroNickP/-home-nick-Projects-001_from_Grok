@@ -24,8 +24,16 @@ class Colors:
 
 def print_header():
     """Print application header"""
+    try:
+        from __version__ import FULL_VERSION
+    except ImportError:
+        try:
+            from src.__version__ import FULL_VERSION
+        except ImportError:
+            FULL_VERSION = "v3.7.6 - Complete Symlink Fix"
+    
     print(f"\n{Colors.PURPLE}{'='*60}{Colors.END}")
-    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager v3.7.6 - Complete Symlink Fix{Colors.END}")
+    print(f"{Colors.BOLD}{Colors.CYAN}🚀 Telegram Bot Manager {FULL_VERSION}{Colors.END}")
     print(f"{Colors.PURPLE}{'='*60}{Colors.END}\n")
 
 def print_success(message):
@@ -227,7 +235,14 @@ def print_help():
     print("  • Port detection and conflict resolution")
     print("  • Professional error handling")
     print("  • Production-ready deployment")
-    print(f"\nVersion: v3.7.6 - Complete Symlink Fix{Colors.END}\n")
+    try:
+        from __version__ import FULL_VERSION
+    except ImportError:
+        try:
+            from src.__version__ import FULL_VERSION
+        except ImportError:
+            FULL_VERSION = "v3.7.6 - Complete Symlink Fix"
+    print(f"\nVersion: {FULL_VERSION}{Colors.END}\n")
 
 if __name__ == "__main__":
     # Check for help flag

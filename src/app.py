@@ -59,7 +59,11 @@ def create_app():
     # Add version to template context
     @app.context_processor
     def inject_version():
-        return dict(app_version="v3.7.6 - Complete Symlink Fix")
+        try:
+            from __version__ import FULL_VERSION
+            return dict(app_version=FULL_VERSION)
+        except ImportError:
+            return dict(app_version="v3.7.6 - Complete Symlink Fix")
 
     # Session configuration
     app.config.update(
