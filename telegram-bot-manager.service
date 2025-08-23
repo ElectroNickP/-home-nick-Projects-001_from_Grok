@@ -1,0 +1,33 @@
+[Unit]
+Description=Telegram Bot Manager - Professional Bot Management System
+Documentation=https://github.com/ElectroNickP/Telegram-Bot-Manager
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/root/Telegram-Bot-Manager
+Environment=PATH=/root/Telegram-Bot-Manager/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PYTHONPATH=/root/Telegram-Bot-Manager
+ExecStart=/root/Telegram-Bot-Manager/venv/bin/python /root/Telegram-Bot-Manager/src/app.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=telegram-bot-manager
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/root/Telegram-Bot-Manager
+
+# Resource limits
+MemoryMax=1G
+TasksMax=100
+
+[Install]
+WantedBy=multi-user.target

@@ -115,3 +115,4 @@ python scripts/config_manager_cli.py restore --backup /путь/к/бэкапу
 
 
 
+

@@ -305,3 +305,4 @@ def test_update_status_transitions(updater_adapter: AutoUpdaterPort):
 
 
 
+

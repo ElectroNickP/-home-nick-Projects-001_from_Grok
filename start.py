@@ -139,7 +139,7 @@ def find_free_port(start_port=5000):
             continue
     return start_port
 
-def start_application(python_exe, port=5000, host='127.0.0.1'):
+def start_application(python_exe, port=5000, host='127.0.0.1', daemon=False):
     """Start the Flask application"""
     print_info(f"Starting application on {host}:{port}...")
     
@@ -156,13 +156,14 @@ def start_application(python_exe, port=5000, host='127.0.0.1'):
         # Change to src directory and run app
         os.chdir("src")
         
-        print_success("🌟 Application starting...")
-        print_info(f"🌐 Web Interface: http://{host}:{port}")
-        print_info("🔐 Login credentials:")
-        print(f"   📧 Username: {Colors.BOLD}admin{Colors.END}")
-        print(f"   🔑 Password: {Colors.BOLD}securepassword123{Colors.END}")
-        print_info(f"🏪 ElectroNick bot Market: http://{host}:{port}/marketplace")
-        print_warning("Press Ctrl+C to stop the server\n")
+        if not daemon:
+            print_success("🌟 Application starting...")
+            print_info(f"🌐 Web Interface: http://{host}:{port}")
+            print_info("🔐 Login credentials:")
+            print(f"   📧 Username: {Colors.BOLD}admin{Colors.END}")
+            print(f"   🔑 Password: {Colors.BOLD}securepassword123{Colors.END}")
+            print_info(f"🏪 ElectroNick bot Market: http://{host}:{port}/marketplace")
+            print_warning("Press Ctrl+C to stop the server\n")
         
         # Run the application
         subprocess.run([
@@ -206,8 +207,11 @@ def main():
         if port != 5000:
             print_warning(f"Port 5000 is busy, using port {port}")
         
+        # Check for daemon mode
+        daemon_mode = '--daemon' in sys.argv or '-d' in sys.argv
+        
         # Step 5: Start application
-        success = start_application(python_exe, port)
+        success = start_application(python_exe, port, daemon=daemon_mode)
         
         if success:
             print_success("Application stopped successfully")
@@ -223,18 +227,6 @@ def main():
 
 def print_help():
     """Print help information"""
-    print(f"\n{Colors.BOLD}{Colors.CYAN}Telegram Bot Manager - Professional Entry Point{Colors.END}")
-    print(f"{Colors.GREEN}Simple and reliable way to start the application{Colors.END}\n")
-    print("Usage:")
-    print("  python start.py          - Start the application")
-    print("  python start.py --help   - Show this help message")
-    print("  python start.py -h       - Show this help message")
-    print("\nFeatures:")
-    print("  • Automatic virtual environment setup")
-    print("  • Dependency installation and verification")
-    print("  • Port detection and conflict resolution")
-    print("  • Professional error handling")
-    print("  • Production-ready deployment")
     try:
         from __version__ import FULL_VERSION
     except ImportError:
@@ -242,7 +234,36 @@ def print_help():
             from src.__version__ import FULL_VERSION
         except ImportError:
             FULL_VERSION = "v3.7.6 - Complete Symlink Fix"
-    print(f"\nVersion: {FULL_VERSION}{Colors.END}\n")
+    
+    print(f"\n{Colors.BOLD}{Colors.CYAN}Telegram Bot Manager - Professional Entry Point{Colors.END}")
+    print(f"{Colors.GREEN}Simple and reliable way to start the application{Colors.END}\n")
+    
+    print(f"{Colors.BOLD}Usage:{Colors.END}")
+    print("  python start.py              - Start in interactive mode")
+    print("  python start.py --daemon     - Start in background mode")  
+    print("  python start.py -d           - Start in background mode (short)")
+    print("  python start.py --help       - Show this help message")
+    print("  python start.py -h           - Show this help message")
+    
+    print(f"\n{Colors.BOLD}Background Service (Recommended for Production):{Colors.END}")
+    print("  ./service-install.sh         - Install as systemd service")
+    print("  ./service-manager.sh start   - Start service in background")
+    print("  ./service-manager.sh stop    - Stop background service") 
+    print("  ./service-manager.sh status  - Check service status")
+    print("  ./service-manager.sh logs    - View live logs")
+    print("  ./service-manager.sh --help  - Service manager help")
+    
+    print(f"\n{Colors.BOLD}Features:{Colors.END}")
+    print("  • Automatic virtual environment setup")
+    print("  • Dependency installation and verification")
+    print("  • Port detection and conflict resolution")
+    print("  • Background daemon mode support")
+    print("  • Systemd service integration")
+    print("  • Professional error handling")
+    print("  • Production-ready deployment")
+    
+    print(f"\nVersion: {FULL_VERSION}")
+    print(f"Documentation: {Colors.CYAN}BACKGROUND_SERVICE_GUIDE.md{Colors.END}\n")
 
 if __name__ == "__main__":
     # Check for help flag
